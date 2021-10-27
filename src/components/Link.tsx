@@ -18,6 +18,7 @@ export const NextLinkComposed = React.forwardRef<
 >(function NextLinkComposed(props, ref) {
   const {
     to,
+    href,
     linkAs,
     replace,
     scroll,
@@ -39,7 +40,11 @@ export const NextLinkComposed = React.forwardRef<
       passHref={passHref}
       locale={locale}
     >
-      <a ref={ref} {...other} />
+      <a
+        ref={ref}
+        href={typeof href === "string" ? href : "dummy"}
+        {...other}
+      />
     </NextLink>
   );
 });

@@ -19,6 +19,9 @@
       "eslint --fix"
     ]
   },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+  },
   "dependencies": {
     "@emotion/cache": "^11.5.0",
     "@emotion/react": "^11.5.0",

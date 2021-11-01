@@ -11,6 +11,50 @@ datasource db {
 }
 
 model Movie {
-  id    String @id @default(uuid())
-  title String
+  id                  String                    @id @default(uuid())
+  title               String
+  originalTitle       String?
+  imgUrl              String?
+  releaseDate         DateTime?
+  productionYear      Int
+  runtime             Int?
+  outline             String?
+  genres              Genre[]
+  productionCountries Country[]
+  productionMembers   MovieOnProductionMember[]
+}
+
+model Person {
+  id            String                    @id @default(uuid())
+  name          String
+  relatedMovies MovieOnProductionMember[]
+}
+
+model MovieOnProductionMember {
+  person       Person     @relation(fields: [personId], references: [id])
+  occupation   Occupation @relation(fields: [occupationId], references: [id])
+  movie        Movie      @relation(fields: [movieId], references: [id])
+  personId     String
+  occupationId Int
+  movieId      String
+
+  @@id([personId, occupationId, movieId])
+}
+
+model Occupation {
+  id     Int                       @id @default(autoincrement())
+  name   String                    @unique
+  movies MovieOnProductionMember[]
+}
+
+model Genre {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  movie Movie[]
+}
+
+model Country {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  movie Movie[]
 }

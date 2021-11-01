@@ -4,6 +4,7 @@ import { Box, Container, Typography, Button } from "@mui/material";
 import type { NextPage } from "next";
 
 import Link from "@/components/Link";
+import prisma from "@/lib/prisma";
 
 const yellowButtonCss = css`
   color: green;
@@ -14,7 +15,8 @@ const yellowButtonCss = css`
   }
 `;
 
-const Index: NextPage = () => {
+const Index: NextPage = (props) => {
+  console.log(props);
   return (
     <Container maxWidth="sm">
       <Box sx={{ my: 4 }}>
@@ -39,3 +41,41 @@ const Index: NextPage = () => {
 };
 
 export default Index;
+
+export const getServerSideProps = async () => {
+  const data = await prisma.person.findMany({
+    where: {
+      name: "宮崎駿",
+    },
+    include: {
+      relatedMovies: {
+        include: {
+          movie: {
+            include: {
+              productionCountries: true,
+              productionMembers: {
+                include: {
+                  occupation: true,
+                },
+              },
+            },
+          },
+          occupation: true,
+        },
+        where: {
+          occupation: {
+            is: {
+              name: "監督",
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return {
+    props: {
+      data: JSON.parse(JSON.stringify(data)),
+    },
+  };
+};

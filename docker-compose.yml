@@ -12,11 +12,12 @@ services:
     # ポート番号を指定。
     # localhostの5432番ポート宛ての通信を、コンテナの5432番ポートに転送。
     ports:
-      - 5432:5432
+      - 15432:5432
     # サービス(コンテナ)内の環境変数を設定。
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
       # 本来、PostgreSQLのデータは/var/lib/postgresql/data直下に作成されるが、
       # Dockerdaで/var/lib/postgresql/dataにデータを作成しようとすると失敗する。
       # そのため、アドホックではあるがデータ作成ディレクトリを1層深くしている。

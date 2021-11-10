@@ -8,6 +8,7 @@ generator client {
 datasource db {
   // provider = "sqlite"
   provider = "postgresql"
+  // url      = env("DATABASE_URL")
   url      = env("DATABASE_URL")
 }
 
@@ -20,6 +21,7 @@ model Movie {
   productionYear      Int
   runtime             Int?
   outline             String?
+  trailerUrl          String?
   genres              Genre[]
   productionCountries Country[]
   productionMembers   MovieOnProductionMember[]

@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import filmarksData from "./data/filmarks.json";
+import filmarksData from "./data/filmarks_20211109.json";
 
 const prisma = new PrismaClient();
 
@@ -23,6 +23,7 @@ interface Movie {
   outline: string | null;
   production_members: { [key: string]: Person[] };
   actors: Person[];
+  trailer_url: string | null;
 }
 
 interface Data {
@@ -118,6 +119,7 @@ const main = async () => {
         productionYear,
         runtime,
         outline: movie.outline,
+        trailerUrl: movie.trailer_url,
         genres: {
           connect: movie.genres.map((genre) => ({ name: genre })),
         },

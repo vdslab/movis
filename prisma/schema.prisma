@@ -22,9 +22,9 @@ model Movie {
   runtime             Int?
   outline             String?
   trailerUrl          String?
-  genres              Genre[]
-  productionCountries Country[]
   productionMembers   MovieOnProductionMember[]
+  productionCountries Country[]
+  genres              Genre[]
 }
 
 model Person {
@@ -34,12 +34,12 @@ model Person {
 }
 
 model MovieOnProductionMember {
-  person       Person     @relation(fields: [personId], references: [id])
-  occupation   Occupation @relation(fields: [occupationId], references: [id])
-  movie        Movie      @relation(fields: [movieId], references: [id])
   personId     String
   occupationId Int
   movieId      String
+  person       Person     @relation(fields: [personId], references: [id])
+  occupation   Occupation @relation(fields: [occupationId], references: [id])
+  movie        Movie      @relation(fields: [movieId], references: [id])
 
   @@id([personId, occupationId, movieId])
 }

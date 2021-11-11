@@ -1,7 +1,6 @@
-import { TopPage } from "@/components/TopPage";
-
-const Top = () => {
-  return <TopPage />;
+const Top = (props) => {
+  console.log(props);
+  return top;
 };
 
 export default Top;

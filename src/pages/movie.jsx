@@ -1,8 +1,6 @@
-import { MoviePage } from "../components/MoviePage";
-
 const Movie = (props) => {
   console.log(props);
-  return <MoviePage />;
+  return movie;
 };
 
 export default Movie;

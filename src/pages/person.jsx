@@ -1,7 +1,6 @@
-import { PersonPage } from "@/components/PersonPage";
-
-const Person = () => {
-  return <PersonPage />;
+const Person = (props) => {
+  console.log(props);
+  return person;
 };
 
 export default Person;

@@ -69,8 +69,7 @@ const Top = (props) => {
                 legend: "count",
                 legendPosition: "middle",
                 legendOffset: -40,
-                tickValues: data.reduce((set, { y }) => set.add(y), new Set())
-                  .size,
+                format: (e) => Math.floor(e) === e && e,
               }}
               labelSkipWidth={12}
               labelSkipHeight={12}

@@ -10,6 +10,7 @@ import {
   ListItemText,
   Divider,
   ListItemButton,
+  Typography,
 } from "@mui/material";
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
@@ -52,8 +53,43 @@ const Search = (props) => {
           <SearchOutlined />
         </IconButton>
       </Paper>
+      {/* movie list */}
+      <Typography component="div" variant="h4">
+        映画
+      </Typography>
+      <List sx={{ width: "100%" }}>
+        {props.movies.map((movie, index) => {
+          return (
+            <Link
+              href={{
+                pathname: "/movie/[movieId]",
+                query: { movieId: movie.id },
+              }}
+              sx={{ textDecoration: "none", color: "currentcolor" }}
+              key={movie.id}
+            >
+              <ListItemButton alignItems="center">
+                <ListItemAvatar>
+                  <Avatar
+                    variant="square"
+                    alt={movie.title}
+                    src={movie.imgUrl}
+                  />
+                </ListItemAvatar>
+                <ListItemText primary={movie.title} />
+              </ListItemButton>
+              {index + 1 < props.movies.length ? (
+                <Divider variant="inset" component="li" />
+              ) : null}
+            </Link>
+          );
+        })}
+      </List>
 
       {/* person list */}
+      <Typography component="div" variant="h4">
+        人物
+      </Typography>
       <List sx={{ width: "100%" }}>
         {props.people.map((person, index) => {
           return (
@@ -97,15 +133,7 @@ export const getServerSideProps = async (req, res) => {
       relatedMovies: {
         include: {
           occupation: true,
-          movie: {
-            select: {
-              _count: {
-                select: {
-                  genres: true,
-                },
-              },
-            },
-          },
+          movie: true,
         },
       },
     },

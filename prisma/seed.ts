@@ -51,6 +51,7 @@ const main = async () => {
           const p = await prisma.person.create({
             data: {
               name: person.name,
+              filmarksId: Number(person.id),
             },
           });
           id2uuidMap[person.id] = p.id;
@@ -112,6 +113,7 @@ const main = async () => {
 
     const m = await prisma.movie.create({
       data: {
+        filmarksId: Number(movie.id),
         title: movie.title,
         originalTitle: movie.original_title,
         imgUrl: movie.img_url,

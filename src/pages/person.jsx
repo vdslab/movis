@@ -1,6 +1,6 @@
 const Person = (props) => {
   console.log(props);
-  return person;
+  return "person";
 };
 
 export default Person;

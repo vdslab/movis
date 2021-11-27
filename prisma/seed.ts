@@ -113,7 +113,7 @@ const main = async () => {
 
     const m = await prisma.movie.create({
       data: {
-        filmarksId: Number(movie.id),
+        // filmarksId: Number(movie.id),
         title: movie.title,
         originalTitle: movie.original_title,
         imgUrl: movie.img_url,

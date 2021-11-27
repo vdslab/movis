@@ -14,7 +14,6 @@ datasource db {
 
 model Movie {
   id                  String                    @id @default(uuid())
-  filmarksId          Int
   title               String
   originalTitle       String?
   imgUrl              String?

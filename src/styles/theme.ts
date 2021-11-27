@@ -14,6 +14,9 @@ const theme = createTheme({
       main: red.A400,
     },
   },
+  typography: {
+    fontFamily: ["Noto Sans JP", "sans-serif"].join(","),
+  },
 });
 
 export default theme;

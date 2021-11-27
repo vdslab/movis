@@ -1,9 +1,12 @@
+import InfoIcon from "@mui/icons-material/Info";
 import {
   Container,
   Typography,
   Grid,
   CardContent,
   Card,
+  Chip,
+  Stack,
   ImageList,
   ImageListItem,
   ImageListItemBar,
@@ -11,12 +14,20 @@ import {
   ListSubheader,
 } from "@mui/material";
 
-// import InfoIcon from '@mui/icons-material/Info';
 import prisma from "@/lib/prisma";
 //TMDB空っ引っ張るのは後回し
 const Movie = (props) => {
+  console.log(props);
   const data = props.data[0];
-  console.log(data);
+  const colorData = {
+    ドラマ: "#ff9900",
+    恋愛: "#00ff99",
+    アクション: "#9900ff",
+  };
+
+  const maxGenreData = props.max_genre;
+
+  console.log(maxGenreData);
   const personData = data.productionMembers.map((acter, i) => {
     return {
       img: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",
@@ -62,24 +73,38 @@ const Movie = (props) => {
       <ImageListItem key="Subheader" cols={2}>
         <ListSubheader component="div">出演者</ListSubheader>
       </ImageListItem>
-      <ImageList cols={6}>
-        {personData.map((item) => (
+      <ImageList cols={4}>
+        {personData.map((item, i) => (
           <ImageListItem cellHeight={500} key={item.img}>
-            <img
-              src={`${item.img}?w=248&fit=crop&auto=format`}
-              srcSet={`${item.img}?w=248&fit=crop&auto=format&dpr=4 2x`}
-              alt={item.title}
-              loading="lazy"
-            />
+            <div
+              style={{
+                border: `5px solid ${
+                  colorData[maxGenreData[i]]
+                    ? colorData[maxGenreData[i]]
+                    : "#331f00"
+                }`,
+              }}
+            >
+              <img
+                src={`${item.img}?w=248&fit=crop&auto=format`}
+                srcSet={`${item.img}?w=248&fit=crop&auto=format&dpr=4 2x`}
+                alt={item.title}
+                loading="lazy"
+              />
+            </div>
             <ImageListItemBar
-              title={item.title}
-              subtitle={item.author}
+              title={`${item.title} ${item.author}`}
+              subtitle={
+                <Stack direction="row" spacing={1}>
+                  <Chip label={`${maxGenreData[i]}`} color="primary" />
+                </Stack>
+              }
               actionIcon={
                 <IconButton
                   sx={{ color: "rgba(255, 255, 255, 0.54)" }}
                   aria-label={`info about ${item.title}`}
                 >
-                  {/* <InfoIcon /> */}
+                  <InfoIcon />
                 </IconButton>
               }
             />
@@ -90,10 +115,11 @@ const Movie = (props) => {
   );
 };
 export default Movie;
+
 export const getServerSideProps = async () => {
   const data = await prisma.movie.findMany({
     where: {
-      title: "フォルトゥナの瞳",
+      title: "何者",
     },
     include: {
       productionMembers: {
@@ -106,9 +132,83 @@ export const getServerSideProps = async () => {
       genres: true,
     },
   });
+  Array.prototype.mode = function () {
+    if (this.length === 0) {
+      //配列の個数が0だとエラーを返す。
+      return null;
+    }
+    //回数を記録する連想配列
+    let counter = {};
+    //本来の値を入れた辞書
+    let nativeValues = {};
+
+    //最頻値とその出現回数を挿入する変数
+    let maxCounter = 0;
+    let maxValue = null;
+
+    for (let i = 0; i < this.length; i++) {
+      //counterに存在しなければ作る。keyは型を区別する
+      if (!counter[this[i] + "_" + typeof this[i]]) {
+        counter[this[i] + "_" + typeof this[i]] = 0;
+      }
+      counter[this[i] + "_" + typeof this[i]]++;
+      nativeValues[this[i] + "_" + typeof this[i]] = this[i];
+    }
+    for (let j = 0; j < Object.keys(counter).length; j++) {
+      let key = Object.keys(counter)[j];
+      if (counter[key] > maxCounter) {
+        maxCounter = counter[key];
+        maxValue = nativeValues[key];
+      }
+    }
+    return maxValue;
+  };
+  const person_genre = await Promise.all(
+    data[0].productionMembers.map(async (person, i) => {
+      const person_movie = await prisma.person.findMany({
+        where: {
+          name: {
+            contains: `${person.person.name}`,
+          },
+        },
+        include: {
+          relatedMovies: {
+            include: {
+              movie: {
+                include: {
+                  genres: true,
+                  productionMembers: {
+                    include: {
+                      person: true,
+                      occupation: true,
+                    },
+                  },
+                },
+              },
+              occupation: true,
+            },
+            where: {
+              occupation: {
+                is: {
+                  name: "出演者",
+                },
+              },
+            },
+          },
+        },
+      });
+      const genre_data = person_movie[0].relatedMovies
+        .map((movieData) => {
+          return movieData.movie.genres.map((id_name) => id_name.name);
+        })
+        .flat();
+      return genre_data.mode();
+    })
+  );
   return {
     props: {
       data: JSON.parse(JSON.stringify(data)),
+      max_genre: JSON.parse(JSON.stringify(person_genre)),
     },
   };
 };

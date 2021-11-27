@@ -1,5 +1,5 @@
 import { Container, Box } from "@mui/material";
-import { ResponsiveChord } from "@nivo/chord";
+// import { ResponsiveChord } from "@nivo/chord";
 
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
@@ -20,7 +20,7 @@ const Bar = (props) => {
   return (
     <Container sx={{ pt: 5 }}>
       <Box sx={{ mt: 10, height: 1000, width: "100%" }}>
-        <ResponsiveChord
+        {/* <ResponsiveChord
           matrix={matrix}
           keys={keys}
           margin={{ top: 60, right: 60, bottom: 90, left: 60 }}
@@ -72,7 +72,7 @@ const Bar = (props) => {
               ],
             },
           ]}
-        />
+        /> */}
       </Box>
     </Container>
   );

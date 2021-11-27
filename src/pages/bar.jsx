@@ -1,5 +1,5 @@
 import { Container, Box, Typography } from "@mui/material";
-import { ResponsiveBar } from "@nivo/bar";
+// import { ResponsiveBar } from "@nivo/bar";
 
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
@@ -38,7 +38,7 @@ const Bar = (props) => {
 
         return (
           <Box sx={{ mt: 10, height: 300, width: "100%" }} key={person.id}>
-            <ResponsiveBar
+            {/* <ResponsiveBar
               data={data}
               keys={occupations}
               indexBy="year"
@@ -95,7 +95,7 @@ const Bar = (props) => {
               ]}
               role="application"
               ariaLabel="Nivo bar chart demo"
-            />
+            /> */}
             {person.name}
           </Box>
         );
@@ -127,7 +127,7 @@ const Bar = (props) => {
 
         return (
           <Box sx={{ mt: 10, height: 300, width: "100%" }} key={person.id}>
-            <ResponsiveBar
+            {/* <ResponsiveBar
               data={data}
               keys={occupations}
               indexBy="year"
@@ -184,7 +184,7 @@ const Bar = (props) => {
               ]}
               role="application"
               ariaLabel="Nivo bar chart demo"
-            />
+            /> */}
             {person.name}
           </Box>
         );

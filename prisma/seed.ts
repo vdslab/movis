@@ -51,7 +51,7 @@ const main = async () => {
           const p = await prisma.person.create({
             data: {
               name: person.name,
-              filmarksId: Number(person.id),
+              // filmarksId: Number(person.id),
             },
           });
           id2uuidMap[person.id] = p.id;

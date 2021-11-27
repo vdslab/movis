@@ -29,7 +29,6 @@ model Movie {
 
 model Person {
   id            String                    @id @default(uuid())
-  filmarksId    Int
   name          String
   relatedMovies MovieOnProductionMember[]
 }

@@ -1,6 +1,7 @@
 import { Chip, Container, Grid, Typography } from "@mui/material";
 import { Box } from "@mui/system";
 import { ResponsiveBar } from "@nivo/bar";
+import { useRouter } from "next/router";
 
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
@@ -27,6 +28,7 @@ const MovieCard = ({ movieId, title, genres, productionYear, imgUrl }) => {
 
 const Person = (props) => {
   console.log(props);
+  const router = useRouter();
 
   return (
     <Container maxWidth="lg">
@@ -109,13 +111,20 @@ const Person = (props) => {
             const movie = rMovie.movie;
             return (
               <Grid item xs={3} md={4} key={movie.id} alignItems="flex-end">
-                <MovieCard
-                  movieId={movie.id}
-                  title={movie.title}
-                  genres={movie.genres}
-                  productionYear={movie.productionYear}
-                  imgUrl={movie.imgUrl}
-                />
+                <Box
+                  component="div"
+                  onClick={() => {
+                    router.push(`/movie/${movie.id}`);
+                  }}
+                >
+                  <MovieCard
+                    movieId={movie.id}
+                    title={movie.title}
+                    genres={movie.genres}
+                    productionYear={movie.productionYear}
+                    imgUrl={movie.imgUrl}
+                  />
+                </Box>
               </Grid>
             );
           })}

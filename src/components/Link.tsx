@@ -59,36 +59,55 @@ export type LinkProps = {
 
 // A styled version of the Next.js Link component:
 // https://nextjs.org/docs/#with-link
-const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(function Link(
-  props,
-  ref
-) {
-  const {
-    activeClassName = "active",
-    as: linkAs,
-    className: classNameProps,
-    href,
-    noLinkStyle,
-    ...other
-  } = props;
+export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
+  function Link(props, ref) {
+    const {
+      activeClassName = "active",
+      as: linkAs,
+      className: classNameProps,
+      href,
+      noLinkStyle,
+      ...other
+    } = props;
 
-  const router = useRouter();
-  const pathname = typeof href === "string" ? href : href.pathname;
-  const className = clsx(classNameProps, {
-    [activeClassName]: router.pathname === pathname && activeClassName,
-  });
+    const router = useRouter();
+    const pathname = typeof href === "string" ? href : href.pathname;
+    const className = clsx(classNameProps, {
+      [activeClassName]: router.pathname === pathname && activeClassName,
+    });
 
-  const isExternal =
-    typeof href === "string" &&
-    (href.indexOf("http") === 0 || href.indexOf("mailto:") === 0);
+    const isExternal =
+      typeof href === "string" &&
+      (href.indexOf("http") === 0 || href.indexOf("mailto:") === 0);
 
-  if (isExternal) {
-    if (noLinkStyle) {
+    if (isExternal) {
+      if (noLinkStyle) {
+        return (
+          <a
+            className={className}
+            href={href as string}
+            ref={ref as any}
+            {...other}
+          />
+        );
+      }
+
       return (
-        <a
+        <MuiLink
           className={className}
           href={href as string}
+          ref={ref}
+          {...other}
+        />
+      );
+    }
+
+    if (noLinkStyle) {
+      return (
+        <NextLinkComposed
+          className={className}
           ref={ref as any}
+          to={href}
           {...other}
         />
       );
@@ -96,35 +115,13 @@ const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(function Link(
 
     return (
       <MuiLink
+        component={NextLinkComposed}
+        linkAs={linkAs}
         className={className}
-        href={href as string}
         ref={ref}
-        {...other}
-      />
-    );
-  }
-
-  if (noLinkStyle) {
-    return (
-      <NextLinkComposed
-        className={className}
-        ref={ref as any}
         to={href}
         {...other}
       />
     );
   }
-
-  return (
-    <MuiLink
-      component={NextLinkComposed}
-      linkAs={linkAs}
-      className={className}
-      ref={ref}
-      to={href}
-      {...other}
-    />
-  );
-});
-
-export default Link;
+);

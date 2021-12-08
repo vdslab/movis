@@ -15,7 +15,7 @@ import {
 import { useRouter } from "next/router";
 import { useForm } from "react-hook-form";
 
-import Link from "@/components/Link";
+import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util/index";
 

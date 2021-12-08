@@ -3,6 +3,8 @@ import { Box } from "@mui/system";
 import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
 
+import { TMDB_IMG_BASE_URL } from "@/const";
+import { TMDB_API_KEY } from "@/env";
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 
@@ -36,7 +38,8 @@ const Person = (props) => {
         <Grid item xs={3} md={3}>
           <img
             width="100%"
-            src="https://www.themoviedb.org/t/p/w600_and_h900_bestv2/lldeQ91GwIVff43JBrpdbAAeYWj.jpg"
+            src={props.data.personImgUrl}
+            alt={props.data.person.name + "プロフィール"}
           />
         </Grid>
         <Grid item xs={9} md={9}>
@@ -103,7 +106,7 @@ const Person = (props) => {
           </Box>
         </Grid>
         <Grid item xs={12} md={12}>
-          共演者のグラフ
+          共演者のグラフをここに入れる
         </Grid>
 
         <Grid item container>
@@ -135,6 +138,7 @@ const Person = (props) => {
 };
 
 export const getServerSideProps = async (ctx) => {
+  console.log(TMDB_API_KEY);
   const personId = ctx.query.personId;
   const person = await prisma.person.findFirst({
     where: {
@@ -193,7 +197,18 @@ export const getServerSideProps = async (ctx) => {
     return d;
   });
 
-  const data = { person, barData, occupations };
+  const tmdbRes = await fetch(
+    `https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&language=ja-JP&query=${encodeURIComponent(
+      person.name
+    )}&page=1&include_adult=false&region=JP`
+  );
+  const tmdbSearchResult = await tmdbRes.json();
+  const tmdbProfilePath = tmdbSearchResult.results[0]?.profile_path;
+  const personImgUrl = tmdbProfilePath
+    ? TMDB_IMG_BASE_URL + tmdbProfilePath
+    : tmdbProfilePath;
+
+  const data = { person, barData, occupations, personImgUrl };
 
   return {
     props: {

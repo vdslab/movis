@@ -1,23 +1,26 @@
 import InfoIcon from "@mui/icons-material/Info";
 import {
-  Container,
-  Typography,
-  Grid,
-  CardContent,
   Card,
+  CardContent,
   Chip,
-  Stack,
+  Container,
+  Grid,
+  IconButton,
   ImageList,
   ImageListItem,
   ImageListItemBar,
-  IconButton,
   ListSubheader,
+  Stack,
+  Typography,
 } from "@mui/material";
+import { useRouter } from "next/router";
 
 import prisma from "@/lib/prisma";
+
 //TMDB空っ引っ張るのは後回し
 const Movie = (props) => {
   console.log(props);
+  const router = useRouter();
   const data = props.data[0];
   const colorData = {
     ドラマ: "#ff9900",
@@ -27,14 +30,16 @@ const Movie = (props) => {
 
   const maxGenreData = props.max_genre;
 
-  console.log(maxGenreData);
+  // console.log(maxGenreData);
   const personData = data.productionMembers.map((acter, i) => {
     return {
       img: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",
       title: `${acter.person.name}`,
       author: `${acter.occupation.name}`,
+      personId: acter.personId,
     };
   });
+
   return (
     <Container fixed>
       <Grid container spacing={2}>
@@ -55,7 +60,7 @@ const Movie = (props) => {
           <Typography variant="h5" gutterBottom component="div">
             制作国
             {data.productionCountries.map((country) => {
-              return ` ${country.name}`;
+              return <div key={country.name}>{country.name}</div>;
             })}
           </Typography>
           <Typography variant="h5" gutterBottom component="div">
@@ -74,49 +79,64 @@ const Movie = (props) => {
         <ListSubheader component="div">出演者</ListSubheader>
       </ImageListItem>
       <ImageList cols={4}>
-        {personData.map((item, i) => (
-          <ImageListItem cellHeight={500} key={item.img}>
-            <div
-              style={{
-                border: `5px solid ${
-                  colorData[maxGenreData[i]]
-                    ? colorData[maxGenreData[i]]
-                    : "#331f00"
-                }`,
-              }}
-            >
-              <img
-                src={`${item.img}?w=248&fit=crop&auto=format`}
-                srcSet={`${item.img}?w=248&fit=crop&auto=format&dpr=4 2x`}
-                alt={item.title}
-                loading="lazy"
+        {personData.map((item, i) => {
+          return (
+            <ImageListItem key={item.img + i}>
+              <div
+                style={{
+                  border: `5px solid ${
+                    colorData[maxGenreData[i]]
+                      ? colorData[maxGenreData[i]]
+                      : "#331f00"
+                  }`,
+                }}
+                onClick={() => {
+                  router.push(`/person/${item.personId}`);
+                }}
+              >
+                <img
+                  src={`${item.img}?w=248&fit=crop&auto=format`}
+                  srcSet={`${item.img}?w=248&fit=crop&auto=format&dpr=4 2x`}
+                  alt={item.title}
+                  loading="lazy"
+                />
+              </div>
+              <ImageListItemBar
+                title={`${item.title} ${item.author}`}
+                subtitle={
+                  <Stack direction="row" spacing={1}>
+                    <Chip label={`${maxGenreData[i]}`} color="primary" />
+                  </Stack>
+                }
+                actionIcon={
+                  <IconButton
+                    sx={{ color: "rgba(255, 255, 255, 0.54)" }}
+                    aria-label={`info about ${item.title}`}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                }
               />
-            </div>
-            <ImageListItemBar
-              title={`${item.title} ${item.author}`}
-              subtitle={
-                <Stack direction="row" spacing={1}>
-                  <Chip label={`${maxGenreData[i]}`} color="primary" />
-                </Stack>
-              }
-              actionIcon={
-                <IconButton
-                  sx={{ color: "rgba(255, 255, 255, 0.54)" }}
-                  aria-label={`info about ${item.title}`}
-                >
-                  <InfoIcon />
-                </IconButton>
-              }
-            />
-          </ImageListItem>
-        ))}
+            </ImageListItem>
+          );
+        })}
       </ImageList>
     </Container>
+    // <Container>
+    //   <Grid container spacing={3}>
+    //     <Grid item md={3}>
+    //       hello
+    //     </Grid>
+    //     <Grid item md={9}>
+    //       nive
+    //     </Grid>
+    //   </Grid>
+    // </Container>
   );
 };
 export default Movie;
 
-export const getServerSideProps = async () => {
+export const getServerSideProps = async (ctx) => {
   const data = await prisma.movie.findMany({
     where: {
       title: "何者",
@@ -205,6 +225,7 @@ export const getServerSideProps = async () => {
       return genre_data.mode();
     })
   );
+
   return {
     props: {
       data: JSON.parse(JSON.stringify(data)),

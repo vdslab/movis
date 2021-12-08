@@ -15,7 +15,17 @@ const MovieCard = ({ movieId, title, genres, productionYear, imgUrl }) => {
         {/* filmarksで画像がない場合はnullか以下のどちらか
           代替画像　"https://d2ueuvlup6lbue.cloudfront.net/assets/common/img_cover-placehold-633a19fbbf6951dbb8debea06f29fefcc0666e8138e79c5ffd8a486da95432ae.svg"
           Access Denied "https://d2ueuvlup6lbue.cloudfront.net/attachments/3746e77fb0935f2689e4ddfb009544a5d3008fae/store/fitpad/260/364/c793bf8000d9666861c3221dfea00c7b1449a522553e634378a6c7238aa3/_.jpg" */}
-        {imgUrl && <img alt={`${title}のポスター`} width="100%" src={imgUrl} />}
+        {imgUrl ? (
+          <img alt={`${title}のポスター`} width="100%" src={imgUrl} />
+        ) : (
+          <img
+            width="100%"
+            src={
+              "https://d2ueuvlup6lbue.cloudfront.net/assets/common/img_cover-placehold-633a19fbbf6951dbb8debea06f29fefcc0666e8138e79c5ffd8a486da95432ae.svg"
+            }
+            alt={`映画${title}のポスター画像は見つかりませんでした`}
+          />
+        )}
       </Grid>
       <Grid item md={8} sx={{ display: { xs: "none", md: "block" } }}>
         <Typography>{title}</Typography>

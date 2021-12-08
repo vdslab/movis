@@ -4,6 +4,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { AppProps } from "next/app";
 import React from "react";
 
+import { Layout } from "@/components/Layout";
 import createEmotionCache from "@/styles/createEmotionCache";
 import theme from "@/styles/theme";
 
@@ -21,7 +22,9 @@ export default function MyApp(props: MyAppProps): JSX.Element {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Component {...pageProps} />
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
       </ThemeProvider>
     </CacheProvider>
   );

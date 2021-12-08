@@ -21,7 +21,7 @@ import prisma from "@/lib/prisma";
 const Movie = (props) => {
   console.log(props);
   const router = useRouter();
-  const data = props.data[0];
+  const data = props.data;
   const colorData = {
     ドラマ: "#ff9900",
     恋愛: "#00ff99",
@@ -44,11 +44,7 @@ const Movie = (props) => {
     <Container fixed>
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <img
-            width="222px"
-            height="333px"
-            src={"https://images.unsplash.com/photo-1589118949245-7d38baf380d6"}
-          />
+          <img width="222px" height="333px" src={props.data.imgUrl} />
         </Grid>
         <Grid item xs={8}>
           <Typography variant="h3" gutterBottom component="div">
@@ -137,9 +133,9 @@ const Movie = (props) => {
 export default Movie;
 
 export const getServerSideProps = async (ctx) => {
-  const data = await prisma.movie.findMany({
+  const data = await prisma.movie.findFirst({
     where: {
-      title: "何者",
+      id: ctx.query.movieId,
     },
     include: {
       productionMembers: {
@@ -184,7 +180,7 @@ export const getServerSideProps = async (ctx) => {
     return maxValue;
   };
   const person_genre = await Promise.all(
-    data[0].productionMembers.map(async (person, i) => {
+    data.productionMembers.map(async (person, i) => {
       const person_movie = await prisma.person.findMany({
         where: {
           name: {

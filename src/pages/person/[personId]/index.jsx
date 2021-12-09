@@ -1,100 +1,13 @@
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Chip,
-  Container,
-  Grid,
-  Typography,
-  Box,
-} from "@mui/material";
+import { Container, Grid, Typography, Box } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
 
-import { Link } from "@/components/Link";
+import { MovieCard } from "@/components/MovieCard";
 import { RoundedImage } from "@/components/RoundedImage";
 import { TMDB_IMG_BASE_URL } from "@/const";
 import { TMDB_API_KEY } from "@/env";
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
-
-const MovieCard = ({
-  movieId,
-  title,
-  genres,
-  productionYear,
-  imgUrl,
-  onMovieClick,
-}) => {
-  return (
-    // <Grid container spacing={0.5} py={1}>
-    //   <Grid item xs={12} md={4}>
-    //     {/* filmarksで画像がない場合はnullか以下のどちらか
-    //       代替画像　"https://d2ueuvlup6lbue.cloudfront.net/assets/common/img_cover-placehold-633a19fbbf6951dbb8debea06f29fefcc0666e8138e79c5ffd8a486da95432ae.svg"
-    //       Access Denied "https://d2ueuvlup6lbue.cloudfront.net/attachments/3746e77fb0935f2689e4ddfb009544a5d3008fae/store/fitpad/260/364/c793bf8000d9666861c3221dfea00c7b1449a522553e634378a6c7238aa3/_.jpg" */}
-    //     {imgUrl ? (
-    //       <RoundedImage src={imgUrl} alt={`${title}のポスター`} width="100%" />
-    //     ) : (
-    //       <RoundedImage
-    //         src={
-    //           "https://d2ueuvlup6lbue.cloudfront.net/assets/common/img_cover-placehold-633a19fbbf6951dbb8debea06f29fefcc0666e8138e79c5ffd8a486da95432ae.svg"
-    //         }
-    //         alt={`映画${title}のポスター画像は見つかりませんでした`}
-    //         width="100%"
-    //       />
-    //     )}
-    //   </Grid>
-    //   <Grid item md={8} sx={{ display: { xs: "none", md: "block" } }}>
-    //     <Typography>{title}</Typography>
-    //     <Typography>{productionYear}</Typography>
-    //     {genres.map((genre) => {
-    //       return <Chip label={genre.name} key={genre.id} />;
-    //     })}
-    //   </Grid>
-    <Card sx={{ display: "flex" }}>
-      <CardActionArea sx={{ width: 130 }} onClick={onMovieClick}>
-        <CardMedia
-          component="img"
-          sx={{ width: 130, height: 182, m: 0 }}
-          image={imgUrl}
-          alt={`${title}のポスター`}
-        />
-      </CardActionArea>
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <CardContent sx={{ flex: "1 0 auto" }}>
-          <Link
-            href={`/movie/${movieId}`}
-            // ゴミ処理
-            sx={{ textDecoration: "none", color: "black" }}
-          >
-            <Typography variant="subtitle1">{title}</Typography>
-          </Link>
-          <Typography variant="subtitle2">
-            {productionYear + "年製作"}
-          </Typography>
-          <sBox>
-            {genres.map((genre) => {
-              return (
-                // ゴミ処理
-                <Chip
-                  label={
-                    genre.name.includes("・") &&
-                    genre.name !== "アート・コンテンポラリー"
-                      ? genre.name.split("・")[1]
-                      : genre.name
-                  }
-                  key={genre.id}
-                  sx={{ m: "2px" }}
-                />
-              );
-            })}
-          </sBox>
-        </CardContent>
-      </Box>
-    </Card>
-  );
-};
 
 const Person = (props) => {
   console.log(props);
@@ -104,7 +17,7 @@ const Person = (props) => {
     <>
       <Container maxWidth={false} sx={{ my: 2 }}>
         <Grid container spacing={1}>
-          <Grid item xs={12} md={3} lg={2}>
+          <Grid item xs={12} md={3}>
             <Box sx={{ textAlign: "center" }}>
               <RoundedImage
                 src={props.data.personImgUrl}
@@ -118,7 +31,6 @@ const Person = (props) => {
             item
             xs={12}
             md={9}
-            lg={10}
             sx={{ display: "flex", alignItems: "center" }}
           >
             <Box
@@ -140,17 +52,11 @@ const Person = (props) => {
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: 45,
-                  // legend: "年度",
-                  // legendPosition: "middle",
-                  // legendOffset: 50,
                 }}
                 axisLeft={{
                   tickSize: 5,
                   tickPadding: 5,
                   tickRotation: 0,
-                  // legend: "count",
-                  // legendPosition: "middle",
-                  // legendOffset: -40,
                   format: (e) => Math.floor(e) === e && e,
                 }}
                 labelSkipWidth={12}
@@ -184,7 +90,6 @@ const Person = (props) => {
                   },
                 ]}
                 role="application"
-                ariaLabel="Nivo bar chart demo"
               />
             </Box>
           </Grid>
@@ -192,7 +97,7 @@ const Person = (props) => {
             共演者のグラフをここに入れる
           </Grid>
 
-          <Grid item container spacing={2}>
+          <Grid item container spacing={1}>
             {props.data.person.relatedMovies.map((rMovie) => {
               const movie = rMovie.movie;
               const handleMovieClick = () => {

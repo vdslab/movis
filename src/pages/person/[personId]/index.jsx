@@ -6,10 +6,8 @@ import { ActorNetwork } from "@/components/ActorNetwork";
 import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
-import { TMDB_IMG_BASE_URL } from "@/const";
-import { TMDB_API_KEY } from "@/env";
 import prisma from "@/lib/prisma";
-import { forceSerialize } from "@/util";
+import { fetchTmdbPersonImg, forceSerialize } from "@/util";
 
 const Person = (props) => {
   console.log(props);
@@ -263,16 +261,7 @@ export const getServerSideProps = async (ctx) => {
     return d;
   });
 
-  const tmdbRes = await fetch(
-    `https://api.themoviedb.org/3/search/person?api_key=${TMDB_API_KEY}&language=ja-JP&query=${encodeURIComponent(
-      person.name
-    )}&page=1&include_adult=false&region=JP`
-  );
-  const tmdbSearchResult = await tmdbRes.json();
-  const tmdbProfilePath = tmdbSearchResult.results[0]?.profile_path;
-  const personImgUrl = tmdbProfilePath
-    ? TMDB_IMG_BASE_URL + tmdbProfilePath
-    : tmdbProfilePath;
+  const personImgUrl = await fetchTmdbPersonImg(person.name);
 
   const occupations = await prisma.occupation.findMany({
     select: {

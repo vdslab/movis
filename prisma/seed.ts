@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import filmarksData from "./data/filmarks_20211208.json";
+import filmarksData from "./data/filmarks_20211109.json";
 
 const prisma = new PrismaClient();
 

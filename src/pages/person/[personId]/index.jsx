@@ -7,6 +7,7 @@ import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
 import { TMDB_IMG_BASE_URL } from "@/const";
+import { TMDB_API_KEY } from "@/env";
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 

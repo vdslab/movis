@@ -2,10 +2,11 @@ import { Container, Grid, Typography, Box } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
 
+import { ActorNetwork } from "@/components/ActorNetwork";
 import { MovieCard } from "@/components/MovieCard";
+import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
 import { TMDB_IMG_BASE_URL } from "@/const";
-import { TMDB_API_KEY } from "@/env";
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 
@@ -111,8 +112,29 @@ const Person = (props) => {
               />
             </Box>
           </Grid>
-          <Grid item xs={12} md={12} sx={{ my: "100px" }}>
-            共演者のグラフをここに入れる
+          <Grid
+            item
+            xs={12}
+            md={12}
+            sx={{
+              height: "50vh",
+            }}
+          >
+            <Responsive
+              render={(width, height) => {
+                return (
+                  <Box
+                    sx={{
+                      width: width,
+                      height: height,
+                      border: "1px solid black",
+                    }}
+                  >
+                    <ActorNetwork width={width} height={height} {...props} />
+                  </Box>
+                );
+              }}
+            />
           </Grid>
 
           <Grid item container spacing={1}>
@@ -142,7 +164,8 @@ const Person = (props) => {
 };
 
 export const getServerSideProps = async (ctx) => {
-  console.log(TMDB_API_KEY);
+  const actorOccupationName = "出演者";
+
   const personId = ctx.query.personId;
   const person = await prisma.person.findFirst({
     where: {
@@ -163,6 +186,43 @@ export const getServerSideProps = async (ctx) => {
               title: true,
               genres: true,
               productionYear: true,
+              // ここから
+              productionMembers: {
+                select: {
+                  person: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                  occupation: {
+                    select: {
+                      name: true,
+                      id: true,
+                    },
+                  },
+                },
+                where: {
+                  AND: [
+                    {
+                      occupation: {
+                        is: {
+                          name: actorOccupationName,
+                        },
+                      },
+                    },
+                    {
+                      personId: {
+                        not: personId,
+                      },
+                    },
+                  ],
+                },
+                orderBy: {
+                  personId: "desc",
+                },
+              },
+              // ここまでは返す必要のない大きなデータなので、返すためのpersonとは別で取るか、返す前に消すかした方がいいかもしれない
             },
           },
         },
@@ -171,6 +231,7 @@ export const getServerSideProps = async (ctx) => {
     },
   });
 
+  // ここからbar
   const y = person.relatedMovies.map((item) => {
     return item.movie.productionYear;
   });
@@ -224,7 +285,75 @@ export const getServerSideProps = async (ctx) => {
   });
   const barKeys = occupations.map((item) => item.name);
 
-  const data = { person, barData, barKeys, personImgUrl };
+  // ここからnetwork
+  const sourceTarget = {};
+  person.relatedMovies.forEach((rm) => {
+    // 出演者として関わった映画のみ共演した出演者を取り出すので
+    if (rm.occupation.name !== actorOccupationName) {
+      return;
+    }
+    rm.movie.productionMembers.forEach((spm, index) => {
+      const sourceId = spm.person.id;
+      if (sourceId in sourceTarget === false) {
+        // countWithMainは中心となる俳優との共演回数
+        sourceTarget[sourceId] = { countWithMain: 0 };
+      }
+      ++sourceTarget[sourceId].countWithMain;
+
+      rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
+        const targetId = tpm.person.id;
+        // この値は俳優同士の共演回数
+        sourceTarget[sourceId][targetId] =
+          (sourceTarget[sourceId][targetId] || 0) + 1;
+      });
+    });
+  });
+
+  const links = [];
+  for (const sourceId in sourceTarget) {
+    if (sourceId === "countWithMain") {
+      continue;
+    }
+    for (const targetId in sourceTarget[sourceId]) {
+      if (targetId === "countWithMain") {
+        continue;
+      }
+      links.push({
+        source: sourceId,
+        target: targetId,
+        weight: sourceTarget[sourceId][targetId],
+        d: 10,
+      });
+    }
+  }
+
+  const nodeBase = {};
+  person.relatedMovies.forEach((rm) => {
+    rm.movie.productionMembers.forEach((pm) => {
+      nodeBase[pm.person.id] = {
+        ...pm.person,
+        count: sourceTarget[pm.person.id].countWithMain,
+      };
+    });
+  });
+  const nodes = Object.values(nodeBase);
+
+  const counts = nodes.map((node) => node.count);
+  const countMax = Math.max(...counts);
+  const countMin = Math.min(...counts);
+
+  for (const node of nodes) {
+    const normalizedCount =
+      countMax !== countMin
+        ? (node.count - countMin) / (countMax - countMin)
+        : 0.5;
+    node["normalizedCount"] = normalizedCount;
+    node["r"] = (normalizedCount + 0.1) * 20;
+  }
+
+  const network = { nodes, links };
+
+  const data = { person, barData, barKeys, personImgUrl, network };
 
   return {
     props: {

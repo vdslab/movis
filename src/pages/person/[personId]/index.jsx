@@ -17,26 +17,41 @@ const Person = (props) => {
     <>
       <Container maxWidth={false} sx={{ my: 2 }}>
         <Grid container spacing={1}>
-          <Grid item xs={12} md={3}>
-            <Box sx={{ textAlign: "center" }}>
-              <RoundedImage
-                src={props.data.personImgUrl}
-                alt={props.data.person.name + "プロフィール"}
-                height="300px"
-              />
-              <Typography variant="h5">{props.data.person.name}</Typography>
-            </Box>
-          </Grid>
           <Grid
             item
             xs={12}
-            md={9}
-            sx={{ display: "flex", alignItems: "center" }}
+            md={3}
+            xl={2}
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
+            <RoundedImage
+              src={props.data.personImgUrl}
+              alt={props.data.person.name + "プロフィール"}
+              height="300px"
+            />
+          </Grid>
+          <Grid item xs={12} md={9} xl={10}>
             <Box
-              sx={{ height: 300, width: "100%", textAlign: "center", mt: 3 }}
+              sx={{
+                textAlign: { xs: "center", md: "start" },
+              }}
             >
-              <Typography>制作に関わった回数</Typography>
+              <Typography variant="h4" sx={{ p: 1 }}>
+                {props.data.person.name}
+              </Typography>
+            </Box>
+            <Typography sx={{ mt: 3 }}>映画製作の記録</Typography>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                height: 280,
+                width: "100%",
+              }}
+            >
               <ResponsiveBar
                 data={props.data.barData}
                 keys={props.data.barKeys}
@@ -61,7 +76,10 @@ const Person = (props) => {
                 }}
                 labelSkipWidth={12}
                 labelSkipHeight={12}
-                labelTextColor={{ from: "color", modifiers: [["darker", 1.6]] }}
+                labelTextColor={{
+                  from: "color",
+                  modifiers: [["darker", 1.6]],
+                }}
                 legendLabel={(item) => {
                   return item.id.substr(0, 3);
                 }}

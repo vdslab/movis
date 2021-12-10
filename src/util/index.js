@@ -1,4 +1,5 @@
 import { TMDB_IMG_BASE_URL } from "@/const";
+import { TMDB_API_KEY } from "@/env";
 
 export const forceSerialize = (data) => {
   return JSON.parse(JSON.stringify(data));

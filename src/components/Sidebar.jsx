@@ -54,6 +54,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
               pathname: "/search/[name]",
               query: { name: data.name },
             });
+            drawerToggle();
           })}
         >
           <InputBase

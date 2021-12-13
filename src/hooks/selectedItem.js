@@ -28,25 +28,29 @@ export const useSelectedItems = (movies) => {
     setSelectedYears((prev) => {
       const index = prev.indexOf(year);
       const years = [...prev];
+
       if (index < 0) {
         years.push(year);
       } else {
         years.splice(index, 1);
       }
+
       return years;
     });
   }, []);
 
-  const toggleSelectedGenres = useCallback((nodeId) => {
+  const toggleSelectedGenres = useCallback((genreId) => {
     setSelectedGenreIds((prev) => {
-      const index = prev.indexOf(nodeId);
+      const index = prev.indexOf(genreId);
       const genres = [...prev];
 
       if (index < 0) {
-        genres.push(nodeId);
+        genres.push(genreId);
       } else {
         genres.splice(index, 1);
       }
+
+      return genres;
     });
   }, []);
 
@@ -89,18 +93,18 @@ export const useSelectedItems = (movies) => {
       .map((movie) => movie.id);
 
     // 選択ノードの'または'で絞り込んだmovie ids
-    const orFilteredMovieIds = movies
-      .filter((movie) => {
-        const movieProductionMemberIds = movie.productionMembers.map(
-          (pm) => pm.person.id
-        );
-        const or = selectedNodeIds.some((nodeId) =>
-          movieProductionMemberIds.includes(nodeId)
-        );
+    // const orFilteredMovieIds = movies
+    //   .filter((movie) => {
+    //     const movieProductionMemberIds = movie.productionMembers.map(
+    //       (pm) => pm.person.id
+    //     );
+    //     const or = selectedNodeIds.some((nodeId) =>
+    //       movieProductionMemberIds.includes(nodeId)
+    //     );
 
-        return or;
-      })
-      .map((movie) => movie.id);
+    //     return or;
+    //   })
+    //   .map((movie) => movie.id);
 
     setNodeFilteredMovieIds(andFilteredMovieIds);
   }, [movies, selectedNodeIds]);
@@ -138,15 +142,17 @@ export const useSelectedItems = (movies) => {
       .map((movie) => movie.id);
 
     // 選択ジャンルの'または'で絞り込んだmovie ids
-    const orFilteredMovieIds = movies
-      .filter((movie) => {
-        const or = selectedGenreIds.some((genreId) =>
-          movieGenres.includes(genreId)
-        );
+    // const orFilteredMovieIds = movies
+    //   .filter((movie) => {
+    //     const movieGenres = movie.genres.map((genre) => genre.id);
 
-        return or;
-      })
-      .map((movie) => movie.id);
+    //     const or = selectedGenreIds.some((genreId) =>
+    //       movieGenres.includes(genreId)
+    //     );
+
+    //     return or;
+    //   })
+    //   .map((movie) => movie.id);
 
     setGenreFilteredMovieIds(andFilteredMovieIds);
   }, [movies, selectedGenreIds]);

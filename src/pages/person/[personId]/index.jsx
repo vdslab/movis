@@ -7,6 +7,7 @@ import {
   Paper,
   InputBase,
   IconButton,
+  Chip,
 } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
@@ -22,7 +23,6 @@ import prisma from "@/lib/prisma";
 import { fetchTmdbPersonImg, forceSerialize } from "@/util";
 
 const Person = (props) => {
-  console.log("this is props", props);
   const { data } = props;
 
   // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題
@@ -55,23 +55,12 @@ const Person = (props) => {
 
   const [networkSearch, setNetworkSearch] = useState("");
 
-  console.log(
-    selectedNodeIds,
-    selectedYears,
-    selectedGenreIds,
-    nodeFilteredMovieIds,
-    yearFilteredMovieIds,
-    genreFilteredMovieIds
-  );
-
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
       <Grid container spacing={2}>
         <Grid
           item
           xs={12}
-          md={3}
-          xl={2}
           sx={{
             display: "flex",
             // justifyContent: "center",
@@ -82,17 +71,33 @@ const Person = (props) => {
             alt={data.person.name + "プロフィール"}
             height="300px"
           />
-        </Grid>
-        <Grid item xs={12} md={9} xl={10}>
-          <Box
-            sx={{
-              textAlign: { xs: "center", md: "start" },
-            }}
-          >
+          <Box>
             <Typography variant="h4" sx={{ m: 1 }}>
               {data.person.name}
             </Typography>
+            <Box sx={{ my: 2, mx: 1 }}>
+              <Typography sx={{ p: 1 }}>
+                {data.person.name}が関わった映画のジャンル
+              </Typography>
+              {data.relatedGenres.map((genre) => {
+                return (
+                  <Chip
+                    label={genre.name}
+                    key={genre.id}
+                    color={
+                      selectedGenreIds.includes(genre.id) ? "success" : void 0
+                    }
+                    onClick={() => {
+                      toggleSelectedGenres(genre.id);
+                    }}
+                    sx={{ m: "2px" }}
+                  />
+                );
+              })}
+            </Box>
           </Box>
+        </Grid>
+        <Grid item xs={12}>
           <Typography sx={{ p: 1 }}>映画製作の記録</Typography>
           <Box
             sx={{
@@ -168,17 +173,6 @@ const Person = (props) => {
           <Typography sx={{ p: 1 }}>
             {data.person.name}が共演したことのある出演者ネットワーク
           </Typography>
-          {/* <Box sx={{ display: "flex" }}>
-            <TextField
-              id="network-node-name"
-              label="ネットワーク内の人物名を検索"
-              sx={{ width: { xs: "100%", sm: "50%" }, my: 1 }}
-              onChange={(e) => {
-                setNetworkSearch(e.target.value);
-              }}
-            />
-            <Button variant="contained">探す</Button>
-          </Box> */}
           <Paper
             component="form"
             sx={{
@@ -226,7 +220,7 @@ const Person = (props) => {
                       border: "1px solid black",
                     }}
                   >
-                    {
+                    {null && (
                       <ActorNetwork
                         width={width}
                         height={height}
@@ -237,7 +231,7 @@ const Person = (props) => {
                         movies={movies}
                         search={networkSearch}
                       />
-                    }
+                    )}
                   </Box>
                 );
               }}
@@ -252,7 +246,7 @@ const Person = (props) => {
               const filterResult = {
                 network: nodeFilteredMovieIds.includes(movieId),
                 year: yearFilteredMovieIds.includes(movieId),
-                genre: yearFilteredMovieIds.includes(movieId),
+                genre: genreFilteredMovieIds.includes(movieId),
               };
 
               return { ...movie, filterResult };
@@ -277,6 +271,8 @@ const Person = (props) => {
                     imgUrl={movie.imgUrl}
                     onMovieClick={handleMovieClick}
                     filterResult={movie.filterResult}
+                    selectedGenreIds={selectedGenreIds}
+                    handleGenreClick={toggleSelectedGenres}
                   />
                 </Grid>
               );
@@ -476,7 +472,28 @@ export const getServerSideProps = async (ctx) => {
 
   const network = { nodes, links };
 
-  const data = { person, barData, barKeys, personImgUrl, network };
+  const relatedMovieIds = person.relatedMovies.map((rm) => rm.movie.id);
+
+  const relatedGenres = await prisma.genre.findMany({
+    where: {
+      movie: {
+        some: {
+          id: {
+            in: relatedMovieIds,
+          },
+        },
+      },
+    },
+  });
+
+  const data = {
+    person,
+    barData,
+    barKeys,
+    personImgUrl,
+    network,
+    relatedGenres,
+  };
 
   return {
     props: {

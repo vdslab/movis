@@ -5,7 +5,6 @@ import { useEffect } from "react";
 import { ZoomableSVG } from "@/components/ZoomableSvg";
 
 export const ActorNetwork = (props) => {
-  console.log(props);
   const {
     width,
     height,
@@ -53,8 +52,6 @@ export const ActorNetwork = (props) => {
       ? highlitedNodeIds.filter((idA) => relatedPeople.includes(idA))
       : relatedPeople;
   });
-
-  console.log(highlitedNodeIds);
 
   useEffect(() => {
     const firstSimulation = async ({ nodes, links }) => {
@@ -109,7 +106,6 @@ export const ActorNetwork = (props) => {
         {/* link */}
         <g>
           {network.links.map((link, index) => {
-            // console.log(link.index);
             return (
               <g key={index}>
                 <line

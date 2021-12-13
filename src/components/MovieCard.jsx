@@ -18,6 +18,8 @@ export const MovieCard = ({
   imgUrl,
   onMovieClick,
   filterResult,
+  selectedGenreIds,
+  handleGenreClick,
 }) => {
   // ゴミ処理　とりあえずテーマっぽいカラーを120度ずつずらしたものなので、ベースのカラーも含めて必ず変更する
   const filterColor = {
@@ -73,6 +75,12 @@ export const MovieCard = ({
                       ? genre.name.split("・")[1]
                       : genre.name
                   }
+                  color={
+                    selectedGenreIds.includes(genre.id) ? "success" : void 0
+                  }
+                  onClick={() => {
+                    handleGenreClick(genre.id);
+                  }}
                   key={genre.id}
                   sx={{ m: "2px" }}
                 />

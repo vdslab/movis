@@ -1,3 +1,4 @@
+import { css } from "@emotion/react";
 import * as d3 from "d3";
 import { useEffect } from "react";
 
@@ -5,13 +6,58 @@ import { ZoomableSVG } from "@/components/ZoomableSvg";
 
 export const ActorNetwork = (props) => {
   console.log(props);
-  const { width, height, data } = props;
-  const color = {
+  const {
+    width,
+    height,
+    network,
+    selectedNodeIds,
+    handleNodeClick,
+    movies,
+    search,
+  } = props;
+
+  const nodeColor = {
     normal: d3.interpolateGreens,
+    highlight: d3.interpolateBlues,
+    selected: d3.interpolateOranges,
   };
 
+  const movie2personIds = {};
+  movies.forEach((movie) => {
+    const pmIdSet = new Set();
+    movie.productionMembers.forEach((pm) => {
+      pmIdSet.add(pm.person.id);
+    });
+    movie2personIds[movie.id] = Array.from(pmIdSet);
+  });
+
+  const person2movieIds = {};
+  movies.forEach((movie) => {
+    movie.productionMembers.forEach((pm) => {
+      if (pm.person.id in person2movieIds) {
+        person2movieIds[pm.person.id].push(movie.id);
+      } else {
+        person2movieIds[pm.person.id] = [movie.id];
+      }
+    });
+  });
+
+  // ハイライト　各選択ノードについて、リンクが貼られている相手の集合を作り、全集合の'かつ'をとる。
+  let highlitedNodeIds = void 0;
+  selectedNodeIds.forEach((selectedNodeId) => {
+    const relatedPeople = [];
+    person2movieIds[selectedNodeId].forEach((movieId) => {
+      relatedPeople.push(...movie2personIds[movieId]);
+    });
+    highlitedNodeIds = highlitedNodeIds
+      ? highlitedNodeIds.filter((idA) => relatedPeople.includes(idA))
+      : relatedPeople;
+  });
+
+  console.log(highlitedNodeIds);
+
   useEffect(() => {
-    const firstSimulation = async (network) => {
+    const firstSimulation = async ({ nodes, links }) => {
       const simulation = d3
         .forceSimulation()
         .force(
@@ -31,7 +77,8 @@ export const ActorNetwork = (props) => {
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force(
           "charge",
-          d3.forceManyBody().strength((d) => (d.r / 2) * -50)
+          // d3.forceManyBody().strength((d) => (d.r / 2) * -50)
+          d3.forceManyBody().strength((d) => (d.r / 2) * -500)
         )
         .force(
           "x",
@@ -48,25 +95,20 @@ export const ActorNetwork = (props) => {
             .strength(0.07)
         );
 
-      simulation.nodes(network.nodes);
-      simulation.force("link").links(network.links);
+      simulation.nodes(nodes);
+      simulation.force("link").links(links);
       simulation.tick(500).stop();
     };
 
-    firstSimulation(data.network);
-  }, [width, height, data.network]);
-
-  // // ゴミ処理、最初の描画の際にkeyが渡せてないよエラーが出るので黙らせた
-  // if (width === 0 || height === 0) {
-  //   return null;
-  // }
+    firstSimulation(network);
+  }, [width, height, network]);
 
   return (
     <ZoomableSVG width={width} height={height}>
       <g>
         {/* link */}
         <g>
-          {data.network.links.map((link, index) => {
+          {network.links.map((link, index) => {
             // console.log(link.index);
             return (
               <g key={index}>
@@ -76,7 +118,18 @@ export const ActorNetwork = (props) => {
                   x2={link.target.x}
                   y2={link.target.y}
                   strokeWidth={1}
-                  stroke="gray"
+                  stroke={
+                    selectedNodeIds.includes(link.source.id) &&
+                    selectedNodeIds.includes(link.target.id)
+                      ? "black"
+                      : highlitedNodeIds &&
+                        ((selectedNodeIds.includes(link.source.id) &&
+                          highlitedNodeIds.includes(link.target.id)) ||
+                          (highlitedNodeIds.includes(link.source.id) &&
+                            selectedNodeIds.includes(link.target.id)))
+                      ? "pink"
+                      : "gray"
+                  }
                 />
               </g>
             );
@@ -84,16 +137,29 @@ export const ActorNetwork = (props) => {
         </g>
         {/* node */}
         <g>
-          {data.network.nodes.map((node) => {
+          {network.nodes.map((node) => {
             return (
               <g key={node.id}>
                 <circle
                   r={node.r}
                   cx={node.x}
                   cy={node.y}
-                  fill={color.normal(node.normalizedCount)}
+                  onClick={() => handleNodeClick(node.id)}
+                  fill={
+                    selectedNodeIds.includes(node.id)
+                      ? nodeColor.selected(node.normalizedCount)
+                      : selectedNodeIds.length !== 0 &&
+                        highlitedNodeIds.includes(node.id)
+                      ? nodeColor.highlight(node.normalizedCount)
+                      : nodeColor.normal(node.normalizedCount)
+                  }
+                  css={NodeStroke}
                 />
-                <text x={node.x} y={node.y} fill="black">
+                <text
+                  x={node.x}
+                  y={node.y}
+                  fill={node.name.includes(search) ? "black" : "gray"}
+                >
                   {node.name}
                 </text>
               </g>
@@ -104,3 +170,8 @@ export const ActorNetwork = (props) => {
     </ZoomableSVG>
   );
 };
+
+const NodeStroke = css`
+  stroke: #546e7a;
+  strokewidth: 1px;
+`;

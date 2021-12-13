@@ -17,7 +17,15 @@ export const MovieCard = ({
   productionYear,
   imgUrl,
   onMovieClick,
+  filterResult,
 }) => {
+  // ゴミ処理　とりあえずテーマっぽいカラーを120度ずつずらしたものなので、ベースのカラーも含めて必ず変更する
+  const filterColor = {
+    network: "error",
+    year: "warning",
+    genre: "success",
+  };
+
   return (
     <Card sx={{ display: "flex" }}>
       <CardActionArea sx={{ width: 130 }} onClick={onMovieClick}>
@@ -30,6 +38,20 @@ export const MovieCard = ({
       </CardActionArea>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
+          <Box>
+            {Object.keys(filterResult).map((key) => {
+              return (
+                filterResult[key] && (
+                  <Chip
+                    label={key}
+                    color={filterColor[key]}
+                    sx={{ m: "2px" }}
+                    key={key}
+                  />
+                )
+              );
+            })}
+          </Box>
           <Link
             href={`/movie/${movieId}`}
             // ゴミ処理かも

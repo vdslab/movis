@@ -1,120 +1,217 @@
-import { Container, Grid, Typography, Box } from "@mui/material";
+import { SearchOutlined, ClearOutlined } from "@mui/icons-material";
+import {
+  Container,
+  Grid,
+  Typography,
+  Box,
+  Paper,
+  InputBase,
+  IconButton,
+} from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
+import { useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { ActorNetwork } from "@/components/ActorNetwork";
 import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
+import { useSelectedItems } from "@/hooks/selectedItem";
 import prisma from "@/lib/prisma";
 import { fetchTmdbPersonImg, forceSerialize } from "@/util";
 
 const Person = (props) => {
-  console.log(props);
+  console.log("this is props", props);
+  const { data } = props;
+
+  // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題
+  const movies = useMemo(
+    () =>
+      data.person.relatedMovies.map((rm) => {
+        const movie = rm.movie;
+        return movie;
+      }),
+    [data]
+  );
+
   const router = useRouter();
+  const { register, handleSubmit, reset } = useForm();
+  const {
+    selectedNodeIds,
+    selectedYears,
+    selectedGenreIds,
+    nodeFilteredMovieIds,
+    yearFilteredMovieIds,
+    genreFilteredMovieIds,
+    toggleSelectedNode,
+    toggleSelectedYear,
+    toggleSelectedGenres,
+    clearNodeSlection,
+    clearYearSelection,
+    clearGenreSelection,
+    clearAllSelection,
+  } = useSelectedItems(movies);
+
+  const [networkSearch, setNetworkSearch] = useState("");
+
+  console.log(
+    selectedNodeIds,
+    selectedYears,
+    selectedGenreIds,
+    nodeFilteredMovieIds,
+    yearFilteredMovieIds,
+    genreFilteredMovieIds
+  );
 
   return (
-    <>
-      <Container maxWidth={false} sx={{ my: 2 }}>
-        <Grid container spacing={1}>
-          <Grid
-            item
-            xs={12}
-            md={3}
-            xl={2}
+    <Container maxWidth="xl" sx={{ my: 3 }}>
+      <Grid container spacing={2}>
+        <Grid
+          item
+          xs={12}
+          md={3}
+          xl={2}
+          sx={{
+            display: "flex",
+            // justifyContent: "center",
+          }}
+        >
+          <RoundedImage
+            src={data.personImgUrl}
+            alt={data.person.name + "プロフィール"}
+            height="300px"
+          />
+        </Grid>
+        <Grid item xs={12} md={9} xl={10}>
+          <Box
             sx={{
-              display: "flex",
-              justifyContent: "center",
+              textAlign: { xs: "center", md: "start" },
             }}
           >
-            <RoundedImage
-              src={props.data.personImgUrl}
-              alt={props.data.person.name + "プロフィール"}
-              height="300px"
-            />
-          </Grid>
-          <Grid item xs={12} md={9} xl={10}>
-            <Box
-              sx={{
-                textAlign: { xs: "center", md: "start" },
+            <Typography variant="h4" sx={{ m: 1 }}>
+              {data.person.name}
+            </Typography>
+          </Box>
+          <Typography sx={{ p: 1 }}>映画製作の記録</Typography>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              height: 280,
+              width: "100%",
+            }}
+          >
+            <ResponsiveBar
+              data={data.barData}
+              keys={data.barKeys}
+              onClick={(item) => {
+                toggleSelectedYear(item.indexValue);
               }}
-            >
-              <Typography variant="h4" sx={{ p: 1 }}>
-                {props.data.person.name}
-              </Typography>
-            </Box>
-            <Typography sx={{ mt: 3 }}>映画製作の記録</Typography>
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                height: 280,
-                width: "100%",
+              indexBy="year"
+              margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
+              padding={0.3}
+              valueScale={{ type: "linear" }}
+              indexScale={{ type: "band", round: true }}
+              colors={{ scheme: "set3" }}
+              axisTop={null}
+              axisRight={null}
+              axisBottom={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 45,
               }}
-            >
-              <ResponsiveBar
-                data={props.data.barData}
-                keys={props.data.barKeys}
-                indexBy="year"
-                margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
-                padding={0.3}
-                valueScale={{ type: "linear" }}
-                indexScale={{ type: "band", round: true }}
-                colors={{ scheme: "set3" }}
-                axisTop={null}
-                axisRight={null}
-                axisBottom={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 45,
-                }}
-                axisLeft={{
-                  tickSize: 5,
-                  tickPadding: 5,
-                  tickRotation: 0,
-                  format: (e) => Math.floor(e) === e && e,
-                }}
-                labelSkipWidth={12}
-                labelSkipHeight={12}
-                labelTextColor={{
-                  from: "color",
-                  modifiers: [["darker", 1.6]],
-                }}
-                legendLabel={(item) => {
-                  return item.id.substr(0, 3);
-                }}
-                legends={[
-                  {
-                    dataFrom: "keys",
-                    anchor: "bottom-right",
-                    direction: "column",
-                    justify: false,
-                    translateX: 120,
-                    translateY: 20,
-                    itemsSpacing: 2,
-                    itemWidth: 100,
-                    itemHeight: 20,
-                    itemDirection: "left-to-right",
-                    itemOpacity: 0.85,
-                    symbolSize: 20,
-                    effects: [
-                      {
-                        on: "hover",
-                        style: {
-                          itemOpacity: 1,
-                        },
+              axisLeft={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                format: (e) => Math.floor(e) === e && e,
+              }}
+              labelSkipWidth={12}
+              labelSkipHeight={12}
+              labelTextColor={{
+                from: "color",
+                modifiers: [["darker", 1.6]],
+              }}
+              legendLabel={(item) => {
+                return item.id.substr(0, 3);
+              }}
+              legends={[
+                {
+                  dataFrom: "keys",
+                  anchor: "bottom-right",
+                  direction: "column",
+                  justify: false,
+                  translateX: 120,
+                  translateY: 20,
+                  itemsSpacing: 2,
+                  itemWidth: 100,
+                  itemHeight: 20,
+                  itemDirection: "left-to-right",
+                  itemOpacity: 0.85,
+                  symbolSize: 20,
+                  effects: [
+                    {
+                      on: "hover",
+                      style: {
+                        itemOpacity: 1,
                       },
-                    ],
-                  },
-                ]}
-                role="application"
-              />
-            </Box>
-          </Grid>
-          <Grid
-            item
-            xs={12}
-            md={12}
+                    },
+                  ],
+                },
+              ]}
+              role="application"
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography sx={{ p: 1 }}>
+            {data.person.name}が共演したことのある出演者ネットワーク
+          </Typography>
+          {/* <Box sx={{ display: "flex" }}>
+            <TextField
+              id="network-node-name"
+              label="ネットワーク内の人物名を検索"
+              sx={{ width: { xs: "100%", sm: "50%" }, my: 1 }}
+              onChange={(e) => {
+                setNetworkSearch(e.target.value);
+              }}
+            />
+            <Button variant="contained">探す</Button>
+          </Box> */}
+          <Paper
+            component="form"
+            sx={{
+              p: "2px 4px",
+              my: 1,
+              display: "flex",
+              alignItems: "center",
+              width: { xs: "100%", sm: "50%" },
+            }}
+            onSubmit={handleSubmit((formData) => {
+              setNetworkSearch(formData.networkSearch);
+            })}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="ネットワーク内の人物名を検索"
+              {...register("networkSearch")}
+            />
+            <IconButton
+              type="button"
+              onClick={() => {
+                setNetworkSearch("");
+                reset({ networkSearch: "" });
+              }}
+              sx={{ p: "10px" }}
+            >
+              <ClearOutlined />
+            </IconButton>
+            <IconButton type="submit" sx={{ p: "10px" }}>
+              <SearchOutlined />
+            </IconButton>
+          </Paper>
+          <Box
             sx={{
               height: "50vh",
             }}
@@ -129,19 +226,47 @@ const Person = (props) => {
                       border: "1px solid black",
                     }}
                   >
-                    <ActorNetwork width={width} height={height} {...props} />
+                    {
+                      <ActorNetwork
+                        width={width}
+                        height={height}
+                        network={data.network}
+                        selectedNodeIds={selectedNodeIds}
+                        handleNodeClick={toggleSelectedNode}
+                        nodeFilteredMovieIds={nodeFilteredMovieIds}
+                        movies={movies}
+                        search={networkSearch}
+                      />
+                    }
                   </Box>
                 );
               }}
             />
-          </Grid>
+          </Box>
+        </Grid>
 
-          <Grid item container spacing={1}>
-            {props.data.person.relatedMovies.map((rMovie) => {
-              const movie = rMovie.movie;
+        <Grid item container spacing={1}>
+          {movies
+            .map((movie) => {
+              const movieId = movie.id;
+              const filterResult = {
+                network: nodeFilteredMovieIds.includes(movieId),
+                year: yearFilteredMovieIds.includes(movieId),
+                genre: yearFilteredMovieIds.includes(movieId),
+              };
+
+              return { ...movie, filterResult };
+            })
+            .sort(
+              (a, b) =>
+                Object.values(b.filterResult).filter((item) => item).length -
+                Object.values(a.filterResult).filter((item) => item).length
+            )
+            .map((movie) => {
               const handleMovieClick = () => {
                 router.push(`/movie/${movie.id}`);
               };
+
               return (
                 <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
                   <MovieCard
@@ -151,14 +276,14 @@ const Person = (props) => {
                     productionYear={movie.productionYear}
                     imgUrl={movie.imgUrl}
                     onMovieClick={handleMovieClick}
+                    filterResult={movie.filterResult}
                   />
                 </Grid>
               );
             })}
-          </Grid>
         </Grid>
-      </Container>
-    </>
+      </Grid>
+    </Container>
   );
 };
 
@@ -186,6 +311,7 @@ export const getServerSideProps = async (ctx) => {
               genres: true,
               productionYear: true,
               // ここから
+              // productionMembersは出演者のみ
               productionMembers: {
                 select: {
                   person: {
@@ -316,10 +442,17 @@ export const getServerSideProps = async (ctx) => {
       });
     }
   }
-
   const nodeBase = {};
   person.relatedMovies.forEach((rm) => {
+    // 出演者として関わった映画のみ共演した出演者を取り出すので
+    if (rm.occupation.name !== actorOccupationName) {
+      return;
+    }
     rm.movie.productionMembers.forEach((pm) => {
+      // if (pm.person.id === "76adb587-8f9d-444b-bfdc-9517b8a56bad") {
+      //   console.log(sourceTarget[pm.person.id]);
+      //   console.log(pm, rm);
+      // }
       nodeBase[pm.person.id] = {
         ...pm.person,
         count: sourceTarget[pm.person.id].countWithMain,

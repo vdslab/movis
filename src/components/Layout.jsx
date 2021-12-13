@@ -25,6 +25,7 @@ export const Layout = ({ children }) => {
             flexDirection: "column",
             width: "100%",
           }}
+          maxWidth="xl"
         >
           {children}
         </Box>

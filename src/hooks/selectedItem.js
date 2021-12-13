@@ -26,7 +26,7 @@ export const useSelectedItems = (movies) => {
 
   const toggleSelectedYear = useCallback((year) => {
     setSelectedYears((prev) => {
-      const index = prevs.indexOf(year);
+      const index = prev.indexOf(year);
       const years = [...prev];
       if (index < 0) {
         years.push(year);
@@ -70,6 +70,7 @@ export const useSelectedItems = (movies) => {
 
   useEffect(() => {
     if (selectedNodeIds.length === 0) {
+      setNodeFilteredMovieIds([]);
       return;
     }
 
@@ -106,26 +107,30 @@ export const useSelectedItems = (movies) => {
 
   useEffect(() => {
     if (selectedYears.length === 0) {
+      setYearFilteredMovieIds([]);
       return;
     }
 
-    const filteredMovieIds = movies.filter((movie) =>
-      selectedYears.includes(movie.productionYear)
-    );
+    const filteredMovieIds = movies
+      .filter((movie) => selectedYears.includes(movie.productionYear))
+      .map((movie) => movie.id);
 
     setYearFilteredMovieIds(filteredMovieIds);
   }, [movies, selectedYears]);
 
   useEffect(() => {
     if (selectedGenreIds.length === 0) {
+      setGenreFilteredMovieIds([]);
       return;
     }
 
     // 選択ジャンルの'かつ'で絞り込んだmovie ids
     const andFilteredMovieIds = movies
       .filter((movie) => {
+        const movieGenres = movie.genres.map((genre) => genre.id);
+
         const and = selectedGenreIds.every((genreId) =>
-          selectedGenreIds.includes(genreId)
+          movieGenres.includes(genreId)
         );
 
         return and;
@@ -136,7 +141,7 @@ export const useSelectedItems = (movies) => {
     const orFilteredMovieIds = movies
       .filter((movie) => {
         const or = selectedGenreIds.some((genreId) =>
-          selectedGenreIds.includes(genreId)
+          movieGenres.includes(genreId)
         );
 
         return or;

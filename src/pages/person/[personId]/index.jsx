@@ -220,7 +220,7 @@ const Person = (props) => {
                       border: "1px solid black",
                     }}
                   >
-                    {null && (
+                    {
                       <ActorNetwork
                         width={width}
                         height={height}
@@ -231,7 +231,7 @@ const Person = (props) => {
                         movies={movies}
                         search={networkSearch}
                       />
-                    )}
+                    }
                   </Box>
                 );
               }}

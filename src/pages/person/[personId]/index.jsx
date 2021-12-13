@@ -125,6 +125,25 @@ const Person = (props) => {
                 tickSize: 5,
                 tickPadding: 5,
                 tickRotation: 45,
+                // ゴミ処理
+                renderTick: (tick) => {
+                  return (
+                    <g
+                      transform={`translate(${tick.x},${
+                        tick.y + 20
+                      })rotate(45)scale(0.9)`}
+                    >
+                      <text
+                        fill={
+                          selectedYears.includes(tick.value) ? "red" : "black"
+                        }
+                      >
+                        {tick.value}
+                      </text>
+                      ;
+                    </g>
+                  );
+                },
               }}
               axisLeft={{
                 tickSize: 5,
@@ -220,7 +239,7 @@ const Person = (props) => {
                       border: "1px solid black",
                     }}
                   >
-                    {
+                    {null && (
                       <ActorNetwork
                         width={width}
                         height={height}
@@ -231,7 +250,7 @@ const Person = (props) => {
                         movies={movies}
                         search={networkSearch}
                       />
-                    }
+                    )}
                   </Box>
                 );
               }}

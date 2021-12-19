@@ -16,7 +16,6 @@ export const MovieCard = ({
   genres,
   productionYear,
   imgUrl,
-  onMovieClick,
   filterResult,
   selectedGenreIds,
   handleGenreClick,
@@ -30,13 +29,15 @@ export const MovieCard = ({
 
   return (
     <Card sx={{ display: "flex" }}>
-      <CardActionArea sx={{ width: 130 }} onClick={onMovieClick}>
-        <CardMedia
-          component="img"
-          sx={{ width: 130, height: 182, m: 0 }}
-          image={imgUrl}
-          alt={`${title}のポスター`}
-        />
+      <CardActionArea sx={{ width: 130 }}>
+        <Link href={`/movie/${movieId}`} passHref>
+          <CardMedia
+            component="img"
+            sx={{ width: 130, height: 182, m: 0 }}
+            image={imgUrl}
+            alt={`${title}のポスター`}
+          />
+        </Link>
       </CardActionArea>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>

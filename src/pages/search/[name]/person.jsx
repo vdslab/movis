@@ -48,7 +48,7 @@ const PersonSearchResult = (props) => {
           color="primary"
           sx={{ alignSelf: "flex-end" }}
         >
-          人物の検索結果へ
+          映画の検索結果へ
         </Button>
       </Box>
       {/* person list */}

@@ -309,7 +309,6 @@ const Person = ({ data }) => {
                     genres={movie.genres}
                     productionYear={movie.productionYear}
                     imgUrl={movie.imgUrl}
-                    onMovieClick={handleMovieClick}
                     filterResult={movie.filterResult}
                     selectedGenreIds={selected.genreIds}
                     handleGenreClick={toggleSelectedGenres}

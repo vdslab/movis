@@ -317,7 +317,6 @@ export const getServerSideProps = async (ctx) => {
   });
   // for (const m of movies) {
   //   if (m.productionCountries.length === 0) {
-  //      console.log(m);
   //   }
   // }
   return {

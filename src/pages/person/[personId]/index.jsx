@@ -13,18 +13,23 @@ import { ResponsiveBar } from "@nivo/bar";
 import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
 
 import { ActorNetwork } from "@/components/ActorNetwork";
 import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
-import { useSelectedItems } from "@/hooks/selectedItem";
 import prisma from "@/lib/prisma";
-import { fetchTmdbPersonImg, forceSerialize } from "@/util";
+import { toggleSelected } from "@/modules/features/app/appSlice";
+import {
+  fetchTmdbPersonImg,
+  filterMovieByGenre,
+  filterMovieByNode,
+  filterMovieByYear,
+  forceSerialize,
+} from "@/util";
 
-const Person = (props) => {
-  const { data } = props;
-
+const Person = ({ data }) => {
   // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題
   const movies = useMemo(
     () =>
@@ -37,23 +42,30 @@ const Person = (props) => {
 
   const router = useRouter();
   const { register, handleSubmit, reset } = useForm();
-  const {
-    selectedNodeIds,
-    selectedYears,
-    selectedGenreIds,
-    nodeFilteredMovieIds,
-    yearFilteredMovieIds,
-    genreFilteredMovieIds,
-    toggleSelectedNode,
-    toggleSelectedYear,
-    toggleSelectedGenres,
-    clearNodeSlection,
-    clearYearSelection,
-    clearGenreSelection,
-    clearAllSelection,
-  } = useSelectedItems(movies);
+  const { selected } = useSelector((state) => state.app);
+  const dispatch = useDispatch();
+
+  const nodeFilteredMovieIds = useMemo(() => {
+    return filterMovieByNode(movies, selected.nodeIds);
+  }, [movies, selected.nodeIds]);
+
+  const genreFilteredMovieIds = useMemo(() => {
+    return filterMovieByGenre(movies, selected.genreIds);
+  }, [movies, selected.genreIds]);
+
+  const yearFilteredMovieIds = useMemo(() => {
+    return filterMovieByYear(movies, selected.years);
+  }, [movies, selected.years]);
 
   const [networkSearch, setNetworkSearch] = useState("");
+
+  const toggleSelectedGenres = (genreId) => {
+    dispatch(toggleSelected({ target: "genre", value: genreId }));
+  };
+
+  const toggleSelectedNodes = (nodeId) => {
+    dispatch(toggleSelected({ target: "node", value: nodeId }));
+  };
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -85,11 +97,9 @@ const Person = (props) => {
                     label={genre.name}
                     key={genre.id}
                     color={
-                      selectedGenreIds.includes(genre.id) ? "success" : void 0
+                      selected.genreIds.includes(genre.id) ? "success" : void 0
                     }
-                    onClick={() => {
-                      toggleSelectedGenres(genre.id);
-                    }}
+                    onClick={() => toggleSelectedGenres(genre.id)}
                     sx={{ m: "2px" }}
                   />
                 );
@@ -111,7 +121,9 @@ const Person = (props) => {
               data={data.barData}
               keys={data.barKeys}
               onClick={(item) => {
-                toggleSelectedYear(item.indexValue);
+                dispatch(
+                  toggleSelected({ target: "year", value: item.indexValue })
+                );
               }}
               indexBy="year"
               margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
@@ -135,7 +147,7 @@ const Person = (props) => {
                     >
                       <text
                         fill={
-                          selectedYears.includes(tick.value) ? "red" : "black"
+                          selected.years.includes(tick.value) ? "red" : "black"
                         }
                       >
                         {tick.value}
@@ -239,18 +251,17 @@ const Person = (props) => {
                       border: "1px solid black",
                     }}
                   >
-                    {null && (
+                    {
                       <ActorNetwork
                         width={width}
                         height={height}
+                        selectedNodeIds={selected.nodeIds}
+                        handleNodeClick={toggleSelectedNodes}
                         network={data.network}
-                        selectedNodeIds={selectedNodeIds}
-                        handleNodeClick={toggleSelectedNode}
-                        nodeFilteredMovieIds={nodeFilteredMovieIds}
                         movies={movies}
                         search={networkSearch}
                       />
-                    )}
+                    }
                   </Box>
                 );
               }}
@@ -290,7 +301,7 @@ const Person = (props) => {
                     imgUrl={movie.imgUrl}
                     onMovieClick={handleMovieClick}
                     filterResult={movie.filterResult}
-                    selectedGenreIds={selectedGenreIds}
+                    selectedGenreIds={selected.genreIds}
                     handleGenreClick={toggleSelectedGenres}
                   />
                 </Grid>
@@ -464,10 +475,6 @@ export const getServerSideProps = async (ctx) => {
       return;
     }
     rm.movie.productionMembers.forEach((pm) => {
-      // if (pm.person.id === "76adb587-8f9d-444b-bfdc-9517b8a56bad") {
-      //   console.log(sourceTarget[pm.person.id]);
-      //   console.log(pm, rm);
-      // }
       nodeBase[pm.person.id] = {
         ...pm.person,
         count: sourceTarget[pm.person.id].countWithMain,

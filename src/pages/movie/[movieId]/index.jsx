@@ -19,7 +19,6 @@ import prisma from "@/lib/prisma";
 
 //TMDB空っ引っ張るのは後回し
 const Movie = (props) => {
-  console.log(props);
   const router = useRouter();
   const data = props.data;
   const colorData = {
@@ -30,7 +29,6 @@ const Movie = (props) => {
 
   const maxGenreData = props.max_genre;
 
-  // console.log(maxGenreData);
   const personData = data.productionMembers.map((acter, i) => {
     return {
       img: "https://images.unsplash.com/photo-1589118949245-7d38baf380d6",

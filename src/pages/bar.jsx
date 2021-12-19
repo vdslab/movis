@@ -5,8 +5,6 @@ import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 
 const Bar = (props) => {
-  console.log(props);
-
   const years = [];
   for (let year = 2000; year <= 2025; ++year) {
     years.push(year);

@@ -17,7 +17,6 @@ const ContentRoot = styled(Box)(({ theme }) => ({
 
 export const Layout = ({ children }) => {
   const [drawerOpened, setDrawerOpened] = useState(false);
-
   const handleDrawerToggle = () => {
     setDrawerOpened((prev) => !prev);
   };

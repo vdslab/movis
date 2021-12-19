@@ -22,8 +22,6 @@
 //   });
 //   const router = useRouter();
 
-//   console.log(props);
-
 //   return (
 //     <Container maxWidth="sm" sx={{ pt: 5 }}>
 //       {/* movie list */}
@@ -158,11 +156,6 @@ export const getServerSideProps = async (ctx) => {
       },
     },
   });
-
-  console.log(
-    `/search/${name}/person?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`,
-    `/search/${name}/movie?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`
-  );
 
   // personの方が検索一致が多かった場合に、personの検索結果にリダイレクト
   // ゴミ処理　これでいいのかわからん、遅いようならデフォルトを映画に

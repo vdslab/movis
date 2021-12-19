@@ -5,7 +5,6 @@ import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 
 const Bar = (props) => {
-  console.log(props);
   const keys = Object.keys(props.genre);
   const matrix = [];
   for (const k of keys) {
@@ -15,7 +14,6 @@ const Bar = (props) => {
     }
     matrix.push(a);
   }
-  console.log(matrix);
 
   return (
     <Container sx={{ pt: 5 }}>

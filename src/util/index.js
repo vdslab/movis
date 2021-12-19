@@ -19,3 +19,85 @@ export const fetchTmdbPersonImg = async (name) => {
 
   return personImgUrl;
 };
+
+export const filterMovieByNode = (movies, selectedNodeIds) => {
+  if (selectedNodeIds.length === 0) {
+    return [];
+  }
+
+  // 選択ノードの'かつ'で絞り込んだmovie ids
+  const andFilteredMovieIds = movies
+    .filter((movie) => {
+      const movieProductionMemberIds = movie.productionMembers.map(
+        (pm) => pm.person.id
+      );
+      const and = selectedNodeIds.every((nodeId) =>
+        movieProductionMemberIds.includes(nodeId)
+      );
+
+      return and;
+    })
+    .map((movie) => movie.id);
+
+  // 選択ノードの'または'で絞り込んだmovie ids
+  // const orFilteredMovieIds = movies
+  //   .filter((movie) => {
+  //     const movieProductionMemberIds = movie.productionMembers.map(
+  //       (pm) => pm.person.id
+  //     );
+  //     const or = selectedNodeIds.some((nodeId) =>
+  //       movieProductionMemberIds.includes(nodeId)
+  //     );
+
+  //     return or;
+  //   })
+  //   .map((movie) => movie.id);
+
+  return andFilteredMovieIds;
+};
+
+export const filterMovieByGenre = (movies, selectedGenreIds) => {
+  if (selectedGenreIds.length === 0) {
+    return [];
+  }
+
+  // 選択ジャンルの'かつ'で絞り込んだmovie ids
+  const andFilteredMovieIds = movies
+    .filter((movie) => {
+      const movieGenres = movie.genres.map((genre) => genre.id);
+
+      const and = selectedGenreIds.every((genreId) =>
+        movieGenres.includes(genreId)
+      );
+
+      return and;
+    })
+    .map((movie) => movie.id);
+
+  // 選択ジャンルの'または'で絞り込んだmovie ids
+  // const orFilteredMovieIds = movies
+  //   .filter((movie) => {
+  //     const movieGenres = movie.genres.map((genre) => genre.id);
+
+  //     const or = selectedGenreIds.some((genreId) =>
+  //       movieGenres.includes(genreId)
+  //     );
+
+  //     return or;
+  //   })
+  //   .map((movie) => movie.id);
+
+  return andFilteredMovieIds;
+};
+
+export const filterMovieByYear = (movies, selectedYears) => {
+  if (selectedYears.length === 0) {
+    return [];
+  }
+
+  const filteredMovieIds = movies
+    .filter((movie) => selectedYears.includes(movie.productionYear))
+    .map((movie) => movie.id);
+
+  return filteredMovieIds;
+};

@@ -1,7 +1,6 @@
 import { forceSerialize } from "@/util";
 
 const PersonSearchResult = (props) => {
-  console.log(props);
   return "hello";
 };
 

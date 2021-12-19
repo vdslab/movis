@@ -1,7 +1,6 @@
 import { forceSerialize } from "@/util";
 
 const MovieSearchResult = (props) => {
-  console.log(props);
   return "hello";
 };
 

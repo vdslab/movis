@@ -2,9 +2,10 @@ import { CacheProvider, EmotionCache } from "@emotion/react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { AppProps } from "next/app";
-import React from "react";
+import { Provider } from "react-redux";
 
 import { Layout } from "@/components/Layout";
+import { store } from "@/modules/store";
 import createEmotionCache from "@/styles/createEmotionCache";
 import theme from "@/styles/theme";
 
@@ -22,9 +23,11 @@ export default function MyApp(props: MyAppProps): JSX.Element {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <Provider store={store}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </Provider>
       </ThemeProvider>
     </CacheProvider>
   );

@@ -23,7 +23,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
   const [genres, setGenres] = useState([]);
-  const { selected, person } = useSelector((state) => state.app);
+  const { selected } = useSelector((state) => state.app);
   const dispatch = useDispatch();
 
   const drawerWidth = matchUpLg ? 280 : "100%";
@@ -86,7 +86,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Paper>
       </Box>
-      {genres.length > 0 && (
+      {genres.length > 0 && router.pathname === "/person/[personId]" && (
         <Box sx={{ m: 2 }}>
           <Paper
             component="form"

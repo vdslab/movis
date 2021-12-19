@@ -12,7 +12,6 @@ import {
   Button,
 } from "@mui/material";
 import { useRouter } from "next/router";
-import { useForm } from "react-hook-form";
 
 import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
@@ -22,10 +21,7 @@ const TAKE = 10;
 
 const PersonSearchResult = (props) => {
   console.log(props);
-  // これいるか？
-  const { register, handleSubmit } = useForm({
-    defaultValues: { name: props.name },
-  });
+
   const router = useRouter();
   const encodedName = encodeURIComponent(props.name);
 

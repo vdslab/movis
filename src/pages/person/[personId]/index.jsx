@@ -70,23 +70,33 @@ const Person = ({ data }) => {
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
       <Grid container spacing={2}>
-        <Grid
-          item
-          xs={12}
-          sx={{
-            display: "flex",
-            // justifyContent: "center",
-          }}
-        >
-          <RoundedImage
-            src={data.personImgUrl}
-            alt={data.person.name + "プロフィール"}
-            height="300px"
-          />
-          <Box>
-            <Typography variant="h4" sx={{ m: 1 }}>
-              {data.person.name}
-            </Typography>
+        <Grid item container spacing={2}>
+          <Grid
+            item
+            xs={12}
+            sm={4}
+            sx={{
+              display: "flex",
+              justifyContent: { xs: "center", sm: "flex-start" },
+            }}
+          >
+            <RoundedImage
+              src={data.personImgUrl}
+              alt={data.person.name + "プロフィール"}
+              height="300px"
+            />
+          </Grid>
+          <Grid item xs={12} sm={8}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-start" },
+              }}
+            >
+              <Typography variant="h4" sx={{ m: 1 }}>
+                {data.person.name}
+              </Typography>
+            </Box>
             <Box sx={{ my: 2, mx: 1 }}>
               <Typography sx={{ p: 1 }}>
                 {data.person.name}が関わった映画のジャンル
@@ -105,7 +115,7 @@ const Person = ({ data }) => {
                 );
               })}
             </Box>
-          </Box>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ p: 1 }}>映画製作の記録</Typography>

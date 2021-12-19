@@ -165,7 +165,7 @@ export const getServerSideProps = async (ctx) => {
     redirect: {
       permanent: false,
       destination:
-        movieHitCount < personHitCount
+        movieHitCount <= personHitCount
           ? `/search/${encodedName}/person?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`
           : `/search/${encodedName}/movie?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`,
     },

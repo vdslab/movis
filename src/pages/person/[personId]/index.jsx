@@ -297,10 +297,6 @@ const Person = ({ data }) => {
                 Object.values(a.filterResult).filter((item) => item).length
             )
             .map((movie) => {
-              const handleMovieClick = () => {
-                router.push(`/movie/${movie.id}`);
-              };
-
               return (
                 <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
                   <MovieCard

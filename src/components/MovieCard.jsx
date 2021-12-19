@@ -41,18 +41,19 @@ export const MovieCard = ({
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
           <Box>
-            {Object.keys(filterResult).map((key) => {
-              return (
-                filterResult[key] && (
-                  <Chip
-                    label={key}
-                    color={filterColor[key]}
-                    sx={{ m: "2px" }}
-                    key={key}
-                  />
-                )
-              );
-            })}
+            {filterResult &&
+              Object.keys(filterResult).map((key) => {
+                return (
+                  filterResult[key] && (
+                    <Chip
+                      label={key}
+                      color={filterColor[key]}
+                      sx={{ m: "2px" }}
+                      key={key}
+                    />
+                  )
+                );
+              })}
           </Box>
           <Link
             href={`/movie/${movieId}`}
@@ -76,10 +77,12 @@ export const MovieCard = ({
                       : genre.name
                   }
                   color={
-                    selectedGenreIds.includes(genre.id) ? "success" : void 0
+                    selectedGenreIds && selectedGenreIds.includes(genre.id)
+                      ? "success"
+                      : void 0
                   }
                   onClick={() => {
-                    handleGenreClick(genre.id);
+                    handleGenreClick && handleGenreClick(genre.id);
                   }}
                   key={genre.id}
                   sx={{ m: "2px" }}

@@ -15,7 +15,7 @@
 // } from "@mui/material";
 // import { useRouter } from "next/router";
 
-import { Box, Container, Grid, Typography } from "@mui/material";
+import { Box, Container, Grid, Typography, Chip } from "@mui/material";
 
 import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
@@ -269,22 +269,56 @@ const Movie = (props) => {
               <Typography variant="h4" sx={{ m: 1 }}>
                 {props.movie.title}
               </Typography>
-              {/* add original title */}
-              <Typography sx={{ m: 1 }}>
-                {`上映時間${props.movie.runtime}分 ${
-                  props.movie.productionYear
-                }年製作 ${props.movie.releaseDate.slice(0, 10)}公開`}
-              </Typography>
-              {/* add production countries */}
-              {/* add genres */}
-              {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
-              <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                {props.movie.outline.slice(
-                  0,
-                  Math.floor(props.movie.outline.length * 0.4)
+              {props.movie.originalTitle && (
+                <Typography variant="h5" sx={{ m: 1 }}>
+                  {props.movie.originalTitle}
+                </Typography>
+              )}
+              <Box sx={{ display: "flex" }}>
+                {props.movie.runtime && (
+                  <Typography sx={{ m: 1 }}>
+                    上映時間{props.movie.runtime}分
+                  </Typography>
                 )}
-                ...
-              </Typography>
+                {props.movie.productionYear && (
+                  <Typography sx={{ m: 1 }}>
+                    {props.movie.productionYear}年製作
+                  </Typography>
+                )}
+                {/* ゴミ処理　- と / はどっちが見やすいか確認する */}
+                {props.movie.releaseDate && (
+                  <Typography sx={{ m: 1 }}>
+                    {props.movie.releaseDate.slice(0, 10).replaceAll("-", "/")}
+                    公開
+                  </Typography>
+                )}
+              </Box>
+              {/* add genres */}
+              {props.movie.genres.length > 0 && (
+                <Box>
+                  {props.movie.genres.map((genre) => {
+                    return (
+                      <Chip
+                        label={genre.name}
+                        onClick={() => {}}
+                        sx={{ m: "2px" }}
+                        key={genre.id}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
+              {/* add production countries */}
+              {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
+              {props.movie.outline && (
+                <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
+                  {props.movie.outline.slice(
+                    0,
+                    Math.floor(props.movie.outline.length * 0.4)
+                  )}
+                  ...
+                </Typography>
+              )}
             </Box>
             <Box sx={{ my: 2, mx: 1 }}>
               <Typography sx={{ p: 1 }}>

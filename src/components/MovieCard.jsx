@@ -58,6 +58,7 @@ export const MovieCard = ({
           </Box>
           <Link
             href={`/movie/${movieId}`}
+            passHref
             // ゴミ処理かも
             sx={{ textDecoration: "none", color: "black" }}
           >

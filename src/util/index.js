@@ -26,32 +26,40 @@ export const filterMovieByNode = (movies, selectedNodeIds) => {
   }
 
   // 選択ノードの'かつ'で絞り込んだmovie ids
-  const andFilteredMovieIds = movies
-    .filter((movie) => {
-      const movieProductionMemberIds = movie.productionMembers.map(
-        (pm) => pm.person.id
-      );
-      const and = selectedNodeIds.every((nodeId) =>
-        movieProductionMemberIds.includes(nodeId)
-      );
+  const andFilteredMovieIds = Array.from(
+    new Set(
+      movies
+        .filter((movie) => {
+          const movieProductionMemberIds = movie.productionMembers.map(
+            (pm) => pm.person.id
+          );
+          const and = selectedNodeIds.every((nodeId) =>
+            movieProductionMemberIds.includes(nodeId)
+          );
 
-      return and;
-    })
-    .map((movie) => movie.id);
+          return and;
+        })
+        .map((movie) => movie.id)
+    )
+  );
 
   // 選択ノードの'または'で絞り込んだmovie ids
-  // const orFilteredMovieIds = movies
-  //   .filter((movie) => {
-  //     const movieProductionMemberIds = movie.productionMembers.map(
-  //       (pm) => pm.person.id
-  //     );
-  //     const or = selectedNodeIds.some((nodeId) =>
-  //       movieProductionMemberIds.includes(nodeId)
-  //     );
+  // const orFilteredMovieIds = Array.from(
+  //   new Set(
+  //     movies
+  //       .filter((movie) => {
+  //         const movieProductionMemberIds = movie.productionMembers.map(
+  //           (pm) => pm.person.id
+  //         );
+  //         const or = selectedNodeIds.some((nodeId) =>
+  //           movieProductionMemberIds.includes(nodeId)
+  //         );
 
-  //     return or;
-  //   })
-  //   .map((movie) => movie.id);
+  //         return or;
+  //       })
+  //       .map((movie) => movie.id)
+  //   )
+  // );
 
   return andFilteredMovieIds;
 };
@@ -62,30 +70,37 @@ export const filterMovieByGenre = (movies, selectedGenreIds) => {
   }
 
   // 選択ジャンルの'かつ'で絞り込んだmovie ids
-  const andFilteredMovieIds = movies
-    .filter((movie) => {
-      const movieGenres = movie.genres.map((genre) => genre.id);
+  const andFilteredMovieIds = Array.from(
+    new Set(
+      movies
+        .filter((movie) => {
+          const movieGenres = movie.genres.map((genre) => genre.id);
 
-      const and = selectedGenreIds.every((genreId) =>
-        movieGenres.includes(genreId)
-      );
+          const and = selectedGenreIds.every((genreId) =>
+            movieGenres.includes(genreId)
+          );
 
-      return and;
-    })
-    .map((movie) => movie.id);
-
+          return and;
+        })
+        .map((movie) => movie.id)
+    )
+  );
   // 選択ジャンルの'または'で絞り込んだmovie ids
-  // const orFilteredMovieIds = movies
-  //   .filter((movie) => {
-  //     const movieGenres = movie.genres.map((genre) => genre.id);
+  // const orFilteredMovieIds = Array.from(
+  //   new Set(
+  //     movies
+  //       .filter((movie) => {
+  //         const movieGenres = movie.genres.map((genre) => genre.id);
 
-  //     const or = selectedGenreIds.some((genreId) =>
-  //       movieGenres.includes(genreId)
-  //     );
+  //         const or = selectedGenreIds.some((genreId) =>
+  //           movieGenres.includes(genreId)
+  //         );
 
-  //     return or;
-  //   })
-  //   .map((movie) => movie.id);
+  //         return or;
+  //       })
+  //       .map((movie) => movie.id)
+  //   )
+  // );
 
   return andFilteredMovieIds;
 };
@@ -95,9 +110,13 @@ export const filterMovieByYear = (movies, selectedYears) => {
     return [];
   }
 
-  const filteredMovieIds = movies
-    .filter((movie) => selectedYears.includes(movie.productionYear))
-    .map((movie) => movie.id);
+  const filteredMovieIds = Array.from(
+    new Set(
+      movies
+        .filter((movie) => selectedYears.includes(movie.productionYear))
+        .map((movie) => movie.id)
+    )
+  );
 
   return filteredMovieIds;
 };

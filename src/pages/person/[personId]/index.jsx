@@ -59,6 +59,9 @@ const Person = ({ data }) => {
 
   const [networkSearch, setNetworkSearch] = useState("");
 
+  // ゴミ処理　映画の表示で重複する場合があるので応急処置
+  const movieIds = [];
+
   const toggleSelectedGenres = (genreId) => {
     dispatch(toggleSelected({ target: "genre", value: genreId }));
   };
@@ -110,7 +113,7 @@ const Person = ({ data }) => {
                       selected.genreIds.includes(genre.id) ? "success" : void 0
                     }
                     onClick={() => toggleSelectedGenres(genre.id)}
-                    sx={{ m: "2px" }}
+                    sx={{ m: 0.5 }}
                   />
                 );
               })}
@@ -261,7 +264,7 @@ const Person = ({ data }) => {
                       border: "1px solid black",
                     }}
                   >
-                    {
+                    {null && (
                       <ActorNetwork
                         width={width}
                         height={height}
@@ -271,7 +274,7 @@ const Person = ({ data }) => {
                         movies={movies}
                         search={networkSearch}
                       />
-                    }
+                    )}
                   </Box>
                 );
               }}
@@ -297,6 +300,12 @@ const Person = ({ data }) => {
                 Object.values(a.filterResult).filter((item) => item).length
             )
             .map((movie) => {
+              // ゴミ処理　映画の表示で重複する場合があるので応急処置
+              if (movieIds.includes(movie.id)) {
+                return null;
+              }
+
+              movieIds.push(movie.id);
               return (
                 <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
                   <MovieCard

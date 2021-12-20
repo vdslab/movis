@@ -256,6 +256,7 @@ const Movie = (props) => {
               sx={{ height: "300px" }}
             />
             {/* add trailer url */}
+            {/* add link to filmarks */}
           </Grid>
           <Grid item xs={12} sm={8}>
             <Box
@@ -293,14 +294,26 @@ const Movie = (props) => {
                   </Typography>
                 )}
               </Box>
-              {/* add genres */}
+              {props.movie.productionCountries.length > 0 && (
+                <Box>
+                  {props.movie.productionCountries.map((productionCountry) => {
+                    return (
+                      <Chip
+                        label={productionCountry.name}
+                        sx={{ m: "2px" }}
+                        key={productionCountry.id}
+                      />
+                    );
+                  })}
+                </Box>
+              )}
               {props.movie.genres.length > 0 && (
                 <Box>
                   {props.movie.genres.map((genre) => {
                     return (
                       <Chip
                         label={genre.name}
-                        onClick={() => {}}
+                        clickable={false}
                         sx={{ m: "2px" }}
                         key={genre.id}
                       />
@@ -308,35 +321,16 @@ const Movie = (props) => {
                   })}
                 </Box>
               )}
-              {/* add production countries */}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
               {props.movie.outline && (
                 <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                  {props.movie.outline.slice(
+                  {`${props.movie.outline.slice(
                     0,
                     Math.floor(props.movie.outline.length * 0.4)
-                  )}
+                  )}`}
                   ...
                 </Typography>
               )}
-            </Box>
-            <Box sx={{ my: 2, mx: 1 }}>
-              <Typography sx={{ p: 1 }}>
-                {/* {data.person.name}が関わった映画のジャンル */}
-              </Typography>
-              {/* {data.relatedGenres.map((genre) => {
-                return (
-                  <Chip
-                    label={genre.name}
-                    key={genre.id}
-                    color={
-                      selected.genreIds.includes(genre.id) ? "success" : void 0
-                    }
-                    onClick={() => toggleSelectedGenres(genre.id)}
-                    sx={{ m: "2px" }}
-                  />
-                );
-              })} */}
             </Box>
           </Grid>
         </Grid>

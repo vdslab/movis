@@ -26,6 +26,7 @@ const initialState = {
   },
   person: {
     movies: [],
+    genreIds: [],
   },
 };
 
@@ -70,6 +71,9 @@ export const appSlice = createSlice({
     setPersonMovies: (state, action) => {
       state.person.movies = [...action.payload];
     },
+    setPersonGenreIds: (state, action) => {
+      state.person.genreIds = [...action.payload];
+    },
   },
 });
 
@@ -79,6 +83,7 @@ export const {
   clearSelection,
   clearAllSelection,
   setPersonMovies,
+  setPersonGenreIds,
 } = appSlice.actions;
 
 export const appReducer = appSlice.reducer;

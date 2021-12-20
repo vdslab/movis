@@ -60,7 +60,7 @@ export const MovieCard = ({
             href={`/movie/${movieId}`}
             passHref
             // ゴミ処理かも
-            sx={{ textDecoration: "none", color: "black" }}
+            sx={{ textDecoration: "none" }}
           >
             <Typography variant="subtitle1">{title}</Typography>
           </Link>

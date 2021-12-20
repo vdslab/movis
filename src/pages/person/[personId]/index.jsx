@@ -10,8 +10,7 @@ import {
   Chip,
 } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
-import { useRouter } from "next/router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -20,7 +19,10 @@ import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
 import prisma from "@/lib/prisma";
-import { toggleSelected } from "@/modules/features/app/appSlice";
+import {
+  setPersonGenreIds,
+  toggleSelected,
+} from "@/modules/features/app/appSlice";
 import {
   fetchTmdbPersonImg,
   filterMovieByGenre,
@@ -30,7 +32,8 @@ import {
 } from "@/util";
 
 const Person = ({ data }) => {
-  // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題
+  console.log(data);
+  // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題 解決済み　面倒なのでこのまま
   const movies = useMemo(
     () =>
       data.person.relatedMovies.map((rm) => {
@@ -40,7 +43,6 @@ const Person = ({ data }) => {
     [data]
   );
 
-  const router = useRouter();
   const { register, handleSubmit, reset } = useForm();
   const { selected } = useSelector((state) => state.app);
   const dispatch = useDispatch();
@@ -70,6 +72,10 @@ const Person = ({ data }) => {
     dispatch(toggleSelected({ target: "node", value: nodeId }));
   };
 
+  useEffect(() => {
+    dispatch(setPersonGenreIds(data.relatedGenres.map((rg) => rg.id)));
+  }, [dispatch, data]);
+
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
       <Grid container spacing={2}>
@@ -79,7 +85,7 @@ const Person = ({ data }) => {
             xs={12}
             sm={4}
             sx={{
-              display: "flex",
+              display: data.personImgUrl ? "flex" : "none",
               justifyContent: { xs: "center", sm: "flex-start" },
             }}
           >

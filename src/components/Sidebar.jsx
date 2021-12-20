@@ -23,7 +23,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const { register, handleSubmit } = useForm();
   const router = useRouter();
   const [genres, setGenres] = useState([]);
-  const { selected } = useSelector((state) => state.app);
+  const { selected, person } = useSelector((state) => state.app);
   const dispatch = useDispatch();
 
   const drawerWidth = matchUpLg ? 280 : "100%";
@@ -91,7 +91,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           <Paper
             component="form"
             sx={{
-              p: "2px 4px",
+              p: 1,
               // display: "flex",
               // alignItems: "center",
               width: "100%",
@@ -104,9 +104,11 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
               drawerToggle();
             })}
           >
+            <Typography sx={{ m: 1 }}>ジャンル</Typography>
             {genres.map((genre) => {
               return (
                 <Chip
+                  disabled={!person.genreIds.includes(genre.id)}
                   label={genre.name}
                   key={genre.id}
                   color={

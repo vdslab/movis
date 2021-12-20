@@ -84,7 +84,7 @@ const MovieSearchResult = (props) => {
               `/search/${encodedName}/movie?movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${v}`
             );
           }}
-          defaultPage={Number.isInteger(props.page) ? props.page : 1}
+          page={props.page}
         />
       </Box>
     </Container>
@@ -95,9 +95,17 @@ export const getServerSideProps = async (ctx) => {
   const { query } = ctx;
   const { name, movieHitCount, personHitCount, page } = query;
 
-  const skip = Number.isInteger(Number(page))
-    ? (Number(page) - 1 < 0 ? 0 : Number(page) - 1) * TAKE
-    : 0;
+  const number = {
+    movieHitCount: Number.isInteger(Number(movieHitCount))
+      ? Number(movieHitCount)
+      : 0,
+    personHitCount: Number.isInteger(Number(personHitCount))
+      ? Number(movieHitCount)
+      : 0,
+    page: Number.isInteger(Number(page)) && Number(page) > 0 ? Number(page) : 1,
+  };
+
+  const skip = (number.page - 1) * TAKE;
 
   // とりあえず新しい順に
   const movies = await prisma.movie.findMany({
@@ -125,10 +133,8 @@ export const getServerSideProps = async (ctx) => {
   return {
     props: forceSerialize({
       name,
-      movieHitCount,
-      personHitCount,
       movies,
-      page,
+      ...number,
     }),
   };
 };

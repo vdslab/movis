@@ -10,7 +10,7 @@ import {
   Chip,
 } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -68,9 +68,12 @@ const Person = ({ data }) => {
     dispatch(toggleSelected({ target: "genre", value: genreId }));
   };
 
-  const toggleSelectedNodes = (nodeId) => {
-    dispatch(toggleSelected({ target: "node", value: nodeId }));
-  };
+  const toggleSelectedNodes = useCallback(
+    (nodeId) => {
+      dispatch(toggleSelected({ target: "node", value: nodeId }));
+    },
+    [dispatch]
+  );
 
   useEffect(() => {
     dispatch(setPersonGenreIds(data.relatedGenres.map((rg) => rg.id)));
@@ -78,6 +81,40 @@ const Person = ({ data }) => {
       setPersonRelatedPeople(data.network.nodes.map((node) => ({ ...node })))
     );
   }, [dispatch, data]);
+
+  const ResponsiveNetwork = useMemo(() => {
+    return (
+      <Responsive
+        render={(width, height) => {
+          return (
+            <Box
+              sx={{
+                width: width,
+                height: height,
+                border: "1px solid black",
+              }}
+            >
+              <ActorNetwork
+                width={width}
+                height={height}
+                selectedNodeIds={selected.nodeIds}
+                handleNodeClick={toggleSelectedNodes}
+                network={data.network}
+                movies={movies}
+                search={networkSearch}
+              />
+            </Box>
+          );
+        }}
+      />
+    );
+  }, [
+    selected.nodeIds,
+    toggleSelectedNodes,
+    data.network,
+    movies,
+    networkSearch,
+  ]);
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -263,7 +300,8 @@ const Person = ({ data }) => {
               height: "50vh",
             }}
           >
-            <Responsive
+            {ResponsiveNetwork}
+            {/* <Responsive
               render={(width, height) => {
                 return (
                   <Box
@@ -285,7 +323,7 @@ const Person = ({ data }) => {
                   </Box>
                 );
               }}
-            />
+            /> */}
           </Box>
         </Grid>
 

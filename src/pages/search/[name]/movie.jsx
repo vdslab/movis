@@ -16,7 +16,6 @@ import { forceSerialize } from "@/util";
 const TAKE = 10;
 
 const MovieSearchResult = (props) => {
-  console.log(props);
   const router = useRouter();
   const encodedName = encodeURIComponent(props.name);
 

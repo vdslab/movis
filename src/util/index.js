@@ -70,39 +70,40 @@ export const filterMovieByGenre = (movies, selectedGenreIds) => {
   }
 
   // 選択ジャンルの'かつ'で絞り込んだmovie ids
-  const andFilteredMovieIds = Array.from(
-    new Set(
-      movies
-        .filter((movie) => {
-          const movieGenres = movie.genres.map((genre) => genre.id);
-
-          const and = selectedGenreIds.every((genreId) =>
-            movieGenres.includes(genreId)
-          );
-
-          return and;
-        })
-        .map((movie) => movie.id)
-    )
-  );
-  // 選択ジャンルの'または'で絞り込んだmovie ids
-  // const orFilteredMovieIds = Array.from(
+  // const andFilteredMovieIds = Array.from(
   //   new Set(
   //     movies
   //       .filter((movie) => {
   //         const movieGenres = movie.genres.map((genre) => genre.id);
 
-  //         const or = selectedGenreIds.some((genreId) =>
+  //         const and = selectedGenreIds.every((genreId) =>
   //           movieGenres.includes(genreId)
   //         );
 
-  //         return or;
+  //         return and;
   //       })
   //       .map((movie) => movie.id)
   //   )
   // );
 
-  return andFilteredMovieIds;
+  // 選択ジャンルの'または'で絞り込んだmovie ids
+  const orFilteredMovieIds = Array.from(
+    new Set(
+      movies
+        .filter((movie) => {
+          const movieGenres = movie.genres.map((genre) => genre.id);
+
+          const or = selectedGenreIds.some((genreId) =>
+            movieGenres.includes(genreId)
+          );
+
+          return or;
+        })
+        .map((movie) => movie.id)
+    )
+  );
+
+  return orFilteredMovieIds;
 };
 
 export const filterMovieByYear = (movies, selectedYears) => {

@@ -94,7 +94,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Paper>
       </Box>
-      {router.pathname === "/person/[personId]" && (
+      {selected.nodeIds.length > 0 && router.pathname === "/person/[personId]" && (
         <Box sx={{ m: 2 }}>
           <Paper
             component="div"
@@ -105,7 +105,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
               width: "100%",
             }}
           >
-            <Typography sx={{ m: 1 }}>製作年度</Typography>
+            <Typography sx={{ m: 1 }}>選択された出演者</Typography>
             {person.relatedPeople.map((rp) => {
               if (!selected.nodeIds.includes(rp.id)) {
                 return null;
@@ -126,7 +126,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </Paper>
         </Box>
       )}
-      {selected.nodeIds.length > 0 && router.pathname === "/person/[personId]" && (
+      {router.pathname === "/person/[personId]" && (
         <Box sx={{ m: 2 }}>
           <Paper
             component="div"
@@ -137,7 +137,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
               width: "100%",
             }}
           >
-            <Typography sx={{ m: 1 }}>選択された出演者</Typography>
+            <Typography sx={{ m: 1 }}>製作年度</Typography>
             {person.relatedPeople.map((rp) => {
               if (!selected.nodeIds.includes(rp.id)) {
                 return null;

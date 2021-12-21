@@ -87,6 +87,38 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Paper>
       </Box>
+      {selected.nodeIds.length > 0 && router.pathname === "/person/[personId]" && (
+        <Box sx={{ m: 2 }}>
+          <Paper
+            component="div"
+            sx={{
+              p: 1,
+              // display: "flex",
+              // alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Typography sx={{ m: 1 }}>選択された出演者</Typography>
+            {person.relatedPeople.map((rp) => {
+              if (!selected.nodeIds.includes(rp.id)) {
+                return null;
+              }
+
+              return (
+                <Chip
+                  label={rp.name}
+                  key={rp.id}
+                  color={"error"}
+                  onClick={() => {
+                    dispatch(toggleSelected({ target: "node", value: rp.id }));
+                  }}
+                  sx={{ m: "2px" }}
+                />
+              );
+            })}
+          </Paper>
+        </Box>
+      )}
       {genres.length > 0 && router.pathname === "/person/[personId]" && (
         <Box sx={{ m: 2 }}>
           <Paper

@@ -21,6 +21,7 @@ import { RoundedImage } from "@/components/RoundedImage";
 import prisma from "@/lib/prisma";
 import {
   setPersonGenreIds,
+  setPersonRelatedPeople,
   toggleSelected,
 } from "@/modules/features/app/appSlice";
 import {
@@ -74,6 +75,9 @@ const Person = ({ data }) => {
 
   useEffect(() => {
     dispatch(setPersonGenreIds(data.relatedGenres.map((rg) => rg.id)));
+    dispatch(
+      setPersonRelatedPeople(data.network.nodes.map((node) => ({ ...node })))
+    );
   }, [dispatch, data]);
 
   return (

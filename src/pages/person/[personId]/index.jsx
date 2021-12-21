@@ -270,17 +270,15 @@ const Person = ({ data }) => {
                       border: "1px solid black",
                     }}
                   >
-                    {null && (
-                      <ActorNetwork
-                        width={width}
-                        height={height}
-                        selectedNodeIds={selected.nodeIds}
-                        handleNodeClick={toggleSelectedNodes}
-                        network={data.network}
-                        movies={movies}
-                        search={networkSearch}
-                      />
-                    )}
+                    <ActorNetwork
+                      width={width}
+                      height={height}
+                      selectedNodeIds={selected.nodeIds}
+                      handleNodeClick={toggleSelectedNodes}
+                      network={data.network}
+                      movies={movies}
+                      search={networkSearch}
+                    />
                   </Box>
                 );
               }}

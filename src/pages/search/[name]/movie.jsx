@@ -24,9 +24,10 @@ const MovieSearchResult = (props) => {
     <Container maxWidth="xl" sx={{ my: 3 }}>
       <Box
         sx={{
-          display: { xs: "block", sm: "flex" },
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: { sm: "center" },
         }}
       >
         <Typography sx={{ mb: 2 }}>
@@ -43,6 +44,9 @@ const MovieSearchResult = (props) => {
             );
           }}
           variant="contained"
+          color="primary"
+          sx={{ alignSelf: "flex-end" }}
+          disabled={props.personHitCount === 0}
         >
           人物の検索結果へ
         </Button>

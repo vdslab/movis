@@ -157,15 +157,14 @@ export const getServerSideProps = async (ctx) => {
     },
   });
 
-  // personの方が検索一致が多かった場合に、personの検索結果にリダイレクト
-  // ゴミ処理　これでいいのかわからん、遅いようならデフォルトを映画に
+  // personが1件でもヒットすればpersonに飛ばせる
   // ゴミ処理　リダイレクト後に再度件数取得は馬鹿馬鹿しいのでqueryStringsで送るけどどうなのかこれ
   const encodedName = encodeURIComponent(name);
   return {
     redirect: {
       permanent: false,
       destination:
-        movieHitCount <= personHitCount
+        0 < personHitCount
           ? `/search/${encodedName}/person?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`
           : `/search/${encodedName}/movie?movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`,
     },

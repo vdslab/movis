@@ -37,6 +37,9 @@ const PersonSearchResult = (props) => {
       >
         <Typography sx={{ mb: 2 }}>
           名前に「{props.name}」が含まれる人物
+          <Box component="span" sx={{ mx: 1 }}>
+            （{props.personHitCount}件）
+          </Box>
         </Typography>
         <Button
           onClick={() => {

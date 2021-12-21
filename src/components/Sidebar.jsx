@@ -15,7 +15,10 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
-import { toggleSelected } from "@/modules/features/app/appSlice";
+import {
+  clearAllSelection,
+  toggleSelected,
+} from "@/modules/features/app/appSlice";
 
 export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const theme = useTheme();
@@ -38,6 +41,10 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
 
     loadGenres();
   }, []);
+
+  useEffect(() => {
+    dispatch(clearAllSelection());
+  }, [dispatch, router.asPath]);
 
   // ゴミ処理
   const drawer = (
@@ -87,6 +94,38 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Paper>
       </Box>
+      {router.pathname === "/person/[personId]" && (
+        <Box sx={{ m: 2 }}>
+          <Paper
+            component="div"
+            sx={{
+              p: 1,
+              // display: "flex",
+              // alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Typography sx={{ m: 1 }}>製作年度</Typography>
+            {person.relatedPeople.map((rp) => {
+              if (!selected.nodeIds.includes(rp.id)) {
+                return null;
+              }
+
+              return (
+                <Chip
+                  label={rp.name}
+                  key={rp.id}
+                  color={"error"}
+                  onClick={() => {
+                    dispatch(toggleSelected({ target: "node", value: rp.id }));
+                  }}
+                  sx={{ m: "2px" }}
+                />
+              );
+            })}
+          </Paper>
+        </Box>
+      )}
       {selected.nodeIds.length > 0 && router.pathname === "/person/[personId]" && (
         <Box sx={{ m: 2 }}>
           <Paper

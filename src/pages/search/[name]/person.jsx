@@ -20,8 +20,6 @@ import { fetchTmdbPersonImg, forceSerialize } from "@/util";
 const TAKE = 10;
 
 const PersonSearchResult = (props) => {
-  console.log(props);
-
   const router = useRouter();
   const encodedName = encodeURIComponent(props.name);
 

@@ -67,6 +67,7 @@ export const appSlice = createSlice({
     },
     clearAllSelection: (state) => {
       state.selected = initialState.selected;
+      state.person = initialState.person;
       // state.filteredMovieIds = initialState.filteredMovieIds;
     },
     setPersonMovies: (state, action) => {

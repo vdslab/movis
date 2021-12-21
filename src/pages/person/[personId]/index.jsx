@@ -33,7 +33,6 @@ import {
 } from "@/util";
 
 const Person = ({ data }) => {
-  console.log(data);
   // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題 解決済み　面倒なのでこのまま
   const movies = useMemo(
     () =>

@@ -20,7 +20,7 @@ import { toggleSelected } from "@/modules/features/app/appSlice";
 export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
   const [genres, setGenres] = useState([]);
   const { selected, person } = useSelector((state) => state.app);
@@ -73,6 +73,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
               pathname: "/search/[name]",
               query: { name: data.name },
             });
+            reset({ name: "" });
             drawerToggle();
           })}
         >
@@ -102,6 +103,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
                 query: { name: data.name },
               });
               drawerToggle();
+              reset({ name: "" });
             })}
           >
             <Typography sx={{ m: 1 }}>ジャンル</Typography>

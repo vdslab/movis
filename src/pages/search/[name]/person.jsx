@@ -88,6 +88,9 @@ const PersonSearchResult = (props) => {
         <Pagination
           count={Math.floor(props.personHitCount / TAKE) + 1}
           onChange={(e, v) => {
+            if (props.page === v) {
+              return;
+            }
             router.push(
               `/search/${encodedName}/person?movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${v}`
             );

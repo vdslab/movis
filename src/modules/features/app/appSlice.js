@@ -27,6 +27,7 @@ const initialState = {
   person: {
     movies: [],
     genreIds: [],
+    selectedPeople: [],
   },
 };
 
@@ -73,6 +74,10 @@ export const appSlice = createSlice({
     },
     setPersonGenreIds: (state, action) => {
       state.person.genreIds = [...action.payload];
+    },
+    // ゴミ処理　selectedNodeIdsとまとめられる
+    setPersonSelectedPeople: (state, action) => {
+      state.person.selectedPeople = [...action.payload];
     },
   },
 });

@@ -123,5 +123,5 @@ export const filterMovieByYear = (movies, selectedYears) => {
 };
 
 export const string2int = (str) => {
-  return Number.isInteger(Number(str)) ? Number.isInteger(Number(str)) : void 0;
+  return Number.isInteger(Number(str)) ? Number(str) : void 0;
 };

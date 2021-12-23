@@ -54,9 +54,11 @@ const MovieSearchResult = (props) => {
       {/* movie list */}
       <List sx={{ width: "100%" }}>
         {props.movies.map((movie) => {
+          // ゴミ処理　微妙すぎる
           const handleMovieClick = () => {
-            router.push(`/movie/${movie.id}`);
+            router.push(`/movies/${movie.id}`);
           };
+
           return (
             <Grid
               item
@@ -82,12 +84,12 @@ const MovieSearchResult = (props) => {
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Pagination
           count={Math.floor(props.movieHitCount / TAKE) + 1}
-          onChange={(e, v) => {
-            if (props.page === v) {
+          onChange={(e, targetPage) => {
+            if (props.page === targetPage) {
               return;
             }
             router.push(
-              `/search/${encodedName}/movie?movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${v}`
+              `/movies?keyword${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
             );
           }}
           page={props.page}

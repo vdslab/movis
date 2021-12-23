@@ -7,15 +7,17 @@ import {
   Grid,
   Button,
 } from "@mui/material";
+import { useRouter } from "next/router";
 
 import { MovieCard } from "@/components/MovieCard";
 import { SEARCH_LIMIT } from "@/const";
 import prisma from "@/lib/prisma";
-import { forceSerialize } from "@/util";
+import { forceSerialize, string2int } from "@/util";
 
-const MovieSearchResult = (props) => {
+const Movies = (props) => {
   const router = useRouter();
-  const encodedKeyword = encodeURIComponent(props.name);
+  const encodedKeyword = encodeURIComponent(props.keyword);
+  console.log(props);
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -28,7 +30,7 @@ const MovieSearchResult = (props) => {
         }}
       >
         <Typography sx={{ mb: 2 }}>
-          名前に「{props.name}」が含まれる映画
+          名前に「{props.keyword}」が含まれる映画
           <Box component="span" sx={{ mx: 1 }}>
             （{props.movieHitCount}件）
           </Box>
@@ -37,7 +39,7 @@ const MovieSearchResult = (props) => {
         <Button
           onClick={() => {
             router.push(
-              `/people?keyword${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}`
+              `/people?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}`
             );
           }}
           variant="contained"
@@ -84,7 +86,7 @@ const MovieSearchResult = (props) => {
               return;
             }
             router.push(
-              `/movies?keyword${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
+              `/movies?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
             );
           }}
           page={props.page}
@@ -155,4 +157,4 @@ export const getServerSideProps = async (ctx) => {
   };
 };
 
-export default MovieSearchResult;
+export default Movies;

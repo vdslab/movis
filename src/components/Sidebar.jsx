@@ -215,18 +215,16 @@ export const Sidebar = ({ drawerToggle, window }) => {
             width: "100%",
           }}
           onSubmit={handleSubmit((data) => {
-            router.push({
-              pathname: "/search/[name]",
-              query: { name: data.name },
-            });
-            reset({ name: "" });
+            const encodedKeyword = encodeURIComponent(data.keyword);
+            router.push(`/people?keyword=${encodedKeyword}`);
+            reset({ keyword: "" });
             drawerToggle();
           })}
         >
           <InputBase
             sx={{ ml: 1, flex: 1 }}
             placeholder="人物・映画名で検索"
-            {...register("name")}
+            {...register("keyword")}
           />
           <IconButton type="submit" sx={{ p: "10px" }}>
             <SearchOutlined />

@@ -19,6 +19,7 @@ import prisma from "@/lib/prisma";
 import { fetchTmdbPersonImg, forceSerialize, string2int } from "@/util";
 
 const People = (props) => {
+  console.log(props);
   const router = useRouter();
   const encodedKeyword = encodeURIComponent(props.keyword);
 
@@ -33,7 +34,7 @@ const People = (props) => {
         }}
       >
         <Typography sx={{ mb: 2 }}>
-          名前に「{props.name}」が含まれる人物
+          名前に「{props.keyword}」が含まれる人物
           <Box component="span" sx={{ mx: 1 }}>
             （{props.personHitCount}件）
           </Box>
@@ -41,7 +42,7 @@ const People = (props) => {
         <Button
           onClick={() => {
             router.push(
-              `/movies?keyword${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}`
+              `/movies?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}`
             );
           }}
           variant="contained"
@@ -57,10 +58,7 @@ const People = (props) => {
         {props.people.map((person, index) => {
           return (
             <Link
-              href={{
-                pathname: "/person/[personId]",
-                query: { personId: person.id },
-              }}
+              href={`/people/${person.id}`}
               sx={{ textDecoration: "none", color: "currentcolor" }}
               key={person.id}
             >
@@ -89,7 +87,7 @@ const People = (props) => {
               return;
             }
             router.push(
-              `/people?keyword${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
+              `/people?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
             );
           }}
           page={props.page}

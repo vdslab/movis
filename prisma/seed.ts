@@ -55,7 +55,6 @@ const main = async () => {
             },
           });
           id2uuidMap[person.id] = p.id;
-          console.log(`person created with id: ${p.id}`);
         }
       }
     }
@@ -67,7 +66,6 @@ const main = async () => {
         name: occupation,
       },
     });
-    console.log(`occupation created with id: ${o.id}`);
   }
 
   for (const genre of data.genres) {
@@ -76,17 +74,14 @@ const main = async () => {
         name: genre,
       },
     });
-    console.log(`genre created with id: ${g.id}`);
   }
 
-  console.log(data.countries);
   for (const country of data.countries) {
     const c = await prisma.country.create({
       data: {
         name: country,
       },
     });
-    console.log(`country created with id: ${c.id}`);
   }
 
   for (const movie of data.movies) {
@@ -138,7 +133,6 @@ const main = async () => {
         },
       },
     });
-    console.log(`movie created with id: ${m.id}`);
   }
 };
 

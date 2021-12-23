@@ -17,7 +17,6 @@ import prisma from "@/lib/prisma";
 import { forceSerialize, fetchTmdbPersonImg } from "@/util";
 
 const Movie = (props) => {
-  console.log(props);
   // ゴミ処理　複数職業の人をまとめるため
   const listedIds = [];
   const person2occupation = {};
@@ -28,7 +27,6 @@ const Movie = (props) => {
       person2occupation[pm.personId] = [{ occupation: pm.occupation }];
     }
   }
-  console.log(person2occupation);
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>

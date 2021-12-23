@@ -7,10 +7,11 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import { memo } from "react";
 
 import { Link } from "@/components/Link";
 
-export const MovieCard = ({
+export const MovieCard = memo(function MovieCard({
   movieId,
   title,
   genres,
@@ -19,7 +20,7 @@ export const MovieCard = ({
   filterResult,
   selectedGenreIds,
   handleGenreClick,
-}) => {
+}) {
   // ゴミ処理　とりあえずテーマっぽいカラーを120度ずつずらしたものなので、ベースのカラーも含めて必ず変更する
   const filterColor = {
     network: "error",
@@ -96,4 +97,4 @@ export const MovieCard = ({
       </Box>
     </Card>
   );
-};
+});

@@ -7,23 +7,39 @@ import {
   Paper,
   InputBase,
   IconButton,
-  Chip,
 } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
 import { ActorNetwork } from "@/components/ActorNetwork";
+import { RelatedGenreList } from "@/components/Genre";
 import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
 import prisma from "@/lib/prisma";
 import {
-  setPersonGenreIds,
-  setPersonRelatedPeople,
-  toggleSelected,
-} from "@/modules/features/app/appSlice";
+  loadGenres,
+  selectPersonRelatedGenres,
+  selectSelectedGenres,
+  toggleSelectedGenre,
+} from "@/modules/features/genres/genresSlice";
+import {
+  clearSearch,
+  loadNetwork,
+  selectSelectedNodes,
+  setSearch,
+} from "@/modules/features/network/networkSlice";
+import {
+  loadPerson,
+  setPersonMovies,
+} from "@/modules/features/person/personSlice";
+import {
+  loadYears,
+  selectSelectedYears,
+  toggleSelectedYear,
+} from "@/modules/features/years/yearsSlice";
 import {
   fetchTmdbPersonImg,
   filterMovieByGenre,
@@ -32,89 +48,291 @@ import {
   forceSerialize,
 } from "@/util";
 
-const Person = ({ data }) => {
-  // ゴミ処理　無限ループの原因がいまいちわかっていないのが問題 解決済み　面倒なのでこのまま
+const ResponsiveNetwork = memo(function ResponsiveNetwork() {
+  return (
+    <Responsive
+      render={(width, height) => {
+        return (
+          <Box
+            sx={{
+              width: width,
+              height: height,
+              border: "1px solid black",
+            }}
+          >
+            <ActorNetwork width={width} height={height} />
+          </Box>
+        );
+      }}
+    />
+  );
+});
+
+const GenreSection = memo(function GenreSection({
+  name,
+  personRelatedGenres,
+  handleGenreItemClick,
+}) {
+  return (
+    <Box>
+      <Typography sx={{ p: 1 }}>{name}が関わった映画のジャンル</Typography>
+
+      <RelatedGenreList
+        personRelatedGenres={personRelatedGenres}
+        handleGenreItemClick={handleGenreItemClick}
+      />
+    </Box>
+  );
+});
+
+const MovieHistorySection = memo(function MovieHistorySection({
+  barData,
+  barKeys,
+  handleBarClick,
+  selectedYears,
+}) {
+  const years = selectedYears.map((year) => year.year);
+  return (
+    <Box>
+      <Typography sx={{ p: 1 }}>映画製作の記録</Typography>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          height: 280,
+          width: "100%",
+        }}
+      >
+        <ResponsiveBar
+          data={barData}
+          keys={barKeys}
+          onClick={(item) => {
+            handleBarClick(item.indexValue);
+          }}
+          indexBy="year"
+          margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
+          padding={0.3}
+          valueScale={{ type: "linear" }}
+          indexScale={{ type: "band", round: true }}
+          colors={{ scheme: "set3" }}
+          axisTop={null}
+          axisRight={null}
+          axisBottom={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 45,
+            // ゴミ処理
+            renderTick: (tick) => {
+              return (
+                <g
+                  transform={`translate(${tick.x},${
+                    tick.y + 20
+                  })rotate(45)scale(0.9)`}
+                >
+                  <text fill={years.includes(tick.value) ? "red" : "black"}>
+                    {tick.value}
+                  </text>
+                  ;
+                </g>
+              );
+            },
+          }}
+          axisLeft={{
+            tickSize: 5,
+            tickPadding: 5,
+            tickRotation: 0,
+            format: (e) => Math.floor(e) === e && e,
+          }}
+          labelSkipWidth={12}
+          labelSkipHeight={12}
+          labelTextColor={{
+            from: "color",
+            modifiers: [["darker", 1.6]],
+          }}
+          legendLabel={(item) => {
+            return item.id.substr(0, 3);
+          }}
+          legends={[
+            {
+              dataFrom: "keys",
+              anchor: "bottom-right",
+              direction: "column",
+              justify: false,
+              translateX: 120,
+              translateY: 20,
+              itemsSpacing: 2,
+              itemWidth: 100,
+              itemHeight: 20,
+              itemDirection: "left-to-right",
+              itemOpacity: 0.85,
+              symbolSize: 20,
+              effects: [
+                {
+                  on: "hover",
+                  style: {
+                    itemOpacity: 1,
+                  },
+                },
+              ],
+            },
+          ]}
+          role="application"
+        />
+      </Box>
+    </Box>
+  );
+});
+
+const MovieCardList = memo(function MovieCardList({
+  movies,
+  nodeFilteredMovieIds,
+  yearFilteredMovieIds,
+  genreFilteredMovieIds,
+  selectedGenreIds,
+  handleMovieCardGenreClick,
+}) {
+  const movieIds = [];
+  return (
+    <>
+      {movies
+        .map((movie) => {
+          const movieId = movie.id;
+          const filterResult = {
+            network: nodeFilteredMovieIds.includes(movieId),
+            year: yearFilteredMovieIds.includes(movieId),
+            genre: genreFilteredMovieIds.includes(movieId),
+          };
+
+          return { ...movie, filterResult };
+        })
+        .sort(
+          (a, b) =>
+            Object.values(b.filterResult).filter((item) => item).length -
+            Object.values(a.filterResult).filter((item) => item).length
+        )
+        .map((movie) => {
+          // ゴミ処理　映画の表示で重複する場合があるので応急処置
+          if (movieIds.includes(movie.id)) {
+            return null;
+          }
+
+          movieIds.push(movie.id);
+          return (
+            <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
+              <MovieCard
+                movieId={movie.id}
+                title={movie.title}
+                genres={movie.genres}
+                productionYear={movie.productionYear}
+                imgUrl={movie.imgUrl}
+                filterResult={movie.filterResult}
+                selectedGenreIds={selectedGenreIds}
+                handleGenreClick={handleMovieCardGenreClick}
+              />
+            </Grid>
+          );
+        })}
+    </>
+  );
+});
+
+const Person = ({
+  person,
+  barData,
+  barKeys,
+  personImgUrl,
+  network,
+  genres,
+  years,
+}) => {
   const movies = useMemo(
     () =>
-      data.person.relatedMovies.map((rm) => {
+      person.relatedMovies.map((rm) => {
         const movie = rm.movie;
         return movie;
       }),
-    [data]
+    [person.relatedMovies]
   );
 
   const { register, handleSubmit, reset } = useForm();
-  const { selected } = useSelector((state) => state.app);
+
   const dispatch = useDispatch();
+  const selectedGenres = useSelector(selectSelectedGenres);
+  const personRelatedGenres = useSelector(selectPersonRelatedGenres);
+  const selectedNodes = useSelector(selectSelectedNodes.selectAll);
+  const selectedYears = useSelector(selectSelectedYears);
 
   const nodeFilteredMovieIds = useMemo(() => {
-    return filterMovieByNode(movies, selected.nodeIds);
-  }, [movies, selected.nodeIds]);
+    const selectedNodeIds = selectedNodes.map(
+      (selectedNode) => selectedNode.id
+    );
+
+    return filterMovieByNode(movies, selectedNodeIds);
+  }, [movies, selectedNodes]);
+
+  const selectedGenreIds = useMemo(
+    () => selectedGenres.map((selectedGenre) => selectedGenre.id),
+    [selectedGenres]
+  );
 
   const genreFilteredMovieIds = useMemo(() => {
-    return filterMovieByGenre(movies, selected.genreIds);
-  }, [movies, selected.genreIds]);
+    const seleectedGenreIds = selectedGenres.map(
+      (selectedGenre) => selectedGenre.id
+    );
+
+    return filterMovieByGenre(movies, seleectedGenreIds);
+  }, [movies, selectedGenres]);
 
   const yearFilteredMovieIds = useMemo(() => {
-    return filterMovieByYear(movies, selected.years);
-  }, [movies, selected.years]);
+    return filterMovieByYear(
+      movies,
+      selectedYears.map((year) => year.year)
+    );
+  }, [movies, selectedYears]);
 
-  const [networkSearch, setNetworkSearch] = useState("");
-
-  // ゴミ処理　映画の表示で重複する場合があるので応急処置
+  // ゴミ処理　映画の表示で複数職業担当していると、重複してしまう場合があるので応急処置
   const movieIds = [];
 
-  const toggleSelectedGenres = (genreId) => {
-    dispatch(toggleSelected({ target: "genre", value: genreId }));
-  };
+  const handleMovieCardGenreClick = useCallback(
+    (genreId) => {
+      dispatch(toggleSelectedGenre(genreId));
+    },
+    [dispatch]
+  );
 
-  const toggleSelectedNodes = useCallback(
-    (nodeId) => {
-      dispatch(toggleSelected({ target: "node", value: nodeId }));
+  const handleGenreItemClick = useCallback(
+    (genreId) => {
+      dispatch(toggleSelectedGenre(genreId));
+    },
+    [dispatch]
+  );
+
+  const handleBarClick = useCallback(
+    (year) => {
+      dispatch(toggleSelectedYear(year));
     },
     [dispatch]
   );
 
   useEffect(() => {
-    dispatch(setPersonGenreIds(data.relatedGenres.map((rg) => rg.id)));
-    dispatch(
-      setPersonRelatedPeople(data.network.nodes.map((node) => ({ ...node })))
-    );
-  }, [dispatch, data]);
+    dispatch(loadPerson(person));
+  }, [dispatch, person]);
 
-  const ResponsiveNetwork = useMemo(() => {
-    return (
-      <Responsive
-        render={(width, height) => {
-          return (
-            <Box
-              sx={{
-                width: width,
-                height: height,
-                border: "1px solid black",
-              }}
-            >
-              <ActorNetwork
-                width={width}
-                height={height}
-                selectedNodeIds={selected.nodeIds}
-                handleNodeClick={toggleSelectedNodes}
-                network={data.network}
-                movies={movies}
-                search={networkSearch}
-              />
-            </Box>
-          );
-        }}
-      />
-    );
-  }, [
-    selected.nodeIds,
-    toggleSelectedNodes,
-    data.network,
-    movies,
-    networkSearch,
-  ]);
+  useEffect(() => {
+    dispatch(loadGenres(genres));
+  }, [dispatch, genres]);
+
+  useEffect(() => {
+    dispatch(setPersonMovies(movies));
+  }, [dispatch, movies]);
+
+  useEffect(() => {
+    dispatch(loadNetwork(network));
+  }, [dispatch, network]);
+
+  useEffect(() => {
+    dispatch(loadYears(years));
+  }, [dispatch, years]);
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -125,13 +343,13 @@ const Person = ({ data }) => {
             xs={12}
             sm={4}
             sx={{
-              display: data.personImgUrl ? "flex" : "none",
+              display: personImgUrl ? "flex" : "none",
               justifyContent: { xs: "center", sm: "flex-start" },
             }}
           >
             <RoundedImage
-              src={data.personImgUrl}
-              alt={data.person.name + "プロフィール"}
+              src={personImgUrl}
+              alt={person.name + "プロフィール"}
               height="300px"
             />
           </Grid>
@@ -143,125 +361,31 @@ const Person = ({ data }) => {
               }}
             >
               <Typography variant="h4" sx={{ m: 1 }}>
-                {data.person.name}
+                {person.name}
               </Typography>
             </Box>
             <Box sx={{ my: 2, mx: 1 }}>
-              <Typography sx={{ p: 1 }}>
-                {data.person.name}が関わった映画のジャンル
-              </Typography>
-              {data.relatedGenres.map((genre) => {
-                return (
-                  <Chip
-                    label={genre.name}
-                    key={genre.id}
-                    color={
-                      selected.genreIds.includes(genre.id) ? "success" : void 0
-                    }
-                    onClick={() => toggleSelectedGenres(genre.id)}
-                    sx={{ m: 0.5 }}
-                  />
-                );
-              })}
+              <GenreSection
+                name={person.name}
+                personRelatedGenres={personRelatedGenres}
+                handleGenreItemClick={handleGenreItemClick}
+              />
             </Box>
           </Grid>
         </Grid>
+
         <Grid item xs={12}>
-          <Typography sx={{ p: 1 }}>映画製作の記録</Typography>
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              height: 280,
-              width: "100%",
-            }}
-          >
-            <ResponsiveBar
-              data={data.barData}
-              keys={data.barKeys}
-              onClick={(item) => {
-                dispatch(
-                  toggleSelected({ target: "year", value: item.indexValue })
-                );
-              }}
-              indexBy="year"
-              margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
-              padding={0.3}
-              valueScale={{ type: "linear" }}
-              indexScale={{ type: "band", round: true }}
-              colors={{ scheme: "set3" }}
-              axisTop={null}
-              axisRight={null}
-              axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 45,
-                // ゴミ処理
-                renderTick: (tick) => {
-                  return (
-                    <g
-                      transform={`translate(${tick.x},${
-                        tick.y + 20
-                      })rotate(45)scale(0.9)`}
-                    >
-                      <text
-                        fill={
-                          selected.years.includes(tick.value) ? "red" : "black"
-                        }
-                      >
-                        {tick.value}
-                      </text>
-                      ;
-                    </g>
-                  );
-                },
-              }}
-              axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                format: (e) => Math.floor(e) === e && e,
-              }}
-              labelSkipWidth={12}
-              labelSkipHeight={12}
-              labelTextColor={{
-                from: "color",
-                modifiers: [["darker", 1.6]],
-              }}
-              legendLabel={(item) => {
-                return item.id.substr(0, 3);
-              }}
-              legends={[
-                {
-                  dataFrom: "keys",
-                  anchor: "bottom-right",
-                  direction: "column",
-                  justify: false,
-                  translateX: 120,
-                  translateY: 20,
-                  itemsSpacing: 2,
-                  itemWidth: 100,
-                  itemHeight: 20,
-                  itemDirection: "left-to-right",
-                  itemOpacity: 0.85,
-                  symbolSize: 20,
-                  effects: [
-                    {
-                      on: "hover",
-                      style: {
-                        itemOpacity: 1,
-                      },
-                    },
-                  ],
-                },
-              ]}
-              role="application"
-            />
-          </Box>
+          <MovieHistorySection
+            barData={barData}
+            barKeys={barKeys}
+            handleBarClick={handleBarClick}
+            selectedYears={selectedYears}
+          />
         </Grid>
+
         <Grid item xs={12}>
           <Typography sx={{ p: 1 }}>
-            {data.person.name}が共演したことのある出演者ネットワーク
+            {person.name}が共演したことのある出演者ネットワーク
           </Typography>
           <Paper
             component="form"
@@ -273,7 +397,7 @@ const Person = ({ data }) => {
               width: { xs: "100%", sm: "50%" },
             }}
             onSubmit={handleSubmit((formData) => {
-              setNetworkSearch(formData.networkSearch);
+              dispatch(setSearch(formData.networkSearch));
             })}
           >
             <InputBase
@@ -284,8 +408,8 @@ const Person = ({ data }) => {
             <IconButton
               type="button"
               onClick={() => {
-                setNetworkSearch("");
                 reset({ networkSearch: "" });
+                dispatch(clearSearch());
               }}
               sx={{ p: "10px" }}
             >
@@ -300,35 +424,12 @@ const Person = ({ data }) => {
               height: "50vh",
             }}
           >
-            {ResponsiveNetwork}
-            {/* <Responsive
-              render={(width, height) => {
-                return (
-                  <Box
-                    sx={{
-                      width: width,
-                      height: height,
-                      border: "1px solid black",
-                    }}
-                  >
-                    <ActorNetwork
-                      width={width}
-                      height={height}
-                      selectedNodeIds={selected.nodeIds}
-                      handleNodeClick={toggleSelectedNodes}
-                      network={data.network}
-                      movies={movies}
-                      search={networkSearch}
-                    />
-                  </Box>
-                );
-              }}
-            /> */}
+            <ResponsiveNetwork />
           </Box>
         </Grid>
 
         <Grid item container spacing={1}>
-          {movies
+          {/* {movies
             .map((movie) => {
               const movieId = movie.id;
               const filterResult = {
@@ -360,12 +461,20 @@ const Person = ({ data }) => {
                     productionYear={movie.productionYear}
                     imgUrl={movie.imgUrl}
                     filterResult={movie.filterResult}
-                    selectedGenreIds={selected.genreIds}
-                    handleGenreClick={toggleSelectedGenres}
+                    selectedGenreIds={selectedGenreIds}
+                    handleGenreClick={handleMovieCardGenreClick}
                   />
                 </Grid>
               );
-            })}
+            })} */}
+          <MovieCardList
+            movies={movies}
+            nodeFilteredMovieIds={nodeFilteredMovieIds}
+            yearFilteredMovieIds={yearFilteredMovieIds}
+            genreFilteredMovieIds={genreFilteredMovieIds}
+            selectedGenreIds={selectedGenreIds}
+            handleMovieCardGenreClick={handleMovieCardGenreClick}
+          />
         </Grid>
       </Grid>
     </Container>
@@ -511,22 +620,36 @@ export const getServerSideProps = async (ctx) => {
   });
 
   const links = [];
-  for (const sourceId in sourceTarget) {
-    if (sourceId === "countWithMain") {
-      continue;
-    }
+  // for (const sourceId in sourceTarget) {
+  //   if (sourceId === "countWithMain") {
+  //     continue;
+  //   }
+  //   for (const targetId in sourceTarget[sourceId]) {
+  //     if (targetId === "countWithMain") {
+  //       continue;
+  //     }
+  //     links.push({
+  //       source: sourceId,
+  //       target: targetId,
+  //       weight: sourceTarget[sourceId][targetId],
+  //       d: 10,
+  //     });
+  //   }
+  // }
+
+  Object.keys(sourceTarget).forEach((sourceId, index) => {
     for (const targetId in sourceTarget[sourceId]) {
-      if (targetId === "countWithMain") {
-        continue;
+      if (targetId !== "countWithMain") {
+        links.push({
+          source: sourceId,
+          target: targetId,
+          weight: sourceTarget[sourceId][targetId],
+          d: 10,
+        });
       }
-      links.push({
-        source: sourceId,
-        target: targetId,
-        weight: sourceTarget[sourceId][targetId],
-        d: 10,
-      });
     }
-  }
+  });
+
   const nodeBase = {};
   person.relatedMovies.forEach((rm) => {
     // 出演者として関わった映画のみ共演した出演者を取り出すので
@@ -570,20 +693,23 @@ export const getServerSideProps = async (ctx) => {
       },
     },
   });
+  const relatedGenreIds = relatedGenres.map((rg) => rg.id);
 
-  const data = {
-    person,
-    barData,
-    barKeys,
-    personImgUrl,
-    network,
-    relatedGenres,
-  };
+  const allGenres = await prisma.genre.findMany({});
+  for (const genre of allGenres) {
+    genre["isPersonRelated"] = relatedGenreIds.includes(genre.id);
+  }
 
   return {
-    props: {
-      data: forceSerialize(data),
-    },
+    props: forceSerialize({
+      person,
+      barData,
+      barKeys,
+      personImgUrl,
+      network,
+      genres: allGenres,
+      years,
+    }),
   };
 };
 

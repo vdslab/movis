@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice } from "@reduxjs/toolkit";
 
 const TARGET = {
   selected: {
@@ -30,12 +30,16 @@ const initialState = {
     relatedPeople: [],
     years: [],
   },
+  isDrawerOpen: false,
 };
 
 export const appSlice = createSlice({
   name: "app",
   initialState,
   reducers: {
+    toggleDrawerOpen: (state) => {
+      state.isDrawerOpen = !state.isDrawerOpen;
+    },
     // ゴミ処理　死ぬほど使いにくい
     toggleSelected: (state, action) => {
       const { target, value } = action.payload;
@@ -88,6 +92,7 @@ export const appSlice = createSlice({
 });
 
 export const {
+  toggleDrawerOpen,
   toggleSelected,
   setFilteredMovieIds,
   clearSelection,
@@ -98,3 +103,10 @@ export const {
 } = appSlice.actions;
 
 export const appReducer = appSlice.reducer;
+
+export const selectApp = (state) => state.app;
+
+export const selectIsDrawerOpen = createSelector(
+  selectApp,
+  (app) => app.isDrawerOpen
+);

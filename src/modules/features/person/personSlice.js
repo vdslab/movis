@@ -6,7 +6,7 @@ const moviesAdapter = createEntityAdapter({
 });
 
 const initialState = {
-  person: null,
+  name: "",
   movies: moviesAdapter.getInitialState(),
 };
 
@@ -41,7 +41,7 @@ export const { loadPerson, setPersonMovies, removePerson } =
 
 export const personReducer = personSlice.reducer;
 
-export const selectPerson = (state) => state.person.person;
+export const selectPersonName = (state) => state.person.name;
 
 export const selectPersonMovies = moviesAdapter.getSelectors(
   (state) => state.person.movies

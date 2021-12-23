@@ -1,7 +1,12 @@
-import { createEntityAdapter, createSlice } from "@reduxjs/toolkit";
+import {
+  createEntityAdapter,
+  createSelector,
+  createSlice,
+} from "@reduxjs/toolkit";
 
 const yearsAdapter = createEntityAdapter({
   selectId: (year) => year.year,
+  sortComparer: (a, b) => a.year - b.year,
 });
 
 const initialState = yearsAdapter.getInitialState();
@@ -11,11 +16,7 @@ export const yearsSlice = createSlice({
   initialState,
   reducers: {
     loadYears: (state, action) => {
-      const { start, end } = action.payload;
-      const years = [];
-      for (let year = start; year <= end; ++year) {
-        years.push({ year, isSelected: false });
-      }
+      const years = action.payload.map((year) => ({ year, isSelected: false }));
       yearsAdapter.setAll(state, years);
     },
     toggleSelectedYear: (state, action) => {
@@ -40,3 +41,8 @@ export const { loadYears, toggleSelectedYear, resetYearSelection } =
 export const yearsReducer = yearsSlice.reducer;
 
 export const selectYears = yearsAdapter.getSelectors((state) => state.years);
+
+export const selectSelectedYears = createSelector(
+  selectYears.selectAll,
+  (years) => years.filter((year) => year.isSelected)
+);

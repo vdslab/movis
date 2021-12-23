@@ -1,6 +1,7 @@
 import { SearchOutlined } from "@mui/icons-material";
 import { AppBar, IconButton, Toolbar, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { memo } from "react";
 
 import { Logo } from "@/components/Logo";
 
@@ -9,7 +10,7 @@ const NavbarRoot = styled(AppBar)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-export const Navbar = ({ drawerToggle }) => {
+export const Navbar = memo(function Navbar({ drawerToggle }) {
   return (
     <NavbarRoot>
       <Toolbar
@@ -31,4 +32,4 @@ export const Navbar = ({ drawerToggle }) => {
       </Toolbar>
     </NavbarRoot>
   );
-};
+});

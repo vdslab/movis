@@ -1,6 +1,12 @@
 import { Box } from "@mui/system";
+import { memo } from "react";
 
-export const RoundedImage = ({ src, alt, r = "5%", ...rest }) => {
+export const RoundedImage = memo(function RoundedImage({
+  src,
+  alt,
+  r = "5%",
+  ...rest
+}) {
   return (
     <Box
       component="img"
@@ -10,4 +16,4 @@ export const RoundedImage = ({ src, alt, r = "5%", ...rest }) => {
       sx={{ borderRadius: r }}
     />
   );
-};
+});

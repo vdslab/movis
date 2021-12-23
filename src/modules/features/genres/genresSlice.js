@@ -1,8 +1,12 @@
-import { createSlice, createEntityAdapter } from "@reduxjs/toolkit";
+import {
+  createSlice,
+  createEntityAdapter,
+  createSelector,
+} from "@reduxjs/toolkit";
 
 const genresAdapter = createEntityAdapter({
   selectId: (genre) => genre.id,
-  sortComparer: (a, b) => b.id - a.id,
+  sortComparer: (a, b) => a.id - b.id,
 });
 
 const initialState = genresAdapter.getInitialState();
@@ -15,7 +19,7 @@ export const genresSlice = createSlice({
       const genres = action.payload.map((genre) => ({
         ...genre,
         isSelected: false,
-        isPersonHas: false,
+        isPersonRelated: genre.isPersonRelated,
       }));
       genresAdapter.setAll(state, genres);
     },
@@ -23,7 +27,7 @@ export const genresSlice = createSlice({
       const reseted = state.ids.map((id) => ({
         ...state.entities[id],
         isSelected: false,
-        isPersonHas: false,
+        isPersonRelated: false,
       }));
       genresAdapter.upsertMany(state, reseted);
     },
@@ -34,16 +38,34 @@ export const genresSlice = createSlice({
         isSelected: !state.entities[genreId].isSelected,
       });
     },
-    setPersonHas: (state, action) => {
-      const personHas = action.payload.map((id) => ({ id, isPersonHas: true }));
-      genresAdapter.upsertMany(state, personHas);
+    // いらないかも
+    setPersonRelatedGenres: (state, action) => {
+      const personRelatedGenres = action.payload.map((id) => ({
+        id,
+        isPersonRelated: true,
+      }));
+      genresAdapter.upsertMany(state, personRelatedGenres);
     },
   },
 });
 
-export const { loadGenres, resetGenres, toggleSelectedGenre, setPersonHas } =
-  genresSlice.actions;
+export const {
+  loadGenres,
+  resetGenres,
+  toggleSelectedGenre,
+  setPersonRelatedGenres,
+} = genresSlice.actions;
 
 export const genresReducer = genresSlice.reducer;
 
 export const selectGenres = genresAdapter.getSelectors((state) => state.genres);
+
+export const selectSelectedGenres = createSelector(
+  selectGenres.selectAll,
+  (genres) => genres.filter((genre) => genre.isSelected)
+);
+
+export const selectPersonRelatedGenres = createSelector(
+  selectGenres.selectAll,
+  (genres) => genres.filter((genre) => genre.isPersonRelated)
+);

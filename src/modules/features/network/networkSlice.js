@@ -5,7 +5,7 @@ const nodesAdapter = createEntityAdapter({
 });
 
 const linksAdapter = createEntityAdapter({
-  selectId: (link) => link.id,
+  selectId: (link) => link.source + link.target,
 });
 
 const selectedNodesAdapter = createEntityAdapter({
@@ -16,6 +16,7 @@ const initialState = {
   nodes: nodesAdapter.getInitialState(),
   links: linksAdapter.getInitialState(),
   selectedNodes: selectedNodesAdapter.getInitialState(),
+  search: "",
 };
 
 export const networkSlice = createSlice({
@@ -24,26 +25,42 @@ export const networkSlice = createSlice({
   reducers: {
     loadNetwork: (state, action) => {
       const { nodes, links } = action.payload;
-      nodesAdapter.setAll(state.nodes, nodes);
+      nodesAdapter.setAll(
+        state.nodes,
+        nodes.map((node) => ({ ...node, isSelected: false }))
+      );
       linksAdapter.setAll(state.links, links);
     },
     toggleSelectedNode: (state, action) => {
       const nodeId = action.payload;
-      nodesAdapter.upsertOne(state.nodes, {
-        ...state.selectedNodes.entities[nodeId],
-        isSelected: true,
-      });
+      nodeId;
+      if (state.selectedNodes.ids.includes(nodeId)) {
+        nodesAdapter.removeOne(state.selectedNodes, nodeId);
+      } else {
+        nodesAdapter.addOne(state.selectedNodes, state.nodes.entities[nodeId]);
+      }
     },
     removeNetwork: (state) => {
       nodesAdapter.removeAll(state.nodes);
       linksAdapter.removeAll(state.links);
       selectedNodesAdapter.removeAll(state.selectedNodes);
     },
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    clearSearch: (state) => {
+      state.search = "";
+    },
   },
 });
 
-export const { loadNetwork, toggleSelectedNode, removeNetwork } =
-  networkSlice.actions;
+export const {
+  loadNetwork,
+  toggleSelectedNode,
+  removeNetwork,
+  setSearch,
+  clearSearch,
+} = networkSlice.actions;
 
 export const networkReducer = networkSlice.reducer;
 
@@ -58,3 +75,5 @@ export const selectLinks = nodesAdapter.getSelectors(
 export const selectSelectedNodes = selectedNodesAdapter.getSelectors(
   (state) => state.network.selectedNodes
 );
+
+export const selectSearch = (state) => state.network.search;

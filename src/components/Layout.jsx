@@ -1,9 +1,11 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useState } from "react";
+import { useCallback } from "react";
+import { useDispatch } from "react-redux";
 
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
+import { toggleDrawerOpen } from "@/modules/features/app/appSlice";
 
 const ContentRoot = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -16,16 +18,16 @@ const ContentRoot = styled(Box)(({ theme }) => ({
 }));
 
 export const Layout = ({ children }) => {
-  const [drawerOpened, setDrawerOpened] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleDrawerToggle = () => {
-    setDrawerOpened((prev) => !prev);
-  };
+  const drawerToggle = useCallback(() => {
+    dispatch(toggleDrawerOpen());
+  }, [dispatch]);
 
   return (
     <>
-      <Navbar drawerToggle={handleDrawerToggle} />
-      <Sidebar drawerOpen={drawerOpened} drawerToggle={handleDrawerToggle} />
+      <Navbar drawerToggle={drawerToggle} />
+      <Sidebar drawerToggle={drawerToggle} />
       <ContentRoot>
         <Box
           sx={{

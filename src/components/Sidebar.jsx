@@ -11,36 +11,174 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
+import { RelatedGenreList } from "@/components/Genre";
 import {
   clearAllSelection,
-  toggleSelected,
+  selectIsDrawerOpen,
 } from "@/modules/features/app/appSlice";
+import {
+  selectPersonRelatedGenres,
+  toggleSelectedGenre,
+} from "@/modules/features/genres/genresSlice";
+import {
+  selectSelectedNodes,
+  toggleSelectedNode,
+} from "@/modules/features/network/networkSlice";
+import {
+  selectYears,
+  toggleSelectedYear,
+} from "@/modules/features/years/yearsSlice";
 
-export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
+const NodeItem = memo(function NodeItem({ name, id, handleClick }) {
+  return (
+    <Chip
+      label={name}
+      color={"error"}
+      onClick={() => handleClick(id)}
+      sx={{ m: "2px" }}
+    />
+  );
+});
+
+const SelectedNodeSection = () => {
+  const dispatch = useDispatch();
+  const selectedNodes = useSelector(selectSelectedNodes.selectAll);
+
+  const handleItemClick = useCallback(
+    (nodeId) => {
+      dispatch(toggleSelectedNode(nodeId));
+    },
+    [dispatch]
+  );
+
+  return (
+    <Box>
+      {selectedNodes.length > 0 && (
+        <Paper
+          component="div"
+          sx={{
+            p: 1,
+            m: 2,
+            width: "100%",
+          }}
+        >
+          <Typography sx={{ m: 1 }}>選択された出演者</Typography>
+          {selectedNodes.map((sn) => {
+            return (
+              <NodeItem
+                name={sn.name}
+                id={sn.id}
+                handleClick={handleItemClick}
+                key={sn.id}
+              />
+            );
+          })}
+        </Paper>
+      )}
+    </Box>
+  );
+};
+
+const YearItem = memo(function YearItem({ year, isSelected, handleClick }) {
+  return (
+    <Chip
+      label={year}
+      color={isSelected ? "warning" : void 0}
+      onClick={() => {
+        handleClick(year);
+      }}
+      sx={{ m: "2px" }}
+    />
+  );
+});
+
+const SelectedYearSection = () => {
+  const dispatch = useDispatch();
+  const years = useSelector(selectYears.selectAll);
+
+  const handleItemClick = useCallback(
+    (year) => {
+      dispatch(toggleSelectedYear(year));
+    },
+    [dispatch]
+  );
+
+  return (
+    <Box>
+      {years.length > 0 && (
+        <Paper
+          component="div"
+          sx={{
+            p: 1,
+            m: 2,
+            width: "100%",
+          }}
+        >
+          <Typography sx={{ m: 1 }}>製作年度</Typography>
+          {years.map((year) => {
+            return (
+              <YearItem
+                year={year.year}
+                isSelected={year.isSelected}
+                handleClick={handleItemClick}
+                key={year.year}
+              />
+            );
+          })}
+        </Paper>
+      )}
+    </Box>
+  );
+};
+
+const RelatedGenreSection = () => {
+  const dispatch = useDispatch();
+  const personRelatedGenres = useSelector(selectPersonRelatedGenres);
+
+  const handleGenreItemClick = useCallback(
+    (genreId) => {
+      dispatch(toggleSelectedGenre(genreId));
+    },
+    [dispatch]
+  );
+
+  return (
+    <Box>
+      {personRelatedGenres.length > 0 && (
+        <Paper
+          component="div"
+          sx={{
+            p: 1,
+            m: 2,
+            width: "100%",
+          }}
+        >
+          <Typography sx={{ m: 1 }}>ジャンル</Typography>
+          <RelatedGenreList
+            personRelatedGenres={personRelatedGenres}
+            handleGenreItemClick={handleGenreItemClick}
+          />
+        </Paper>
+      )}
+    </Box>
+  );
+};
+
+export const Sidebar = ({ drawerToggle, window }) => {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
   const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
-  const [genres, setGenres] = useState([]);
-  const { selected, person } = useSelector((state) => state.app);
+
   const dispatch = useDispatch();
 
+  const isDrawerOpen = useSelector(selectIsDrawerOpen);
+
   const drawerWidth = matchUpLg ? 280 : "100%";
-
-  useEffect(() => {
-    const loadGenres = async () => {
-      const res = await fetch("/api/genres");
-      const data = await res.json();
-
-      setGenres(data);
-    };
-
-    loadGenres();
-  }, []);
 
   useEffect(() => {
     dispatch(clearAllSelection());
@@ -66,6 +204,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Box>
       </Box>
+
       <Box sx={{ m: 2 }}>
         <Paper
           component="form"
@@ -94,111 +233,12 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
           </IconButton>
         </Paper>
       </Box>
-      {selected.nodeIds.length > 0 && router.pathname === "/person/[personId]" && (
-        <Box sx={{ m: 2 }}>
-          <Paper
-            component="div"
-            sx={{
-              p: 1,
-              // display: "flex",
-              // alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Typography sx={{ m: 1 }}>選択された出演者</Typography>
-            {person.relatedPeople.map((rp) => {
-              if (!selected.nodeIds.includes(rp.id)) {
-                return null;
-              }
 
-              return (
-                <Chip
-                  label={rp.name}
-                  key={rp.id}
-                  color={"error"}
-                  onClick={() => {
-                    dispatch(toggleSelected({ target: "node", value: rp.id }));
-                  }}
-                  sx={{ m: "2px" }}
-                />
-              );
-            })}
-          </Paper>
-        </Box>
-      )}
-      {router.pathname === "/person/[personId]" && (
-        <Box sx={{ m: 2 }}>
-          <Paper
-            component="div"
-            sx={{
-              p: 1,
-              // display: "flex",
-              // alignItems: "center",
-              width: "100%",
-            }}
-          >
-            <Typography sx={{ m: 1 }}>製作年度</Typography>
-            {person.relatedPeople.map((rp) => {
-              if (!selected.nodeIds.includes(rp.id)) {
-                return null;
-              }
+      <SelectedNodeSection />
 
-              return (
-                <Chip
-                  label={rp.name}
-                  key={rp.id}
-                  color={"error"}
-                  onClick={() => {
-                    dispatch(toggleSelected({ target: "node", value: rp.id }));
-                  }}
-                  sx={{ m: "2px" }}
-                />
-              );
-            })}
-          </Paper>
-        </Box>
-      )}
-      {genres.length > 0 && router.pathname === "/person/[personId]" && (
-        <Box sx={{ m: 2 }}>
-          <Paper
-            component="form"
-            sx={{
-              p: 1,
-              // display: "flex",
-              // alignItems: "center",
-              width: "100%",
-            }}
-            onSubmit={handleSubmit((data) => {
-              router.push({
-                pathname: "/search/[name]",
-                query: { name: data.name },
-              });
-              drawerToggle();
-              reset({ name: "" });
-            })}
-          >
-            <Typography sx={{ m: 1 }}>ジャンル</Typography>
-            {genres.map((genre) => {
-              return (
-                <Chip
-                  disabled={!person.genreIds.includes(genre.id)}
-                  label={genre.name}
-                  key={genre.id}
-                  color={
-                    selected.genreIds.includes(genre.id) ? "success" : void 0
-                  }
-                  onClick={() =>
-                    dispatch(
-                      toggleSelected({ target: "genre", value: genre.id })
-                    )
-                  }
-                  sx={{ m: "2px" }}
-                />
-              );
-            })}
-          </Paper>
-        </Box>
-      )}
+      <SelectedYearSection />
+
+      <RelatedGenreSection />
     </Box>
   );
 
@@ -215,7 +255,7 @@ export const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
         container={container}
         variant={matchUpLg ? "persistent" : "temporary"}
         anchor="left"
-        open={drawerOpen || matchUpLg}
+        open={isDrawerOpen || matchUpLg}
         onClose={drawerToggle}
         sx={{
           "& .MuiDrawer-paper": {

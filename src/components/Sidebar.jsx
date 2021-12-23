@@ -11,15 +11,12 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
-import { memo, useCallback, useEffect } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RelatedGenreList } from "@/components/Genre";
-import {
-  clearAllSelection,
-  selectIsDrawerOpen,
-} from "@/modules/features/app/appSlice";
+import { selectIsDrawerOpen } from "@/modules/features/app/appSlice";
 import {
   selectPersonRelatedGenres,
   toggleSelectedGenre,
@@ -168,76 +165,73 @@ const RelatedGenreSection = () => {
   );
 };
 
-export const Sidebar = ({ drawerToggle, window }) => {
+export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
   const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
 
-  const dispatch = useDispatch();
-
   const isDrawerOpen = useSelector(selectIsDrawerOpen);
 
   const drawerWidth = matchUpLg ? 280 : "100%";
 
-  useEffect(() => {
-    dispatch(clearAllSelection());
-  }, [dispatch, router.asPath]);
-
   // ゴミ処理
-  const drawer = (
-    <Box>
-      <Box sx={{ display: { xs: "block", lg: "none" } }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            p: 2,
-            mx: "auto",
-          }}
-        >
-          <Typography variant="h6" sx={{ p: 1 }}>
-            映画・人物を検索
-          </Typography>
-          <IconButton onClick={drawerToggle}>
-            <CloseOutlined />
-          </IconButton>
+  const drawer = useMemo(
+    () => (
+      <Box>
+        <Box sx={{ display: { xs: "block", lg: "none" } }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              p: 2,
+              mx: "auto",
+            }}
+          >
+            <Typography variant="h6" sx={{ p: 1 }}>
+              映画・人物を検索
+            </Typography>
+            <IconButton onClick={drawerToggle}>
+              <CloseOutlined />
+            </IconButton>
+          </Box>
         </Box>
+
+        <Box sx={{ m: 2 }}>
+          <Paper
+            component="form"
+            sx={{
+              p: "2px 4px",
+              display: "flex",
+              alignItems: "center",
+              width: "100%",
+            }}
+            onSubmit={handleSubmit((data) => {
+              const encodedKeyword = encodeURIComponent(data.keyword);
+              router.push(`/people?keyword=${encodedKeyword}`);
+              reset({ keyword: "" });
+              drawerToggle();
+            })}
+          >
+            <InputBase
+              sx={{ ml: 1, flex: 1 }}
+              placeholder="人物・映画名で検索"
+              {...register("keyword")}
+            />
+            <IconButton type="submit" sx={{ p: "10px" }}>
+              <SearchOutlined />
+            </IconButton>
+          </Paper>
+        </Box>
+
+        <SelectedNodeSection />
+
+        <SelectedYearSection />
+
+        <RelatedGenreSection />
       </Box>
-
-      <Box sx={{ m: 2 }}>
-        <Paper
-          component="form"
-          sx={{
-            p: "2px 4px",
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-          }}
-          onSubmit={handleSubmit((data) => {
-            const encodedKeyword = encodeURIComponent(data.keyword);
-            router.push(`/people?keyword=${encodedKeyword}`);
-            reset({ keyword: "" });
-            drawerToggle();
-          })}
-        >
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="人物・映画名で検索"
-            {...register("keyword")}
-          />
-          <IconButton type="submit" sx={{ p: "10px" }}>
-            <SearchOutlined />
-          </IconButton>
-        </Paper>
-      </Box>
-
-      <SelectedNodeSection />
-
-      <SelectedYearSection />
-
-      <RelatedGenreSection />
-    </Box>
+    ),
+    [drawerToggle, handleSubmit, register, reset, router]
   );
 
   const container =
@@ -273,4 +267,4 @@ export const Sidebar = ({ drawerToggle, window }) => {
       </Drawer>
     </Box>
   );
-};
+});

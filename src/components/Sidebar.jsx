@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -165,6 +165,69 @@ const RelatedGenreSection = () => {
   );
 };
 
+const DrawerBody = memo(function DrawerBody({
+  drawerToggle,
+  handleSubmit,
+  register,
+  reset,
+  router,
+}) {
+  return (
+    <Box>
+      <Box sx={{ display: { xs: "block", lg: "none" } }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            p: 2,
+            mx: "auto",
+          }}
+        >
+          <Typography variant="h6" sx={{ p: 1 }}>
+            映画・人物を検索
+          </Typography>
+          <IconButton onClick={drawerToggle}>
+            <CloseOutlined />
+          </IconButton>
+        </Box>
+      </Box>
+
+      <Box sx={{ m: 2 }}>
+        <Paper
+          component="form"
+          sx={{
+            p: "2px 4px",
+            display: "flex",
+            alignItems: "center",
+            width: "100%",
+          }}
+          onSubmit={handleSubmit((data) => {
+            const encodedKeyword = encodeURIComponent(data.keyword);
+            router.push(`/people?keyword=${encodedKeyword}`);
+            reset({ keyword: "" });
+            drawerToggle();
+          })}
+        >
+          <InputBase
+            sx={{ ml: 1, flex: 1 }}
+            placeholder="人物・映画名で検索"
+            {...register("keyword")}
+          />
+          <IconButton type="submit" sx={{ p: "10px" }}>
+            <SearchOutlined />
+          </IconButton>
+        </Paper>
+      </Box>
+
+      <SelectedNodeSection />
+
+      <SelectedYearSection />
+
+      <RelatedGenreSection />
+    </Box>
+  );
+});
+
 export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
@@ -174,65 +237,6 @@ export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
   const isDrawerOpen = useSelector(selectIsDrawerOpen);
 
   const drawerWidth = matchUpLg ? 280 : "100%";
-
-  // ゴミ処理
-  const drawer = useMemo(
-    () => (
-      <Box>
-        <Box sx={{ display: { xs: "block", lg: "none" } }}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              p: 2,
-              mx: "auto",
-            }}
-          >
-            <Typography variant="h6" sx={{ p: 1 }}>
-              映画・人物を検索
-            </Typography>
-            <IconButton onClick={drawerToggle}>
-              <CloseOutlined />
-            </IconButton>
-          </Box>
-        </Box>
-
-        <Box sx={{ m: 2 }}>
-          <Paper
-            component="form"
-            sx={{
-              p: "2px 4px",
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-            onSubmit={handleSubmit((data) => {
-              const encodedKeyword = encodeURIComponent(data.keyword);
-              router.push(`/people?keyword=${encodedKeyword}`);
-              reset({ keyword: "" });
-              drawerToggle();
-            })}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="人物・映画名で検索"
-              {...register("keyword")}
-            />
-            <IconButton type="submit" sx={{ p: "10px" }}>
-              <SearchOutlined />
-            </IconButton>
-          </Paper>
-        </Box>
-
-        <SelectedNodeSection />
-
-        <SelectedYearSection />
-
-        <RelatedGenreSection />
-      </Box>
-    ),
-    [drawerToggle, handleSubmit, register, reset, router]
-  );
 
   const container =
     window !== undefined ? () => window.document.body : undefined;
@@ -248,7 +252,6 @@ export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
         variant={matchUpLg ? "persistent" : "temporary"}
         anchor="left"
         open={isDrawerOpen || matchUpLg}
-        onClose={drawerToggle}
         sx={{
           "& .MuiDrawer-paper": {
             width: drawerWidth,
@@ -263,7 +266,13 @@ export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
         ModalProps={{ keepMounted: true }}
         color="inherit"
       >
-        {drawer}
+        <DrawerBody
+          drawerToggle={drawerToggle}
+          handleSubmit={handleSubmit}
+          register={register}
+          reset={reset}
+          router={router}
+        />
       </Drawer>
     </Box>
   );

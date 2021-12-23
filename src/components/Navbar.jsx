@@ -25,12 +25,7 @@ export const Navbar = memo(function Navbar({ drawerToggle }) {
       >
         <Logo />
         <Tooltip title="Search" sx={{ display: { lg: "none" } }}>
-          <IconButton
-            onClick={() => {
-              alert("clicked");
-              drawerToggle();
-            }}
-          >
+          <IconButton onClick={drawerToggle}>
             <SearchOutlined />
           </IconButton>
         </Tooltip>

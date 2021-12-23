@@ -19,9 +19,11 @@ import prisma from "@/lib/prisma";
 import { fetchTmdbPersonImg, forceSerialize, string2int } from "@/util";
 
 const People = (props) => {
-  console.log(props);
   const router = useRouter();
   const encodedKeyword = encodeURIComponent(props.keyword);
+  const paginationCount = Number.isInteger(props.personHitCount / SEARCH_LIMIT)
+    ? Math.floor(props.personHitCount / SEARCH_LIMIT)
+    : Math.floor(props.personHitCount / SEARCH_LIMIT) + 1;
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -81,7 +83,7 @@ const People = (props) => {
       </List>
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Pagination
-          count={Math.floor(props.personHitCount / SEARCH_LIMIT) + 1}
+          count={paginationCount}
           onChange={(e, targetPage) => {
             if (props.page === targetPage) {
               return;

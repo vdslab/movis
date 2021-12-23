@@ -17,7 +17,9 @@ import { forceSerialize, string2int } from "@/util";
 const Movies = (props) => {
   const router = useRouter();
   const encodedKeyword = encodeURIComponent(props.keyword);
-  console.log(props);
+  const paginationCount = Number.isInteger(props.movieHitCount / SEARCH_LIMIT)
+    ? Math.floor(props.movieHitCount / SEARCH_LIMIT)
+    : Math.floor(props.movieHitCount / SEARCH_LIMIT) + 1;
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -80,7 +82,7 @@ const Movies = (props) => {
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Pagination
-          count={Math.floor(props.movieHitCount / SEARCH_LIMIT) + 1}
+          count={paginationCount}
           onChange={(e, v) => {
             if (props.page === v) {
               return;

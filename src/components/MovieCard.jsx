@@ -31,7 +31,7 @@ export const MovieCard = memo(function MovieCard({
   return (
     <Card sx={{ display: "flex" }}>
       <CardActionArea sx={{ width: 130 }}>
-        <Link href={`/movie/${movieId}`} passHref>
+        <Link href={`/movies/${movieId}`} passHref>
           <CardMedia
             component="img"
             sx={{ width: 130, height: 182, m: 0 }}
@@ -58,7 +58,7 @@ export const MovieCard = memo(function MovieCard({
               })}
           </Box>
           <Link
-            href={`/movie/${movieId}`}
+            href={`/movies/${movieId}`}
             passHref
             // ゴミ処理かも
             sx={{ textDecoration: "none" }}

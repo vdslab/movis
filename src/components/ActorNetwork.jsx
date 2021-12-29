@@ -66,7 +66,13 @@ const NetworkBody = memo(function networkBody({
                 cx={node.x}
                 cy={node.y}
                 onClick={() => {
-                  onNodeClick(node.id);
+                  if (
+                    selectedNodeIds.length === 0 ||
+                    selectedNodeIds.includes(node.id) ||
+                    highlitedNodeIds.includes(node.id)
+                  ) {
+                    onNodeClick(node.id);
+                  }
                 }}
                 fill={
                   selectedNodeIds.includes(node.id)

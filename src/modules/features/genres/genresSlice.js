@@ -9,7 +9,13 @@ const genresAdapter = createEntityAdapter({
   sortComparer: (a, b) => a.id - b.id,
 });
 
-const initialState = genresAdapter.getInitialState();
+// ゴミ処理
+// const initialState = genresAdapter.getInitialState();
+
+const initialState = {
+  genres: genresAdapter.getInitialState(),
+  selectedGenre: "",
+};
 
 export const genresSlice = createSlice({
   name: "genres",
@@ -21,7 +27,7 @@ export const genresSlice = createSlice({
         isSelected: false,
         isPersonRelated: genre.isPersonRelated,
       }));
-      genresAdapter.setAll(state, genres);
+      genresAdapter.setAll(state.genres, genres);
     },
     resetGenres: (state) => {
       const reseted = state.ids.map((id) => ({
@@ -29,14 +35,18 @@ export const genresSlice = createSlice({
         isSelected: false,
         isPersonRelated: false,
       }));
-      genresAdapter.upsertMany(state, reseted);
+      genresAdapter.upsertMany(state.genres, reseted);
     },
     toggleSelectedGenre: (state, action) => {
       const genreId = action.payload;
-      genresAdapter.upsertOne(state, {
-        ...state.entities[genreId],
-        isSelected: !state.entities[genreId].isSelected,
+      genresAdapter.upsertOne(state.genres, {
+        ...state.genres.entities[genreId],
+        isSelected: !state.genres.entities[genreId].isSelected,
       });
+    },
+    toggleSelectedSingleGenre: (state, action) => {
+      const genreId = action.payload;
+      state.selectedGenre = genreId;
     },
     // いらないかも
     setPersonRelatedGenres: (state, action) => {
@@ -44,7 +54,7 @@ export const genresSlice = createSlice({
         id,
         isPersonRelated: true,
       }));
-      genresAdapter.upsertMany(state, personRelatedGenres);
+      genresAdapter.upsertMany(state.genres, personRelatedGenres);
     },
   },
 });
@@ -58,7 +68,9 @@ export const {
 
 export const genresReducer = genresSlice.reducer;
 
-export const selectGenres = genresAdapter.getSelectors((state) => state.genres);
+export const selectGenres = genresAdapter.getSelectors(
+  (state) => state.genres.genres
+);
 
 export const selectSelectedGenres = createSelector(
   selectGenres.selectAll,
@@ -69,3 +81,5 @@ export const selectPersonRelatedGenres = createSelector(
   selectGenres.selectAll,
   (genres) => genres.filter((genre) => genre.isPersonRelated)
 );
+
+export const selectSelectedGenre = (state) => state.genres.selectedGenre;

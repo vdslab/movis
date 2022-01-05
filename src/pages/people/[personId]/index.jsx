@@ -57,7 +57,6 @@ const ResponsiveNetwork = memo(function ResponsiveNetwork() {
             sx={{
               width: width,
               height: height,
-              border: "1px solid black",
             }}
           >
             <ActorNetwork width={width} height={height} />
@@ -422,6 +421,7 @@ const Person = ({
           <Box
             sx={{
               height: "50vh",
+              border: "1px solid black",
             }}
           >
             <ResponsiveNetwork />
@@ -512,6 +512,15 @@ export const getServerSideProps = async (ctx) => {
                     select: {
                       id: true,
                       name: true,
+                      relatedMovies: {
+                        where: {
+                          occupation: {
+                            name: {
+                              equals: actorOccupationName,
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                   occupation: {
@@ -659,7 +668,10 @@ export const getServerSideProps = async (ctx) => {
     rm.movie.productionMembers.forEach((pm) => {
       nodeBase[pm.person.id] = {
         ...pm.person,
+        id: pm.person.id,
+        name: pm.person.name,
         count: sourceTarget[pm.person.id].countWithMain,
+        relatedMoviesCount: pm.person.relatedMovies.length,
       };
     });
   });
@@ -667,15 +679,30 @@ export const getServerSideProps = async (ctx) => {
 
   const counts = nodes.map((node) => node.count);
   const countMax = Math.max(...counts);
-  const countMin = Math.min(...counts);
+  // const countMin = Math.min(...counts);
+  const countMin = 0;
+
+  const relatedMoviesCounts = nodes.map((node) => node.relatedMoviesCount);
+  const relatedMoviesCountMax = Math.max(...relatedMoviesCounts);
+  const relatedMoviesCountMin = 0;
 
   for (const node of nodes) {
     const normalizedCount =
       countMax !== countMin
         ? (node.count - countMin) / (countMax - countMin)
         : 0.5;
+    const normalizedRelatedMoviesCount =
+      relatedMoviesCountMax !== relatedMoviesCountMin
+        ? (node.relatedMoviesCount - relatedMoviesCountMin) /
+          (relatedMoviesCountMax - relatedMoviesCountMin)
+        : 0.5;
     node["normalizedCount"] = normalizedCount;
-    node["r"] = (normalizedCount + 0.1) * 20;
+    node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
+    // node["r"] = (normalizedCount + 0.1) * 600;
+    node["r"] = normalizedCount * 200;
+
+    // ゴミ処理　これ初めてやったので良し悪しがわからん
+    delete node.relatedMovies;
   }
 
   const network = { nodes, links };

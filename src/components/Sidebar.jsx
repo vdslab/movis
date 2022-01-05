@@ -53,13 +53,12 @@ const SelectedNodeSection = () => {
   );
 
   return (
-    <Box>
+    <Box sx={{ m: 2 }}>
       {selectedNodes.length > 0 && (
         <Paper
           component="div"
           sx={{
             p: 1,
-            m: 2,
             width: "100%",
           }}
         >
@@ -105,13 +104,12 @@ const SelectedYearSection = () => {
   );
 
   return (
-    <Box>
+    <Box sx={{ m: 2 }}>
       {years.length > 0 && (
         <Paper
           component="div"
           sx={{
             p: 1,
-            m: 2,
             width: "100%",
           }}
         >
@@ -144,13 +142,12 @@ const RelatedGenreSection = () => {
   );
 
   return (
-    <Box>
+    <Box sx={{ m: 2 }}>
       {personRelatedGenres.length > 0 && (
         <Paper
           component="div"
           sx={{
             p: 1,
-            m: 2,
             width: "100%",
           }}
         >

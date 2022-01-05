@@ -265,7 +265,6 @@ export const ActorNetwork = ({ width, height }) => {
       });
     });
 
-    console.log({ nodeFilteredMovieIds, filteredMovies, h });
     return h;
   }, [movies, selectedNodeIds]);
 

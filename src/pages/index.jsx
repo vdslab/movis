@@ -38,7 +38,6 @@ const Top = (props) => {
 
   useEffect(() => {}, []);
 
-  console.log(selectedCountry);
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
       {/* select country */}

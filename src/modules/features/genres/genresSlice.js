@@ -30,8 +30,8 @@ export const genresSlice = createSlice({
       genresAdapter.setAll(state.genres, genres);
     },
     resetGenres: (state) => {
-      const reseted = state.ids.map((id) => ({
-        ...state.entities[id],
+      const reseted = state.genres.ids.map((id) => ({
+        ...state.genres.entities[id],
         isSelected: false,
         isPersonRelated: false,
       }));

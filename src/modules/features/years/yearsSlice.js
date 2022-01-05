@@ -29,7 +29,10 @@ export const yearsSlice = createSlice({
     resetYearSelection: (state) => {
       yearsAdapter.upsertMany(
         state,
-        state.entities.map((entity) => ({ ...entity, isSelected: false }))
+        Object.values(state.entities).map((entity) => ({
+          ...entity,
+          isSelected: false,
+        }))
       );
     },
   },

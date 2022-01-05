@@ -35,11 +35,18 @@ export const yearsSlice = createSlice({
         }))
       );
     },
+    removeYears: (state) => {
+      yearsAdapter.removeAll(state);
+    },
   },
 });
 
-export const { loadYears, toggleSelectedYear, resetYearSelection } =
-  yearsSlice.actions;
+export const {
+  loadYears,
+  toggleSelectedYear,
+  resetYearSelection,
+  removeYears,
+} = yearsSlice.actions;
 
 export const yearsReducer = yearsSlice.reducer;
 

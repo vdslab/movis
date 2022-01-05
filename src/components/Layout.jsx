@@ -10,7 +10,7 @@ import { toggleDrawerOpen } from "@/modules/features/app/appSlice";
 import { resetGenres } from "@/modules/features/genres/genresSlice";
 import { removeNetwork } from "@/modules/features/network/networkSlice";
 import { removePerson } from "@/modules/features/person/personSlice";
-import { resetYearSelection } from "@/modules/features/years/yearsSlice";
+import { removeYears } from "@/modules/features/years/yearsSlice";
 
 const ContentRoot = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -37,7 +37,7 @@ export const Layout = ({ children }) => {
     dispatch(resetGenres());
     dispatch(removeNetwork());
     dispatch(removePerson());
-    dispatch(resetYearSelection());
+    dispatch(removeYears());
   }, [dispatch, router.asPath, router.pathname]);
 
   return (

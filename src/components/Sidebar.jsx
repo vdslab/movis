@@ -188,7 +188,6 @@ const DrawerBody = memo(function DrawerBody({
           </IconButton>
         </Box>
       </Box>
-
       <Box sx={{ m: 2 }}>
         <Paper
           component="form"
@@ -215,11 +214,8 @@ const DrawerBody = memo(function DrawerBody({
           </IconButton>
         </Paper>
       </Box>
-
       <SelectedNodeSection />
-
       <SelectedYearSection />
-
       <RelatedGenreSection />
     </Box>
   );

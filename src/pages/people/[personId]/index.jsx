@@ -467,14 +467,16 @@ const Person = ({
                 </Grid>
               );
             })} */}
-          <MovieCardList
-            movies={movies}
-            nodeFilteredMovieIds={nodeFilteredMovieIds}
-            yearFilteredMovieIds={yearFilteredMovieIds}
-            genreFilteredMovieIds={genreFilteredMovieIds}
-            selectedGenreIds={selectedGenreIds}
-            handleMovieCardGenreClick={handleMovieCardGenreClick}
-          />
+          {null && (
+            <MovieCardList
+              movies={movies}
+              nodeFilteredMovieIds={nodeFilteredMovieIds}
+              yearFilteredMovieIds={yearFilteredMovieIds}
+              genreFilteredMovieIds={genreFilteredMovieIds}
+              selectedGenreIds={selectedGenreIds}
+              handleMovieCardGenreClick={handleMovieCardGenreClick}
+            />
+          )}
         </Grid>
       </Grid>
     </Container>

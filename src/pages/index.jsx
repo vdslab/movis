@@ -47,6 +47,15 @@ const Top = (props) => {
   const [activeStep, setActiveStep] = useState(0);
   const [people, setPeople] = useState([]);
 
+  const genre = selectedGenre
+    ? countryRelatedGenres.filter((g) => g.id === selectedGenre)?.[0]
+    : null;
+  const country = selectedCountry
+    ? countries.filter((c) => c.id === selectedCountry)?.[0]
+    : null;
+
+  console.log({ genre, country });
+
   const handleChangeSelectedCountry = useCallback(
     (countryId) => {
       dispatch(toggleSelectedCountry(countryId));
@@ -130,7 +139,7 @@ const Top = (props) => {
         <Step expanded={0 <= activeStep}>
           <StepLabel>製作国を選択</StepLabel>
           <StepContent>
-            <Typography>出演者が活躍している製作国を選択</Typography>
+            <Typography>興味がある製作国を選択</Typography>
             <Box>
               <FormControl sx={{ m: 1, width: 300 }}>
                 <InputLabel id="top-country-select-label">
@@ -146,10 +155,10 @@ const Top = (props) => {
                   }}
                   input={<OutlinedInput label="製作国を選択" />}
                 >
-                  {countries.map((country) => {
+                  {countries.map((c) => {
                     return (
-                      <MenuItem key={country.id} value={country.id}>
-                        {country.name}
+                      <MenuItem key={c.id} value={c.id}>
+                        {c.name}
                       </MenuItem>
                     );
                   })}
@@ -163,7 +172,10 @@ const Top = (props) => {
         <Step expanded={1 <= activeStep}>
           <StepLabel>ジャンルを選択</StepLabel>
           <StepContent>
-            <Typography>出演者が活躍しているジャンルを選択</Typography>
+            <Typography>
+              {country ? country?.name : null}
+              に関わりのあるジャンルを選択
+            </Typography>
 
             {genreGraphData && (
               <Box sx={{ height: 400, maxWidth: "sm" }}>
@@ -228,11 +240,11 @@ const Top = (props) => {
                 }}
                 input={<OutlinedInput label="ジャンルを選択" />}
               >
-                {countryRelatedGenres.map((genre) => {
+                {countryRelatedGenres.map((g) => {
                   return (
-                    <MenuItem key={genre.id} value={genre.id}>
-                      {genre.name}
-                      {`（${genre.movieCount}件）`}
+                    <MenuItem key={g.id} value={g.id}>
+                      {g.name}
+                      {`（${g.movieCount}件）`}
                     </MenuItem>
                   );
                 })}
@@ -245,7 +257,10 @@ const Top = (props) => {
         <Step expanded={2 <= activeStep}>
           <StepLabel>出演者を確認</StepLabel>
           <StepContent>
-            <Typography>製作国・ジャンルでの活躍が多い上位5人を確認</Typography>
+            <Typography>
+              {country ? country.name : null}の{genre ? genre.name : null}
+              での活躍数が多い上位10人を確認
+            </Typography>
             <Box>
               <List sx={{ width: "100%" }}>
                 {people.map((person, index) => {

@@ -24,29 +24,15 @@ export default async function handler(req, res) {
         },
       },
     },
-    // include: {
-    //   movie: {
-    //     where: {
-    //       productionCountries: {
-    //         some: {
-    //           id: {
-    //             equals: Number(countryId),
-    //           },
-    //         },
-    //       },
-    //     },
-    //     include: {
-    //       productionCountries: true,
-    //     },
-    //   },
-    // },
   });
 
   g.forEach((item) => {
     item["movieCount"] = item["movie"].length;
     // ゴミ処理　マジのゴミ処理なのでしっかりかこう
-    item["movie"] = void 0;
+    delete item["movie"];
   });
+
+  g.sort((a, b) => b.movieCount - a.movieCount);
 
   res.status(200).json(forceSerialize({ g }));
 }

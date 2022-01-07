@@ -19,9 +19,9 @@ export default async function handler(req, res) {
           },
         },
         where: {
-          AND: [
-            {
-              movie: {
+          movie: {
+            AND: [
+              {
                 productionCountries: {
                   some: {
                     id: {
@@ -30,9 +30,7 @@ export default async function handler(req, res) {
                   },
                 },
               },
-            },
-            {
-              movie: {
+              {
                 genres: {
                   some: {
                     id: {
@@ -41,53 +39,80 @@ export default async function handler(req, res) {
                   },
                 },
               },
-            },
-          ],
+            ],
+          },
+          // AND: [
+          //   {
+          //     movie: {
+          //       productionCountries: {
+          //         some: {
+          //           id: {
+          //             equals: countryId,
+          //           },
+          //         },
+          //       },
+          //     },
+          //   },
+          //   {
+          //     movie: {
+          //       genres: {
+          //         some: {
+          //           id: {
+          //             equals: genreId,
+          //           },
+          //         },
+          //       },
+          //     },
+          //   },
+          // ],
+        },
+      },
+    },
+    where: {
+      relatedMovies: {
+        some: {
+          movie: {
+            AND: [
+              {
+                productionCountries: {
+                  some: {
+                    id: {
+                      equals: countryId,
+                    },
+                  },
+                },
+              },
+              {
+                genres: {
+                  some: {
+                    id: {
+                      equals: genreId,
+                    },
+                  },
+                },
+              },
+            ],
+          },
         },
       },
     },
 
-    // where: {
-    //   AND: [
-    //     {
-    //       relatedMovies: {
-    //         some: {
-    //           movie: {
-    //             productionCountries: {
-    //               some: {
-    //                 id: {
-    //                   equals: countryId,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //     {
-    //       relatedMovies: {
-    //         some: {
-    //           movie: {
-    //             genres: {
-    //               some: {
-    //                 id: {
-    //                   equals: genreId,
-    //                 },
-    //               },
-    //             },
-    //           },
-    //         },
-    //       },
-    //     },
-    //   ],
-    // },
     orderBy: {
       relatedMovies: {
         _count: "desc",
       },
     },
-    take: 5,
+    // take: 5,
   });
 
-  res.status(200).json(forceSerialize({ p }));
+  p.forEach((item) => {
+    item["movieCount"] = item["relatedMovies"].length;
+    delete item.relatedMovies;
+  });
+
+  res.status(200).json(
+    forceSerialize({
+      p: p.sort((a, b) => b.movieCount - a.movieCount).slice(0, 10),
+    })
+  );
 }

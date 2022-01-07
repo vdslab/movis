@@ -12,7 +12,7 @@ export const fetchTmdbPersonImg = async (name) => {
     )}&page=1&include_adult=false&region=JP`
   );
   const tmdbSearchResult = await tmdbRes.json();
-  const tmdbProfilePath = tmdbSearchResult.results[0]?.profile_path;
+  const tmdbProfilePath = tmdbSearchResult.results?.[0]?.profile_path;
   const personImgUrl = tmdbProfilePath
     ? TMDB_IMG_BASE_URL + tmdbProfilePath
     : tmdbProfilePath;

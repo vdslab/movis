@@ -15,6 +15,7 @@ const genresAdapter = createEntityAdapter({
 const initialState = {
   genres: genresAdapter.getInitialState(),
   selectedGenre: "",
+  countryRelatedGenres: [],
 };
 
 export const genresSlice = createSlice({
@@ -56,6 +57,9 @@ export const genresSlice = createSlice({
       }));
       genresAdapter.upsertMany(state.genres, personRelatedGenres);
     },
+    loadCountryRelatedGenres: (state, action) => {
+      state.countryRelatedGenres = action.payload;
+    },
   },
 });
 
@@ -64,6 +68,8 @@ export const {
   resetGenres,
   toggleSelectedGenre,
   setPersonRelatedGenres,
+  loadCountryRelatedGenres,
+  toggleSelectedSingleGenre,
 } = genresSlice.actions;
 
 export const genresReducer = genresSlice.reducer;
@@ -83,3 +89,6 @@ export const selectPersonRelatedGenres = createSelector(
 );
 
 export const selectSelectedGenre = (state) => state.genres.selectedGenre;
+
+export const selectCountryRelatedGenres = (state) =>
+  state.genres.countryRelatedGenres;

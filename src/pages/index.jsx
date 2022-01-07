@@ -54,8 +54,6 @@ const Top = (props) => {
     ? countries.filter((c) => c.id === selectedCountry)?.[0]
     : null;
 
-  console.log({ genre, country });
-
   const handleChangeSelectedCountry = useCallback(
     (countryId) => {
       dispatch(toggleSelectedCountry(countryId));
@@ -84,8 +82,6 @@ const Top = (props) => {
   }, [countryRelatedGenres]);
 
   useEffect(() => {
-    console.log("hello");
-    console.log(props.countries);
     dispatch(loadCountries(props.countries));
   }, [dispatch, props.countries]);
 
@@ -96,9 +92,6 @@ const Top = (props) => {
     }
 
     (async () => {
-      console.log(
-        `/api/top/person?countryId=${selectedCountry}&genreId=${selectedGenre}`
-      );
       const res = await fetch(
         `/api/top/person?countryId=${selectedCountry}&genreId=${selectedGenre}`
       );
@@ -107,8 +100,6 @@ const Top = (props) => {
       for (const person of data.p) {
         person["imgUrl"] = await fetchTmdbPersonImg(person.name);
       }
-
-      console.log(data.p);
 
       setPeople(data.p);
     })();

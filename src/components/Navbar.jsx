@@ -1,5 +1,5 @@
-import { SearchOutlined } from "@mui/icons-material";
-import { AppBar, IconButton, Toolbar, Tooltip } from "@mui/material";
+import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
+import { AppBar, Box, IconButton, Toolbar, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { memo } from "react";
 
@@ -10,7 +10,10 @@ const NavbarRoot = styled(AppBar)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-export const Navbar = memo(function Navbar({ drawerToggle }) {
+export const Navbar = memo(function Navbar({
+  handleSearchMenuModalToggle,
+  handleSelectedStatusModalToggle,
+}) {
   return (
     <NavbarRoot>
       <Toolbar
@@ -24,11 +27,18 @@ export const Navbar = memo(function Navbar({ drawerToggle }) {
         }}
       >
         <Logo />
-        <Tooltip title="Search" sx={{ display: { lg: "none" } }}>
-          <IconButton onClick={drawerToggle}>
-            <SearchOutlined />
-          </IconButton>
-        </Tooltip>
+        <Box>
+          <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
+            <IconButton onClick={handleSelectedStatusModalToggle}>
+              <FilterAltOutlined />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="検索" sx={{ display: { lg: "none" } }}>
+            <IconButton onClick={handleSearchMenuModalToggle}>
+              <SearchOutlined />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Toolbar>
     </NavbarRoot>
   );

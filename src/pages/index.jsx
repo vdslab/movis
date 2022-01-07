@@ -122,7 +122,7 @@ const Top = (props) => {
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
-      <Typography>
+      <Typography variant="h5">
         製作国とジャンルから活躍している出演者を探してみましょう
       </Typography>
       <Stepper activeStep={activeStep} orientation="vertical">
@@ -164,80 +164,80 @@ const Top = (props) => {
           <StepLabel>ジャンルを選択</StepLabel>
           <StepContent>
             <Typography>出演者が活躍しているジャンルを選択</Typography>
-            <Box>
-              {genreGraphData && (
-                <Box sx={{ height: 400 }}>
-                  <ResponsiveCirclePacking
-                    data={genreGraphData}
-                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                    id="name"
-                    value="movieCount"
-                    colors={{ scheme: "nivo" }}
-                    childColor={{
-                      from: "color",
-                      modifiers: [["brighter", 0.4]],
-                    }}
-                    padding={4}
-                    enableLabels={true}
-                    labelTextColor={{
-                      from: "color",
-                      modifiers: [["darker", 2]],
-                    }}
-                    borderWidth={1}
-                    borderColor={{
-                      from: "color",
-                      modifiers: [["darker", 0.5]],
-                    }}
-                    defs={[
-                      {
-                        id: "lines",
-                        type: "patternLines",
-                        background: "none",
-                        color: "#f1e15b",
-                        rotation: -45,
-                        lineWidth: 5,
-                        spacing: 8,
-                      },
-                    ]}
-                    fill={[
-                      {
-                        match: (d) => d.data.id === selectedGenre,
-                        id: "lines",
-                      },
-                    ]}
-                    onClick={(t) => {
-                      const genreId = t.data.id;
-                      handleChangeSelectedGenre(genreId);
-                      setActiveStep(2);
-                    }}
-                  />
-                </Box>
-              )}
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="top-genre-select-label">
-                  ジャンルを選択
-                </InputLabel>
-                <Select
-                  labelId="top-genre-select-label"
-                  value={selectedGenre}
-                  onChange={(e) => {
-                    const genreId = e.target.value;
+
+            {genreGraphData && (
+              <Box sx={{ height: 400, maxWidth: "sm" }}>
+                <ResponsiveCirclePacking
+                  data={genreGraphData}
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  id="name"
+                  value="movieCount"
+                  colors={{ scheme: "nivo" }}
+                  childColor={{
+                    from: "color",
+                    modifiers: [["brighter", 0.4]],
+                  }}
+                  padding={4}
+                  enableLabels={true}
+                  labelTextColor={{
+                    from: "color",
+                    modifiers: [["darker", 2]],
+                  }}
+                  borderWidth={1}
+                  borderColor={{
+                    from: "color",
+                    modifiers: [["darker", 0.5]],
+                  }}
+                  defs={[
+                    {
+                      id: "lines",
+                      type: "patternLines",
+                      background: "none",
+                      color: "#f1e15b",
+                      rotation: -45,
+                      lineWidth: 5,
+                      spacing: 8,
+                    },
+                  ]}
+                  fill={[
+                    {
+                      match: (d) => d.data.id === selectedGenre,
+                      id: "lines",
+                    },
+                  ]}
+                  onClick={(t) => {
+                    const genreId = t.data.id;
                     handleChangeSelectedGenre(genreId);
                     setActiveStep(2);
                   }}
-                  input={<OutlinedInput label="ジャンルを選択" />}
-                >
-                  {countryRelatedGenres.map((genre) => {
-                    return (
-                      <MenuItem key={genre.id} value={genre.id}>
-                        {genre.name}
-                        {`（${genre.movieCount}件）`}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            </Box>
+                />
+              </Box>
+            )}
+
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <InputLabel id="top-genre-select-label">
+                ジャンルを選択
+              </InputLabel>
+              <Select
+                labelId="top-genre-select-label"
+                value={selectedGenre}
+                onChange={(e) => {
+                  const genreId = e.target.value;
+                  handleChangeSelectedGenre(genreId);
+                  setActiveStep(2);
+                }}
+                input={<OutlinedInput label="ジャンルを選択" />}
+              >
+                {countryRelatedGenres.map((genre) => {
+                  return (
+                    <MenuItem key={genre.id} value={genre.id}>
+                      {genre.name}
+                      {`（${genre.movieCount}件）`}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
           </StepContent>
         </Step>
 

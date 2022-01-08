@@ -17,13 +17,16 @@ import {
   StepLabel,
   Stepper,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { HelpPopover } from "@/components/HelpPopover";
 import { Link } from "@/components/Link";
+import { SearchForm } from "@/components/SearchForm";
 import prisma from "@/lib/prisma";
 import {
   loadCountries,
@@ -47,6 +50,9 @@ const Top = (props) => {
   const dispatch = useDispatch();
   const [activeStep, setActiveStep] = useState(0);
   const [people, setPeople] = useState([]);
+
+  const theme = useTheme();
+  const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
 
   const genre = selectedGenre
     ? countryRelatedGenres.filter((g) => g.id === selectedGenre)?.[0]
@@ -123,9 +129,34 @@ const Top = (props) => {
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
+      <Box sx={{ my: 2 }}>
+        <Typography variant="h5">movisとは</Typography>
+        <Typography>
+          おすすめなどの自分以外の評価に頼らず、「人」を起点に映画を探せるサービスです。
+        </Typography>
+        <Typography>
+          作品情報や出演者・スタッフ情報の閲覧が可能であり、閲覧の補助をする可視化や機能が加えられています。
+        </Typography>
+      </Box>
+
+      <Typography variant="h6" sx={{ my: 6 }}>
+        まずは起点となる人を見つけましょう
+      </Typography>
+      <Box>
+        <Typography>
+          探したい人が決まっている場合は{matchUpLg && "左から"}
+          名前で検索しましょう
+        </Typography>
+        {!matchUpLg && (
+          <Box sx={{ m: 2, width: { xs: "100%", sm: "50%" } }}>
+            <SearchForm />
+          </Box>
+        )}
+      </Box>
+
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography variant="h5">
-          関心のある製作国とジャンルから活躍している出演者を探してみましょう
+        <Typography>
+          探したい人が決まっていない場合には関心のある製作国とジャンルから活躍している出演者を探してみましょう
         </Typography>
         <HelpPopover
           text={

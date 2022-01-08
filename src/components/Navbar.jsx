@@ -1,6 +1,7 @@
 import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
 import { AppBar, Box, IconButton, Toolbar, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useRouter } from "next/router";
 import { memo } from "react";
 
 import { Logo } from "@/components/Logo";
@@ -14,6 +15,8 @@ export const Navbar = memo(function Navbar({
   handleSearchMenuModalToggle,
   handleSelectedStatusModalToggle,
 }) {
+  const router = useRouter();
+
   return (
     <NavbarRoot>
       <Toolbar
@@ -28,11 +31,13 @@ export const Navbar = memo(function Navbar({
       >
         <Logo />
         <Box>
-          <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
-            <IconButton onClick={handleSelectedStatusModalToggle}>
-              <FilterAltOutlined />
-            </IconButton>
-          </Tooltip>
+          {router.asPath === "/people/[personId]" && (
+            <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
+              <IconButton onClick={handleSelectedStatusModalToggle}>
+                <FilterAltOutlined />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title="検索" sx={{ display: { lg: "none" } }}>
             <IconButton onClick={handleSearchMenuModalToggle}>
               <SearchOutlined />

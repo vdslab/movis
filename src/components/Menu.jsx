@@ -1,8 +1,7 @@
-import { CloseOutlined, SearchOutlined } from "@mui/icons-material";
+import { CloseOutlined } from "@mui/icons-material";
 import {
   Box,
   IconButton,
-  InputBase,
   Paper,
   Typography,
   Chip,
@@ -10,12 +9,11 @@ import {
   Modal,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
-import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RelatedGenreList } from "@/components/Genre";
+import { SearchForm } from "@/components/SearchForm";
 import {
   selectIsSearchModalOpen,
   selectIsSelectedStatusModalOpen,
@@ -165,38 +163,11 @@ const RelatedGenreSection = () => {
   );
 };
 
-export const LgUpMenuContent = memo(function LgUpMenuContent({
-  handleSubmit,
-  register,
-  reset,
-  router,
-}) {
+export const LgUpMenuContent = memo(function LgUpMenuContent({}) {
   return (
     <Box>
       <Box sx={{ m: 2 }}>
-        <Paper
-          component="form"
-          sx={{
-            p: "2px 4px",
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-          }}
-          onSubmit={handleSubmit((data) => {
-            const encodedKeyword = encodeURIComponent(data.keyword);
-            router.push(`/people?keyword=${encodedKeyword}`);
-            reset({ keyword: "" });
-          })}
-        >
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="人物・映画名で検索"
-            {...register("keyword")}
-          />
-          <IconButton type="submit" sx={{ p: "10px" }}>
-            <SearchOutlined />
-          </IconButton>
-        </Paper>
+        <SearchForm />
       </Box>
       <SelectedNodeSection />
       <SelectedYearSection />
@@ -206,10 +177,6 @@ export const LgUpMenuContent = memo(function LgUpMenuContent({
 });
 
 export const SearchMenuModal = memo(function SearchMenuModal({
-  handleSubmit,
-  register,
-  reset,
-  router,
   toggleOpen,
   isOpen,
 }) {
@@ -241,30 +208,7 @@ export const SearchMenuModal = memo(function SearchMenuModal({
           </Box>
         </Box>
         <Box sx={{ m: 2 }}>
-          <Paper
-            component="form"
-            sx={{
-              p: "2px 4px",
-              display: "flex",
-              alignItems: "center",
-              width: "100%",
-            }}
-            onSubmit={handleSubmit((data) => {
-              const encodedKeyword = encodeURIComponent(data.keyword);
-              router.push(`/people?keyword=${encodedKeyword}`);
-              reset({ keyword: "" });
-              toggleOpen();
-            })}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="人物・映画名で検索"
-              {...register("keyword")}
-            />
-            <IconButton type="submit" sx={{ p: "10px" }}>
-              <SearchOutlined />
-            </IconButton>
-          </Paper>
+          <SearchForm />
         </Box>
       </Box>
     </Modal>
@@ -316,9 +260,6 @@ export const SearchAndSelectionMenu = memo(function SearchAndSelectionMenu({
 }) {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
-  const { register, handleSubmit, reset } = useForm();
-  const router = useRouter();
-  const dispatch = useDispatch();
 
   const isSearchModalOpen = useSelector(selectIsSearchModalOpen);
   const isSelectedStatusModalOpen = useSelector(
@@ -339,22 +280,13 @@ export const SearchAndSelectionMenu = memo(function SearchAndSelectionMenu({
             top: "88px",
           }}
         >
-          <LgUpMenuContent
-            handleSubmit={handleSubmit}
-            register={register}
-            reset={reset}
-            router={router}
-          />
+          <LgUpMenuContent />
         </Box>
       ) : (
         <Box>
           <SearchMenuModal
             toggleOpen={handleSearchMenuModalToggle}
             isOpen={isSearchModalOpen}
-            handleSubmit={handleSubmit}
-            register={register}
-            reset={reset}
-            router={router}
           />
           <SelectedStatusModal
             toggleOpen={handleSelectedStatusModalToggle}

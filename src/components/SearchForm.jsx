@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { memo } from "react";
 import { useForm } from "react-hook-form";
 
-export const SearchForm = memo(function SearchForm() {
+export const SearchForm = memo(function SearchForm({ toggleOpen }) {
   const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
 
@@ -21,7 +21,9 @@ export const SearchForm = memo(function SearchForm() {
         const encodedKeyword = encodeURIComponent(data.keyword);
         router.push(`/people?keyword=${encodedKeyword}`);
         reset({ keyword: "" });
-        toggleOpen();
+        if (toggleOpen) {
+          toggleOpen();
+        }
       })}
     >
       <InputBase

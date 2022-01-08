@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { ActorNetwork } from "@/components/ActorNetwork";
 import { RelatedGenreList } from "@/components/Genre";
+import { HelpPopover } from "@/components/HelpPopover";
 import { MovieCard } from "@/components/MovieCard";
 import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
@@ -74,7 +75,9 @@ const GenreSection = memo(function GenreSection({
 }) {
   return (
     <Box>
-      <Typography sx={{ p: 1 }}>{name}が関わった映画のジャンル</Typography>
+      <Typography sx={{ p: 1 }}>
+        {name}が制作に携わった映画のジャンル
+      </Typography>
 
       <RelatedGenreList
         personRelatedGenres={personRelatedGenres}
@@ -93,7 +96,14 @@ const MovieHistorySection = memo(function MovieHistorySection({
   const years = selectedYears.map((year) => year.year);
   return (
     <Box>
-      <Typography sx={{ p: 1 }}>映画製作の記録</Typography>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Typography sx={{ p: 1 }}>
+          気になる映画製作年度を選択して、映画を絞り込みましょう
+        </Typography>
+        <HelpPopover
+          text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}
+        />
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -383,9 +393,16 @@ const Person = ({
         </Grid>
 
         <Grid item xs={12}>
-          <Typography sx={{ p: 1 }}>
-            {person.name}が共演したことのある出演者ネットワーク
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography sx={{ p: 1 }}>
+              {person.name}
+              と共演したことのある出演者を選択して、映画を絞り込みましょう。
+            </Typography>
+            <HelpPopover
+              text={`この可視化は${person.name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${person.name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}
+            />
+          </Box>
+
           <Paper
             component="form"
             sx={{

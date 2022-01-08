@@ -208,7 +208,7 @@ export const SearchMenuModal = memo(function SearchMenuModal({
           </Box>
         </Box>
         <Box sx={{ m: 2 }}>
-          <SearchForm />
+          <SearchForm toggleOpen={toggleOpen} />
         </Box>
       </Box>
     </Modal>

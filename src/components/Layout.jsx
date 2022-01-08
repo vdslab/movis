@@ -2,7 +2,6 @@ import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { useCallback, useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
 import { SearchAndSelectionMenu } from "@/components/Menu";
@@ -29,7 +28,6 @@ const ContentRoot = styled(Box)(() => ({
 export const Layout = ({ children }) => {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { register, handleSubmit, reset } = useForm();
 
   const isSearchModalOpen = useSelector(selectIsSearchModalOpen);
   const isSelectedStatusModalOpen = useSelector(

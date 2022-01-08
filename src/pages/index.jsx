@@ -22,6 +22,7 @@ import { ResponsiveCirclePacking } from "@nivo/circle-packing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { HelpPopover } from "@/components/HelpPopover";
 import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
 import {
@@ -122,9 +123,16 @@ const Top = (props) => {
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
-      <Typography variant="h5">
-        製作国とジャンルから活躍している出演者を探してみましょう
-      </Typography>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <Typography variant="h5">
+          関心のある製作国とジャンルから活躍している出演者を探してみましょう
+        </Typography>
+        <HelpPopover
+          text={
+            "これは特定の国・ジャンルで活躍している人物を探すための機能です。関心のある国・ジャンルを選択してください。"
+          }
+        />
+      </Box>
       <Stepper activeStep={activeStep} orientation="vertical">
         {/* select country */}
         <Step expanded={0 <= activeStep}>

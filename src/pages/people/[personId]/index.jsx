@@ -250,10 +250,125 @@ const Person = ({
   barData,
   barKeys,
   personImgUrl,
-  network,
+  // network,
   genres,
   years,
 }) => {
+  console.log({
+    person,
+    // barData,
+    // barKeys,
+    // personImgUrl,
+    // network,
+    // genres,
+    // years,
+  });
+  const actorOccupationName = "出演者";
+  const network = useMemo(() => {
+    // ここからnetwork
+    const sourceTarget = {};
+    person.relatedMovies.forEach((rm) => {
+      // 出演者として関わった映画のみ共演した出演者を取り出すので
+      if (rm.occupation.name !== actorOccupationName) {
+        return;
+      }
+      rm.movie.productionMembers.forEach((spm, index) => {
+        const sourceId = spm.person.id;
+        if (sourceId in sourceTarget === false) {
+          // countWithMainは中心となる俳優との共演回数
+          sourceTarget[sourceId] = { countWithMain: 0 };
+        }
+        ++sourceTarget[sourceId].countWithMain;
+
+        rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
+          const targetId = tpm.person.id;
+          // この値は俳優同士の共演回数
+          sourceTarget[sourceId][targetId] =
+            (sourceTarget[sourceId][targetId] || 0) + 1;
+        });
+      });
+    });
+
+    const links = [];
+    // for (const sourceId in sourceTarget) {
+    //   if (sourceId === "countWithMain") {
+    //     continue;
+    //   }
+    //   for (const targetId in sourceTarget[sourceId]) {
+    //     if (targetId === "countWithMain") {
+    //       continue;
+    //     }
+    //     links.push({
+    //       source: sourceId,
+    //       target: targetId,
+    //       weight: sourceTarget[sourceId][targetId],
+    //       d: 10,
+    //     });
+    //   }
+    // }
+
+    Object.keys(sourceTarget).forEach((sourceId, index) => {
+      for (const targetId in sourceTarget[sourceId]) {
+        if (targetId !== "countWithMain") {
+          links.push({
+            source: sourceId,
+            target: targetId,
+            weight: sourceTarget[sourceId][targetId],
+            d: 10,
+          });
+        }
+      }
+    });
+
+    const nodeBase = {};
+    person.relatedMovies.forEach((rm) => {
+      // 出演者として関わった映画のみ共演した出演者を取り出すので
+      if (rm.occupation.name !== actorOccupationName) {
+        return;
+      }
+      rm.movie.productionMembers.forEach((pm) => {
+        nodeBase[pm.person.id] = {
+          ...pm.person,
+          id: pm.person.id,
+          name: pm.person.name,
+          count: sourceTarget[pm.person.id].countWithMain,
+          relatedMoviesCount: pm.person.relatedMovies.length,
+        };
+      });
+    });
+    const nodes = Object.values(nodeBase);
+
+    const counts = nodes.map((node) => node.count);
+    const countMax = Math.max(...counts);
+    // const countMin = Math.min(...counts);
+    const countMin = 0;
+
+    const relatedMoviesCounts = nodes.map((node) => node.relatedMoviesCount);
+    const relatedMoviesCountMax = Math.max(...relatedMoviesCounts);
+    const relatedMoviesCountMin = 0;
+
+    for (const node of nodes) {
+      const normalizedCount =
+        countMax !== countMin
+          ? (node.count - countMin) / (countMax - countMin)
+          : 0.5;
+      const normalizedRelatedMoviesCount =
+        relatedMoviesCountMax !== relatedMoviesCountMin
+          ? (node.relatedMoviesCount - relatedMoviesCountMin) /
+            (relatedMoviesCountMax - relatedMoviesCountMin)
+          : 0.5;
+      node["normalizedCount"] = normalizedCount;
+      node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
+      // node["r"] = (normalizedCount + 0.1) * 600;
+      node["r"] = normalizedCount * 200;
+
+      // ゴミ処理　これ初めてやったので良し悪しがわからん
+      delete node.relatedMovies;
+    }
+
+    return { nodes, links };
+  }, [person]);
+
   const movies = useMemo(
     () =>
       person.relatedMovies.map((rm) => {
@@ -622,108 +737,108 @@ export const getServerSideProps = async (ctx) => {
   });
   const barKeys = occupations.map((item) => item.name);
 
-  // ここからnetwork
-  const sourceTarget = {};
-  person.relatedMovies.forEach((rm) => {
-    // 出演者として関わった映画のみ共演した出演者を取り出すので
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
-    rm.movie.productionMembers.forEach((spm, index) => {
-      const sourceId = spm.person.id;
-      if (sourceId in sourceTarget === false) {
-        // countWithMainは中心となる俳優との共演回数
-        sourceTarget[sourceId] = { countWithMain: 0 };
-      }
-      ++sourceTarget[sourceId].countWithMain;
-
-      rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
-        const targetId = tpm.person.id;
-        // この値は俳優同士の共演回数
-        sourceTarget[sourceId][targetId] =
-          (sourceTarget[sourceId][targetId] || 0) + 1;
-      });
-    });
-  });
-
-  const links = [];
-  // for (const sourceId in sourceTarget) {
-  //   if (sourceId === "countWithMain") {
-  //     continue;
+  // // ここからnetwork
+  // const sourceTarget = {};
+  // person.relatedMovies.forEach((rm) => {
+  //   // 出演者として関わった映画のみ共演した出演者を取り出すので
+  //   if (rm.occupation.name !== actorOccupationName) {
+  //     return;
   //   }
-  //   for (const targetId in sourceTarget[sourceId]) {
-  //     if (targetId === "countWithMain") {
-  //       continue;
+  //   rm.movie.productionMembers.forEach((spm, index) => {
+  //     const sourceId = spm.person.id;
+  //     if (sourceId in sourceTarget === false) {
+  //       // countWithMainは中心となる俳優との共演回数
+  //       sourceTarget[sourceId] = { countWithMain: 0 };
   //     }
-  //     links.push({
-  //       source: sourceId,
-  //       target: targetId,
-  //       weight: sourceTarget[sourceId][targetId],
-  //       d: 10,
+  //     ++sourceTarget[sourceId].countWithMain;
+
+  //     rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
+  //       const targetId = tpm.person.id;
+  //       // この値は俳優同士の共演回数
+  //       sourceTarget[sourceId][targetId] =
+  //         (sourceTarget[sourceId][targetId] || 0) + 1;
   //     });
+  //   });
+  // });
+
+  // const links = [];
+  // // for (const sourceId in sourceTarget) {
+  // //   if (sourceId === "countWithMain") {
+  // //     continue;
+  // //   }
+  // //   for (const targetId in sourceTarget[sourceId]) {
+  // //     if (targetId === "countWithMain") {
+  // //       continue;
+  // //     }
+  // //     links.push({
+  // //       source: sourceId,
+  // //       target: targetId,
+  // //       weight: sourceTarget[sourceId][targetId],
+  // //       d: 10,
+  // //     });
+  // //   }
+  // // }
+
+  // Object.keys(sourceTarget).forEach((sourceId, index) => {
+  //   for (const targetId in sourceTarget[sourceId]) {
+  //     if (targetId !== "countWithMain") {
+  //       links.push({
+  //         source: sourceId,
+  //         target: targetId,
+  //         weight: sourceTarget[sourceId][targetId],
+  //         d: 10,
+  //       });
+  //     }
   //   }
+  // });
+
+  // const nodeBase = {};
+  // person.relatedMovies.forEach((rm) => {
+  //   // 出演者として関わった映画のみ共演した出演者を取り出すので
+  //   if (rm.occupation.name !== actorOccupationName) {
+  //     return;
+  //   }
+  //   rm.movie.productionMembers.forEach((pm) => {
+  //     nodeBase[pm.person.id] = {
+  //       ...pm.person,
+  //       id: pm.person.id,
+  //       name: pm.person.name,
+  //       count: sourceTarget[pm.person.id].countWithMain,
+  //       relatedMoviesCount: pm.person.relatedMovies.length,
+  //     };
+  //   });
+  // });
+  // const nodes = Object.values(nodeBase);
+
+  // const counts = nodes.map((node) => node.count);
+  // const countMax = Math.max(...counts);
+  // // const countMin = Math.min(...counts);
+  // const countMin = 0;
+
+  // const relatedMoviesCounts = nodes.map((node) => node.relatedMoviesCount);
+  // const relatedMoviesCountMax = Math.max(...relatedMoviesCounts);
+  // const relatedMoviesCountMin = 0;
+
+  // for (const node of nodes) {
+  //   const normalizedCount =
+  //     countMax !== countMin
+  //       ? (node.count - countMin) / (countMax - countMin)
+  //       : 0.5;
+  //   const normalizedRelatedMoviesCount =
+  //     relatedMoviesCountMax !== relatedMoviesCountMin
+  //       ? (node.relatedMoviesCount - relatedMoviesCountMin) /
+  //         (relatedMoviesCountMax - relatedMoviesCountMin)
+  //       : 0.5;
+  //   node["normalizedCount"] = normalizedCount;
+  //   node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
+  //   // node["r"] = (normalizedCount + 0.1) * 600;
+  //   node["r"] = normalizedCount * 200;
+
+  //   // ゴミ処理　これ初めてやったので良し悪しがわからん
+  //   delete node.relatedMovies;
   // }
 
-  Object.keys(sourceTarget).forEach((sourceId, index) => {
-    for (const targetId in sourceTarget[sourceId]) {
-      if (targetId !== "countWithMain") {
-        links.push({
-          source: sourceId,
-          target: targetId,
-          weight: sourceTarget[sourceId][targetId],
-          d: 10,
-        });
-      }
-    }
-  });
-
-  const nodeBase = {};
-  person.relatedMovies.forEach((rm) => {
-    // 出演者として関わった映画のみ共演した出演者を取り出すので
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
-    rm.movie.productionMembers.forEach((pm) => {
-      nodeBase[pm.person.id] = {
-        ...pm.person,
-        id: pm.person.id,
-        name: pm.person.name,
-        count: sourceTarget[pm.person.id].countWithMain,
-        relatedMoviesCount: pm.person.relatedMovies.length,
-      };
-    });
-  });
-  const nodes = Object.values(nodeBase);
-
-  const counts = nodes.map((node) => node.count);
-  const countMax = Math.max(...counts);
-  // const countMin = Math.min(...counts);
-  const countMin = 0;
-
-  const relatedMoviesCounts = nodes.map((node) => node.relatedMoviesCount);
-  const relatedMoviesCountMax = Math.max(...relatedMoviesCounts);
-  const relatedMoviesCountMin = 0;
-
-  for (const node of nodes) {
-    const normalizedCount =
-      countMax !== countMin
-        ? (node.count - countMin) / (countMax - countMin)
-        : 0.5;
-    const normalizedRelatedMoviesCount =
-      relatedMoviesCountMax !== relatedMoviesCountMin
-        ? (node.relatedMoviesCount - relatedMoviesCountMin) /
-          (relatedMoviesCountMax - relatedMoviesCountMin)
-        : 0.5;
-    node["normalizedCount"] = normalizedCount;
-    node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
-    // node["r"] = (normalizedCount + 0.1) * 600;
-    node["r"] = normalizedCount * 200;
-
-    // ゴミ処理　これ初めてやったので良し悪しがわからん
-    delete node.relatedMovies;
-  }
-
-  const network = { nodes, links };
+  // const network = { nodes, links };
 
   const relatedMovieIds = person.relatedMovies.map((rm) => rm.movie.id);
 
@@ -751,7 +866,7 @@ export const getServerSideProps = async (ctx) => {
       barData,
       barKeys,
       personImgUrl,
-      network,
+      // network,
       genres: allGenres,
       years,
     }),

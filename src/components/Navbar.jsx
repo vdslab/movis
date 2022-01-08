@@ -31,7 +31,7 @@ export const Navbar = memo(function Navbar({
       >
         <Logo />
         <Box>
-          {router.asPath === "/people/[personId]" && (
+          {router.pathname === "/people/[personId]" && (
             <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
               <IconButton onClick={handleSelectedStatusModalToggle}>
                 <FilterAltOutlined />

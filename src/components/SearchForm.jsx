@@ -1,9 +1,10 @@
 import { SearchOutlined } from "@mui/icons-material";
 import { IconButton, InputBase, Paper } from "@mui/material";
 import { useRouter } from "next/router";
+import { memo } from "react";
 import { useForm } from "react-hook-form";
 
-export const SearchForm = memo(() => {
+export const SearchForm = memo(function SearchForm() {
   const { register, handleSubmit, reset } = useForm();
   const router = useRouter();
 

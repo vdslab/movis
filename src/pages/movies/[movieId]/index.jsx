@@ -157,7 +157,7 @@ const Movie = (props) => {
 
                 return (
                   <Link
-                    href={`/person/${person.id}`}
+                    href={`/people/${person.id}`}
                     sx={{ textDecoration: "none", color: "currentcolor" }}
                     key={person.id}
                   >

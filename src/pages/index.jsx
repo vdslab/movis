@@ -148,7 +148,7 @@ const Top = (props) => {
           名前で検索しましょう
         </Typography>
         {!matchUpLg && (
-          <Box sx={{ m: 2, width: { xs: "100%", sm: "50%" } }}>
+          <Box sx={{ mt: 2, mb: 4, width: { xs: "100%", sm: "50%" } }}>
             <SearchForm />
           </Box>
         )}
@@ -160,7 +160,7 @@ const Top = (props) => {
         </Typography>
         <HelpPopover
           text={
-            "これは特定の国・ジャンルで活躍している人物を探すための機能です。関心のある国・ジャンルを選択してください。"
+            "特定の国・ジャンルで活躍している人物を探すための機能です。関心のある国・ジャンルを選択してください。"
           }
         />
       </Box>

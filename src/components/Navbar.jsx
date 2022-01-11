@@ -12,8 +12,8 @@ const NavbarRoot = styled(AppBar)(({ theme }) => ({
 }));
 
 export const Navbar = memo(function Navbar({
-  handleSearchMenuModalToggle,
-  handleSelectedStatusModalToggle,
+  handleToggleSearchOpen,
+  handleToggleSelectionOpen,
 }) {
   const router = useRouter();
 
@@ -33,13 +33,13 @@ export const Navbar = memo(function Navbar({
         <Box>
           {router.pathname === "/people/[personId]" && (
             <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
-              <IconButton onClick={handleSelectedStatusModalToggle}>
+              <IconButton onClick={handleToggleSelectionOpen}>
                 <FilterAltOutlined />
               </IconButton>
             </Tooltip>
           )}
           <Tooltip title="検索" sx={{ display: { lg: "none" } }}>
-            <IconButton onClick={handleSearchMenuModalToggle}>
+            <IconButton onClick={handleToggleSearchOpen}>
               <SearchOutlined />
             </IconButton>
           </Tooltip>

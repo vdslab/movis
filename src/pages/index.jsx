@@ -21,111 +21,286 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { ResponsiveCirclePacking } from "@nivo/circle-packing";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import { HelpPopover } from "@/components/HelpPopover";
 import { Link } from "@/components/Link";
 import { SearchForm } from "@/components/SearchForm";
 import prisma from "@/lib/prisma";
-import {
-  loadCountries,
-  selectCountries,
-  selectSelectedCountry,
-  toggleSelectedCountry,
-} from "@/modules/features/country/countrySlice";
-import {
-  loadCountryRelatedGenres,
-  selectCountryRelatedGenres,
-  selectSelectedGenre,
-  toggleSelectedSingleGenre,
-} from "@/modules/features/genres/genresSlice";
 import { fetchTmdbPersonImg, forceSerialize } from "@/util";
 
-const Top = (props) => {
-  const countries = useSelector(selectCountries.selectAll);
-  const selectedCountry = useSelector(selectSelectedCountry);
-  const countryRelatedGenres = useSelector(selectCountryRelatedGenres);
-  const selectedGenre = useSelector(selectSelectedGenre);
-  const dispatch = useDispatch();
-  const [activeStep, setActiveStep] = useState(0);
-  const [people, setPeople] = useState([]);
+const FirstStepContent = memo(function FirstStep({
+  selectedCountryId,
+  countries,
+  handleChange,
+}) {
+  return (
+    <Box>
+      <StepLabel>製作国を選択</StepLabel>
+      <StepContent>
+        <Typography>興味がある製作国を選択</Typography>
+        <Box>
+          <FormControl sx={{ m: 1, width: 300 }}>
+            <InputLabel id="top-country-select-label">製作国を選択</InputLabel>
+            <Select
+              labelId="top-country-select-label"
+              value={selectedCountryId}
+              onChange={handleChange}
+              input={<OutlinedInput label="製作国を選択" />}
+            >
+              {countries.map((c) => {
+                return (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.name}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        </Box>
+      </StepContent>
+    </Box>
+  );
+});
 
+const ResponsiveCirclePackingComponent = memo(
+  function ResponsiveCirclePackingComponent({
+    data,
+    handleClick,
+    selectedGenreId,
+  }) {
+    return (
+      <ResponsiveCirclePacking
+        data={data}
+        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+        id="name"
+        value="movieCount"
+        colors={{ scheme: "nivo" }}
+        childColor={{
+          from: "color",
+          modifiers: [["brighter", 0.4]],
+        }}
+        padding={4}
+        enableLabels={true}
+        labelTextColor={{
+          from: "color",
+          modifiers: [["darker", 2]],
+        }}
+        borderWidth={1}
+        borderColor={{
+          from: "color",
+          modifiers: [["darker", 0.5]],
+        }}
+        defs={[
+          {
+            id: "lines",
+            type: "patternLines",
+            background: "none",
+            color: "#f1e15b",
+            rotation: -45,
+            lineWidth: 5,
+            spacing: 8,
+          },
+        ]}
+        fill={[
+          {
+            match: (d) => d.data.id === selectedGenreId,
+            id: "lines",
+          },
+        ]}
+        onClick={handleClick}
+      />
+    );
+  }
+);
+
+const SecondStepContent = memo(function SecondStep({
+  genreGraphData,
+  handleChangeGenre,
+  handleClickCircle,
+  genres,
+  selectedGenreId,
+  countryName,
+}) {
+  return (
+    <Box>
+      <StepLabel>ジャンルを選択</StepLabel>
+      <StepContent>
+        <Typography>
+          {countryName}
+          に関わりのあるジャンルを選択
+        </Typography>
+
+        {genreGraphData && (
+          <Box sx={{ height: 400, maxWidth: "sm" }}>
+            <ResponsiveCirclePackingComponent
+              data={genreGraphData}
+              handleClick={handleClickCircle}
+              selectedGenreId={selectedGenreId}
+            />
+          </Box>
+        )}
+
+        <FormControl sx={{ m: 1, width: 300 }}>
+          <InputLabel id="top-genre-select-label">ジャンルを選択</InputLabel>
+          <Select
+            labelId="top-genre-select-label"
+            value={selectedGenreId}
+            onChange={handleChangeGenre}
+            input={<OutlinedInput label="ジャンルを選択" />}
+          >
+            {genres.map((g) => {
+              return (
+                <MenuItem key={g.id} value={g.id}>
+                  {g.name}
+                  {`（${g.movieCount}件）`}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+      </StepContent>
+    </Box>
+  );
+});
+
+const ThirdStepContent = memo(function ThirdStepContent({
+  countryName,
+  genreName,
+  people,
+  person2imgUrl,
+}) {
+  return (
+    <Box>
+      <StepLabel>出演者を確認</StepLabel>
+      <StepContent>
+        <Typography>
+          {countryName}の{genreName}
+          での活躍数が多い上位10人を確認
+        </Typography>
+        <Box>
+          <List sx={{ width: "100%" }}>
+            {people.map((person, index) => {
+              return (
+                <Link
+                  href={`/people/${person.id}`}
+                  sx={{ textDecoration: "none", color: "currentcolor" }}
+                  key={person.id}
+                >
+                  <ListItemButton alignItems="center">
+                    <ListItemAvatar>
+                      <Avatar
+                        variant="square"
+                        alt={person.name}
+                        src={person2imgUrl[person.id]}
+                      />
+                    </ListItemAvatar>
+                    <ListItemText primary={person.name} />
+                  </ListItemButton>
+                  {index + 1 < people.length ? (
+                    <Divider variant="inset" component="li" />
+                  ) : null}
+                </Link>
+              );
+            })}
+          </List>
+        </Box>
+      </StepContent>
+    </Box>
+  );
+});
+
+const Top = ({ countries }) => {
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
+  const [activeStep, setActiveStep] = useState(0);
+  const [people, setPeople] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [selectedCountryId, setSelectedCountryId] = useState("");
+  const [selectedGenreId, setSelectedGenreId] = useState("");
+  const [person2imgUrl, setPerson2imgUrl] = useState({});
 
-  const genre = selectedGenre
-    ? countryRelatedGenres.filter((g) => g.id === selectedGenre)?.[0]
-    : null;
-  const country = selectedCountry
-    ? countries.filter((c) => c.id === selectedCountry)?.[0]
-    : null;
+  const country = useMemo(() => {
+    return countries.filter((c) => c.id === selectedCountryId)?.[0];
+  }, [countries, selectedCountryId]);
 
-  const handleChangeSelectedCountry = useCallback(
-    (countryId) => {
-      dispatch(toggleSelectedCountry(countryId));
-      dispatch(toggleSelectedSingleGenre(""));
-    },
-    [dispatch]
-  );
-
-  const handleChangeSelectedGenre = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedSingleGenre(genreId));
-    },
-    [dispatch]
-  );
+  const genre = useMemo(() => {
+    return genres.filter((g) => g.id === selectedGenreId)?.[0];
+  }, [genres, selectedGenreId]);
 
   const genreGraphData = useMemo(() => {
-    if (countryRelatedGenres.length === 0) {
+    if (genres.length === 0) {
       return void 0;
     }
-    const d = {
+
+    const data = {
       name: "",
-      children: countryRelatedGenres,
+      children: genres,
     };
 
-    return d;
-  }, [countryRelatedGenres]);
+    return data;
+  }, [genres]);
 
-  useEffect(() => {
-    dispatch(loadCountries(props.countries));
-  }, [dispatch, props.countries]);
+  const handleChangeCountry = useCallback((e) => {
+    const countryId = e.target.value;
+    setSelectedCountryId(countryId);
+  }, []);
 
-  // people取得
+  const handleChangeGenre = useCallback((e) => {
+    const genreId = e.target.value;
+    setSelectedGenreId(genreId);
+  }, []);
+
+  const handleClickCircle = useCallback((t) => {
+    const genreId = t.data.id;
+    setSelectedGenreId(genreId);
+  }, []);
+
+  // genre
   useEffect(() => {
-    if (!selectedCountry || !selectedGenre) {
+    setPeople([]);
+    if (!selectedCountryId) {
       return;
     }
 
     (async () => {
+      const res = await fetch(`/api/top/genre?countryId=${selectedCountryId}`);
+      const data = await res.json();
+
+      setGenres(data.g);
+      setActiveStep(1);
+    })();
+  }, [selectedCountryId]);
+
+  // people
+  useEffect(() => {
+    if (!selectedCountryId || !selectedGenreId) {
+      return;
+    }
+    (async () => {
       const res = await fetch(
-        `/api/top/person?countryId=${selectedCountry}&genreId=${selectedGenre}`
+        `/api/top/person?countryId=${selectedCountryId}&genreId=${selectedGenreId}`
       );
       const data = await res.json();
 
-      for (const person of data.p) {
-        person["imgUrl"] = await fetchTmdbPersonImg(person.name);
-      }
-
       setPeople(data.p);
+      setActiveStep(2);
     })();
-  }, [selectedCountry, selectedGenre]);
+  }, [selectedCountryId, selectedGenreId]);
 
-  // genre取得
   useEffect(() => {
-    if (!selectedCountry) {
+    if (people.length === 0) {
       return;
     }
 
     (async () => {
-      const res = await fetch(`/api/top/genre?countryId=${selectedCountry}`);
-      const data = await res.json();
-
-      dispatch(loadCountryRelatedGenres(data.g));
+      const p2i = {};
+      for (const person of people) {
+        p2i[person.id] = await fetchTmdbPersonImg(person.name);
+      }
+      setPerson2imgUrl(p2i);
     })();
-    dispatch(toggleSelectedSingleGenre(""));
-  }, [dispatch, selectedCountry]);
+  }, [people]);
 
   return (
     <Container maxWidth="xl" sx={{ my: 3 }}>
@@ -165,167 +340,39 @@ const Top = (props) => {
         />
       </Box>
       <Stepper activeStep={activeStep} orientation="vertical">
-        {/* select country */}
         <Step expanded={0 <= activeStep}>
-          <StepLabel>製作国を選択</StepLabel>
-          <StepContent>
-            <Typography>興味がある製作国を選択</Typography>
-            <Box>
-              <FormControl sx={{ m: 1, width: 300 }}>
-                <InputLabel id="top-country-select-label">
-                  製作国を選択
-                </InputLabel>
-                <Select
-                  labelId="top-country-select-label"
-                  value={selectedCountry}
-                  onChange={(e) => {
-                    const countryId = e.target.value;
-                    handleChangeSelectedCountry(countryId);
-                    setActiveStep(1);
-                  }}
-                  input={<OutlinedInput label="製作国を選択" />}
-                >
-                  {countries.map((c) => {
-                    return (
-                      <MenuItem key={c.id} value={c.id}>
-                        {c.name}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            </Box>
-          </StepContent>
+          <FirstStepContent
+            countries={countries}
+            selectedCountryId={selectedCountryId}
+            handleChange={handleChangeCountry}
+          />
         </Step>
 
-        {/* select genre */}
-        <Step expanded={1 <= activeStep}>
-          <StepLabel>ジャンルを選択</StepLabel>
-          <StepContent>
-            <Typography>
-              {country ? country?.name : null}
-              に関わりのあるジャンルを選択
-            </Typography>
-
-            {genreGraphData && (
-              <Box sx={{ height: 400, maxWidth: "sm" }}>
-                <ResponsiveCirclePacking
-                  data={genreGraphData}
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                  id="name"
-                  value="movieCount"
-                  colors={{ scheme: "nivo" }}
-                  childColor={{
-                    from: "color",
-                    modifiers: [["brighter", 0.4]],
-                  }}
-                  padding={4}
-                  enableLabels={true}
-                  labelTextColor={{
-                    from: "color",
-                    modifiers: [["darker", 2]],
-                  }}
-                  borderWidth={1}
-                  borderColor={{
-                    from: "color",
-                    modifiers: [["darker", 0.5]],
-                  }}
-                  defs={[
-                    {
-                      id: "lines",
-                      type: "patternLines",
-                      background: "none",
-                      color: "#f1e15b",
-                      rotation: -45,
-                      lineWidth: 5,
-                      spacing: 8,
-                    },
-                  ]}
-                  fill={[
-                    {
-                      match: (d) => d.data.id === selectedGenre,
-                      id: "lines",
-                    },
-                  ]}
-                  onClick={(t) => {
-                    const genreId = t.data.id;
-                    handleChangeSelectedGenre(genreId);
-                    setActiveStep(2);
-                  }}
-                />
-              </Box>
-            )}
-
-            <FormControl sx={{ m: 1, width: 300 }}>
-              <InputLabel id="top-genre-select-label">
-                ジャンルを選択
-              </InputLabel>
-              <Select
-                labelId="top-genre-select-label"
-                value={selectedGenre}
-                onChange={(e) => {
-                  const genreId = e.target.value;
-                  handleChangeSelectedGenre(genreId);
-                  setActiveStep(2);
-                }}
-                input={<OutlinedInput label="ジャンルを選択" />}
-              >
-                {countryRelatedGenres.map((g) => {
-                  return (
-                    <MenuItem key={g.id} value={g.id}>
-                      {g.name}
-                      {`（${g.movieCount}件）`}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </StepContent>
+        <Step expanded={1 <= activeStep} last>
+          <SecondStepContent
+            genreGraphData={genreGraphData}
+            handleChangeGenre={handleChangeGenre}
+            handleClickCircle={handleClickCircle}
+            genres={genres}
+            selectedGenreId={selectedGenreId}
+            countryName={country ? country.name : "選択した国"}
+          />
         </Step>
 
-        {/* people list */}
         <Step expanded={2 <= activeStep}>
-          <StepLabel>出演者を確認</StepLabel>
-          <StepContent>
-            <Typography>
-              {country ? country.name : null}の{genre ? genre.name : null}
-              での活躍数が多い上位10人を確認
-            </Typography>
-            <Box>
-              <List sx={{ width: "100%" }}>
-                {people.map((person, index) => {
-                  return (
-                    <Link
-                      href={`/people/${person.id}`}
-                      sx={{ textDecoration: "none", color: "currentcolor" }}
-                      key={person.id}
-                    >
-                      <ListItemButton alignItems="center">
-                        <ListItemAvatar>
-                          <Avatar
-                            variant="square"
-                            alt={person.name}
-                            src={person.imgUrl}
-                          />
-                        </ListItemAvatar>
-                        <ListItemText primary={person.name} />
-                      </ListItemButton>
-                      {index + 1 < people.length ? (
-                        <Divider variant="inset" component="li" />
-                      ) : null}
-                    </Link>
-                  );
-                })}
-              </List>
-            </Box>
-          </StepContent>
+          <ThirdStepContent
+            countryName={country ? country.name : "選択した国"}
+            genreName={genre ? genre.name : "選択したジャンル"}
+            people={people}
+            person2imgUrl={person2imgUrl}
+          />
         </Step>
       </Stepper>
     </Container>
   );
 };
 
-export const getServerSideProps = async (ctx) => {
+export const getServerSideProps = async () => {
   const countries = await prisma.country.findMany({
     select: {
       id: true,

@@ -276,7 +276,7 @@ const NetworkBody = memo(function ActorNetwork({
   }, [initialNetwork, width, height]);
 
   return (
-    <g>
+    <g transform={`scale(0.1)`}>
       {/* link */}
       <NetworkLink
         links={network.links}

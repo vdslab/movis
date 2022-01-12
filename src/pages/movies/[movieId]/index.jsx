@@ -16,7 +16,7 @@ import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
 import { forceSerialize, fetchTmdbPersonImg } from "@/util";
 
-const Movie = ({ movie }) => {
+const Movie = ({ movie, outline }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
 
   // ゴミ処理　複数職業の人をまとめるため
@@ -130,13 +130,14 @@ const Movie = ({ movie }) => {
               )}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
               {movie.outline && (
-                <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                  {`${movie.outline.slice(
-                    0,
-                    Math.floor(movie.outline.length * 0.4)
-                  )}`}
-                  ...
-                </Typography>
+                <Box>
+                  <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
+                    {`${movie.outline.slice(
+                      0,
+                      Math.floor(movie.outline.length * 0.4)
+                    )}...`}
+                  </Typography>
+                </Box>
               )}
             </Box>
           </Grid>
@@ -224,8 +225,12 @@ export const getServerSideProps = async (ctx) => {
     pm.person["imgUrl"] = await fetchTmdbPersonImg(pm.person.name);
   }
 
+  const outline = movie.outline
+    ? `${movie.outline.slice(0, Math.floor(movie.outline.length * 0.4))}...`
+    : void 0;
+
   return {
-    props: forceSerialize({ movie }),
+    props: forceSerialize({ movie, outline }),
   };
 };
 

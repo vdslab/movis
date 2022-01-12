@@ -57,7 +57,7 @@ const NodeItem = memo(function NodeItem({ node, onDeleteClick, onInfoClick }) {
   );
 });
 
-const SelectedNodeSection = () => {
+const SelectedNodeSection = ({ onClick }) => {
   const dispatch = useDispatch();
   const selectedNodes = useSelector(selectedNodeSelectors.selectAll);
   const router = useRouter();
@@ -72,8 +72,9 @@ const SelectedNodeSection = () => {
   const handleMoveDetails = useCallback(
     (personId) => {
       router.push(`/people/${personId}`);
+      onClick();
     },
-    [router]
+    [router, onClick]
   );
 
   return (
@@ -241,7 +242,7 @@ const MobileSelectionDrawerBody = memo(function MobileSelectionDrawerBody({
       </Box>
 
       <Box sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
-        <SelectedNodeSection />
+        <SelectedNodeSection onClick={handleToggleSelectionOpen} />
         <SelectedYearSection />
         <RelatedGenreSection />
         <Box sx={{ mb: "240px" }} />

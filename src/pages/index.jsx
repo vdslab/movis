@@ -126,37 +126,55 @@ const SecondStepContent = memo(function SecondStep({
     <Box>
       <StepLabel>ジャンルを選択</StepLabel>
       <StepContent>
-        <Typography>
-          {countryName}
-          に関わりのあるジャンルを選択
-        </Typography>
+        {genreGraphData && genres.length > 0 ? (
+          <Box>
+            <Typography>
+              {countryName}
+              に関わりのあるジャンルを選択
+            </Typography>
 
-        <Box sx={{ height: 400, maxWidth: "sm" }}>
-          <ResponsiveCirclePackingComponent
-            data={genreGraphData}
-            handleClick={handleClickCircle}
-            selectedGenreId={selectedGenreId}
-          />
-        </Box>
+            <Box sx={{ height: 400, maxWidth: "sm" }}>
+              <ResponsiveCirclePackingComponent
+                data={genreGraphData}
+                handleClick={handleClickCircle}
+                selectedGenreId={selectedGenreId}
+              />
+            </Box>
 
-        <FormControl sx={{ m: 1, width: 300 }}>
-          <InputLabel id="top-genre-select-label">ジャンルを選択</InputLabel>
-          <Select
-            labelId="top-genre-select-label"
-            value={selectedGenreId}
-            onChange={handleChangeGenre}
-            input={<OutlinedInput label="ジャンルを選択" />}
+            <FormControl sx={{ m: 1, width: 300 }}>
+              <InputLabel id="top-genre-select-label">
+                ジャンルを選択
+              </InputLabel>
+              <Select
+                labelId="top-genre-select-label"
+                value={selectedGenreId}
+                onChange={handleChangeGenre}
+                input={<OutlinedInput label="ジャンルを選択" />}
+              >
+                {genres.map((g) => {
+                  return (
+                    <MenuItem key={g.id} value={g.id}>
+                      {g.name}
+                      {`（${g.movieCount}件）`}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
           >
-            {genres.map((g) => {
-              return (
-                <MenuItem key={g.id} value={g.id}>
-                  {g.name}
-                  {`（${g.movieCount}件）`}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+            <Typography>ジャンル情報を取得中</Typography>
+            <CircularProgress sx={{ m: 4 }} />
+          </Box>
+        )}
       </StepContent>
     </Box>
   );
@@ -271,6 +289,7 @@ const Top = ({ countries }) => {
   // genre
   useEffect(() => {
     setPeople([]);
+    setGenres([]);
     if (!selectedCountryId) {
       return;
     }
@@ -280,8 +299,8 @@ const Top = ({ countries }) => {
       const data = await res.json();
 
       setGenres(data.g);
-      setActiveStep(1);
     })();
+    setActiveStep(1);
   }, [selectedCountryId]);
 
   // people

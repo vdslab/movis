@@ -188,7 +188,7 @@ const ThirdStepContent = memo(function ThirdStepContent({
 }) {
   return (
     <Box>
-      <StepLabel>出演者を確認</StepLabel>
+      <StepLabel>人物を確認</StepLabel>
       <StepContent>
         <Typography>
           {countryName}の{genreName}
@@ -231,7 +231,7 @@ const ThirdStepContent = memo(function ThirdStepContent({
               width: "100%",
             }}
           >
-            <Typography>出演者を取得中</Typography>
+            <Typography>人物情報を取得中</Typography>
             <CircularProgress sx={{ m: 4 }} />
           </Box>
         )}
@@ -365,7 +365,7 @@ const Top = ({ countries }) => {
 
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography>
-          探したい人が決まっていない場合には関心のある製作国とジャンルから活躍している出演者を探してみましょう
+          探したい人が決まっていない場合には関心のある製作国とジャンルから活躍している人物を探してみましょう
         </Typography>
         <HelpPopover
           text={

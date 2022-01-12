@@ -87,9 +87,14 @@ const SelectedNodeSection = ({ onClick }) => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+          <Typography sx={{ m: 1 }}>
             選択された
-            <Chip label="出演者" color="error" sx={{ m: 0.5 }} size="small" />
+            <Chip
+              label="出演者"
+              color="error"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
           </Typography>
           <List sx={{ width: "100%" }}>
             {selectedNodes.map((node, index) => {
@@ -149,11 +154,11 @@ const SelectedYearSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+          <Typography sx={{ m: 1 }}>
             <Chip
               label="製作年度"
               color="warning"
-              sx={{ m: 0.5 }}
+              sx={{ m: 0.5, mb: 1 }}
               size="small"
             />
             を選択
@@ -210,11 +215,11 @@ const RelatedGenreSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+          <Typography sx={{ m: 1 }}>
             <Chip
               label="ジャンル"
               color="success"
-              sx={{ m: 0.5 }}
+              sx={{ m: 0.5, mb: 1 }}
               size="small"
             />
             を選択

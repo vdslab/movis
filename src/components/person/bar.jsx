@@ -102,11 +102,18 @@ export const BarSection = memo(function BarSection({
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ p: 1, display: "flex", alignItems: "center" }}>
-          棒グラフから気になる映画の
-          <Chip label="製作年度" color="warning" sx={{ m: 0.5 }} size="small" />
-          を選択して、映画を絞り込みましょう
-        </Typography>
+        <Box>
+          <Typography sx={{ p: 1 }}>
+            棒グラフから気になる映画の
+            <Chip
+              label="製作年度"
+              color="warning"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
+            を選択して、映画を絞り込みましょう
+          </Typography>
+        </Box>
         <HelpPopover
           text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}
         />

@@ -353,12 +353,19 @@ export const NetworkSection = memo(function NetworkSection({
   return (
     <>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ p: 1, display: "flex", alignItems: "center" }}>
-          {name}
-          と共演したことのある
-          <Chip label="出演者" color="error" sx={{ m: 0.5 }} size="small" />
-          を選択して、映画を絞り込みましょう。
-        </Typography>
+        <Box>
+          <Typography sx={{ p: 1 }}>
+            {name}
+            と共演したことのある
+            <Chip
+              label="出演者"
+              color="error"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
+            を選択して、映画を絞り込みましょう。
+          </Typography>
+        </Box>
         <HelpPopover
           text={`この可視化は${name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}
         />

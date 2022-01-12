@@ -355,7 +355,7 @@ const Top = ({ countries }) => {
           名前で検索しましょう
         </Typography>
         {!matchUpLg && (
-          <Box sx={{ mt: 2, mb: 4, width: { xs: "100%", sm: "50%" } }}>
+          <Box sx={{ pr: 2, mt: 2, mb: 4, width: { xs: "100%", sm: "50%" } }}>
             <SearchForm />
           </Box>
         )}

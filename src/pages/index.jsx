@@ -283,7 +283,9 @@ const Top = ({ countries }) => {
 
   const handleClickCircle = useCallback((t) => {
     const genreId = t.data.id;
-    setSelectedGenreId(genreId);
+    if (genreId) {
+      setSelectedGenreId(genreId);
+    }
   }, []);
 
   // genre

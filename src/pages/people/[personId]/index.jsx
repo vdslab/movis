@@ -325,7 +325,7 @@ const Person = ({
   }, [person.id]);
 
   return (
-    <Box>
+    <Box sx={{ mb: "200px" }}>
       {filteredMoviesSortedByFilter.length > 0 && (
         <ML filteredMoviesSortedByFilter={filteredMoviesSortedByFilter} />
       )}

@@ -240,10 +240,11 @@ const MobileSelectionDrawerBody = memo(function MobileSelectionDrawerBody({
         </IconButton>
       </Box>
 
-      <Box>
+      <Box sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
         <SelectedNodeSection />
         <SelectedYearSection />
         <RelatedGenreSection />
+        <Box sx={{ mb: "240px" }} />
       </Box>
     </Box>
   );

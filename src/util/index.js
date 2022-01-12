@@ -118,7 +118,6 @@ export const filterMovieByGenre = (movies, selectedGenreIds) => {
   //       .map((movie) => movie.id)
   //   )
   // );
-  console.log(movies);
 
   // 選択ジャンルの'または'で絞り込んだmovies
   const orFilteredMovies = Array.from(

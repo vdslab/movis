@@ -20,17 +20,41 @@ export const MovieCard = memo(function MovieCard({
   filterResult,
   selectedGenreIds,
   handleGenreClick,
+  occupationNames,
 }) {
   // ゴミ処理　とりあえずテーマっぽいカラーを120度ずつずらしたものなので、ベースのカラーも含めて必ず変更する
   const filterColor = {
-    network: "error",
-    year: "warning",
-    genre: "success",
+    出演者: "error",
+    製作年度: "warning",
+    ジャンル: "success",
   };
+
+  const filterKeys = ["出演者", "製作年度", "ジャンル"];
 
   return (
     <Card sx={{ display: "flex" }}>
-      <CardActionArea sx={{ width: 130 }}>
+      <CardActionArea sx={{ width: 130, position: "relative" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+          }}
+        >
+          {filterKeys.map((key) => {
+            return (
+              filterResult[key] && (
+                <Chip
+                  label={key}
+                  color={filterColor[key]}
+                  sx={{ m: 0.5 }}
+                  size="small"
+                  key={key}
+                />
+              )
+            );
+          })}
+        </Box>
         <Link href={`/movies/${movieId}`} passHref>
           <CardMedia
             component="img"
@@ -42,7 +66,7 @@ export const MovieCard = memo(function MovieCard({
       </CardActionArea>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
-          <Box>
+          {/* <Box>
             {filterResult &&
               Object.keys(filterResult).map((key) => {
                 return (
@@ -51,12 +75,13 @@ export const MovieCard = memo(function MovieCard({
                       label={key}
                       color={filterColor[key]}
                       sx={{ m: "2px" }}
+                      size="small"
                       key={key}
                     />
                   )
                 );
               })}
-          </Box>
+          </Box> */}
           <Link
             href={`/movies/${movieId}`}
             passHref
@@ -68,17 +93,22 @@ export const MovieCard = memo(function MovieCard({
           <Typography variant="subtitle2">
             {productionYear + "年製作"}
           </Typography>
+          <Typography variant="subtitle2">
+            {occupationNames.join("/")}
+          </Typography>
           <Box>
             {genres.map((genre) => {
               return (
                 // ゴミ処理
                 <Chip
+                  size="small"
                   label={
                     genre.name.includes("・") &&
                     genre.name !== "アート・コンテンポラリー"
                       ? genre.name.split("・")[1]
                       : genre.name
                   }
+                  variant="outlined"
                   color={
                     selectedGenreIds && selectedGenreIds.includes(genre.id)
                       ? "success"
@@ -88,7 +118,7 @@ export const MovieCard = memo(function MovieCard({
                     handleGenreClick && handleGenreClick(genre.id);
                   }}
                   key={genre.id}
-                  sx={{ m: "2px" }}
+                  sx={{ m: 0.5 }}
                 />
               );
             })}

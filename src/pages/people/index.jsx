@@ -1,5 +1,4 @@
 import {
-  Container,
   List,
   ListItemAvatar,
   Avatar,
@@ -39,7 +38,7 @@ const People = ({ keyword, people, movieHitCount, personHitCount, page }) => {
   }, [people]);
 
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box>
       <Box
         sx={{
           display: "flex",
@@ -74,6 +73,7 @@ const People = ({ keyword, people, movieHitCount, personHitCount, page }) => {
           return (
             <Link
               href={`/people/${person.id}`}
+              to={`/people/${person.id}`}
               sx={{ textDecoration: "none", color: "currentcolor" }}
               key={person.id}
             >
@@ -108,7 +108,7 @@ const People = ({ keyword, people, movieHitCount, personHitCount, page }) => {
           page={page}
         />
       </Box>
-    </Container>
+    </Box>
   );
 };
 

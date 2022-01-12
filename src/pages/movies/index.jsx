@@ -1,12 +1,4 @@
-import {
-  Container,
-  List,
-  Typography,
-  Pagination,
-  Box,
-  Grid,
-  Button,
-} from "@mui/material";
+import { List, Typography, Pagination, Box, Grid, Button } from "@mui/material";
 import { useRouter } from "next/router";
 
 import { MovieCard } from "@/components/MovieCard";
@@ -22,7 +14,7 @@ const Movies = (props) => {
     : Math.floor(props.movieHitCount / SEARCH_LIMIT) + 1;
 
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box>
       <Box
         sx={{
           display: "flex",
@@ -94,7 +86,7 @@ const Movies = (props) => {
           page={props.page}
         />
       </Box>
-    </Container>
+    </Box>
   );
 };
 

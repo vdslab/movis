@@ -1,6 +1,5 @@
 import {
   Box,
-  Container,
   Grid,
   Typography,
   Chip,
@@ -11,16 +10,19 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 
 import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
 import { forceSerialize, fetchTmdbPersonImg } from "@/util";
 
-const Movie = (props) => {
+const Movie = ({ movie }) => {
+  const [person2imgUrl, setPerson2imgUrl] = useState({});
+
   // ゴミ処理　複数職業の人をまとめるため
   const listedIds = [];
   const person2occupation = {};
-  for (const pm of props.movie.productionMembers) {
+  for (const pm of movie.productionMembers) {
     if (pm.personId in person2occupation) {
       person2occupation[pm.personId].push({ occupation: pm.occupation });
     } else {
@@ -28,8 +30,18 @@ const Movie = (props) => {
     }
   }
 
+  useEffect(() => {
+    (async () => {
+      const p2i = {};
+      for (const pm of movie.productionMembers) {
+        p2i[pm.person.id] = await fetchTmdbPersonImg(pm.person.name);
+      }
+      setPerson2imgUrl(p2i);
+    })();
+  }, [movie]);
+
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box>
       <Grid container spacing={2}>
         <Grid item container spacing={2}>
           <Grid
@@ -43,8 +55,8 @@ const Movie = (props) => {
           >
             <Box
               component="img"
-              src={props.movie.imgUrl}
-              alt={`${props.movie.title}のポスター`}
+              src={movie.imgUrl}
+              alt={`${movie.title}のポスター`}
               sx={{ height: "300px" }}
             />
             {/* add trailer url */}
@@ -60,38 +72,38 @@ const Movie = (props) => {
               }}
             >
               <Typography variant="h4" sx={{ m: 1 }}>
-                {props.movie.title}
+                {movie.title}
               </Typography>
-              {props.movie.originalTitle && (
+              {movie.originalTitle && (
                 <Typography variant="h5" sx={{ m: 1 }}>
-                  {props.movie.originalTitle}
+                  {movie.originalTitle}
                 </Typography>
               )}
               <Box sx={{ display: "flex" }}>
-                {props.movie.runtime && (
+                {movie.runtime && (
                   <Typography sx={{ m: 1 }}>
-                    上映時間{props.movie.runtime}分
+                    上映時間{movie.runtime}分
                   </Typography>
                 )}
-                {props.movie.productionYear && (
+                {movie.productionYear && (
                   <Typography sx={{ m: 1 }}>
-                    {props.movie.productionYear}年製作
+                    {movie.productionYear}年製作
                   </Typography>
                 )}
                 {/* ゴミ処理　- と / はどっちが見やすいか確認する */}
-                {props.movie.releaseDate && (
+                {movie.releaseDate && (
                   <Typography sx={{ m: 1 }}>
                     {
-                      props.movie.releaseDate.slice(0, 10)
+                      movie.releaseDate.slice(0, 10)
                       // .replaceAll("-", "/")
                     }
                     公開
                   </Typography>
                 )}
               </Box>
-              {props.movie.productionCountries.length > 0 && (
+              {movie.productionCountries.length > 0 && (
                 <Box>
-                  {props.movie.productionCountries.map((productionCountry) => {
+                  {movie.productionCountries.map((productionCountry) => {
                     return (
                       <Chip
                         label={productionCountry.name}
@@ -102,9 +114,9 @@ const Movie = (props) => {
                   })}
                 </Box>
               )}
-              {props.movie.genres.length > 0 && (
+              {movie.genres.length > 0 && (
                 <Box>
-                  {props.movie.genres.map((genre) => {
+                  {movie.genres.map((genre) => {
                     return (
                       <Chip
                         label={genre.name}
@@ -117,11 +129,11 @@ const Movie = (props) => {
                 </Box>
               )}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
-              {props.movie.outline && (
+              {movie.outline && (
                 <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                  {`${props.movie.outline.slice(
+                  {`${movie.outline.slice(
                     0,
-                    Math.floor(props.movie.outline.length * 0.4)
+                    Math.floor(movie.outline.length * 0.4)
                   )}`}
                   ...
                 </Typography>
@@ -133,14 +145,13 @@ const Movie = (props) => {
           item
           xs={12}
           sx={{
-            display:
-              props.movie.productionMembers.length === 0 ? "none" : "block",
+            display: movie.productionMembers.length === 0 ? "none" : "block",
           }}
         >
-          <Typography>製作メンバー</Typography>
+          <Typography sx={{ m: 1 }}>製作メンバー</Typography>
           {/* ゴミ処理　sm以上はカードが見栄えが良いかも */}
           <List sx={{ width: "100%" }}>
-            {props.movie.productionMembers
+            {movie.productionMembers
               .sort(
                 (a, b) =>
                   person2occupation[b.personId].length -
@@ -166,7 +177,7 @@ const Movie = (props) => {
                         <Avatar
                           variant="square"
                           alt={person.name}
-                          src={person.imgUrl}
+                          src={person2imgUrl[person.id]}
                         />
                       </ListItemAvatar>
                       {/* <ListItemText primary={occupation.name} /> */}
@@ -177,7 +188,7 @@ const Movie = (props) => {
                           .join("・")}
                       />
                     </ListItemButton>
-                    {index + 1 < props.movie.productionMembers.length ? (
+                    {index + 1 < movie.productionMembers.length ? (
                       <Divider variant="inset" component="li" />
                     ) : null}
                   </Link>
@@ -186,7 +197,7 @@ const Movie = (props) => {
           </List>
         </Grid>
       </Grid>
-    </Container>
+    </Box>
   );
 };
 

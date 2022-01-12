@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useRouter } from "next/router";
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -25,7 +24,6 @@ const ContentRoot = styled(Box)(({ theme }) => ({
 
 export const Layout = ({ children }) => {
   const dispatch = useDispatch();
-  const router = useRouter();
 
   const isSearchOpen = useSelector(selectIsSearchOpen);
   const isSelectionOpen = useSelector(selectIsSelectionOpen);
@@ -57,8 +55,12 @@ export const Layout = ({ children }) => {
             flex: "1 1 auto",
             flexDirection: "column",
             width: "100%",
+            my: 5,
+            mx: {
+              xs: 2,
+              md: 4,
+            },
           }}
-          maxWidth="xl"
         >
           {children}
         </Box>

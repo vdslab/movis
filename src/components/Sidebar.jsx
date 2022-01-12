@@ -145,7 +145,7 @@ const SelectedYearSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>製作年度</Typography>
+          <Typography sx={{ m: 1 }}>製作年度を選択</Typography>
           {relatedYears.map((year) => {
             const isSelected = selectedYears.includes(year);
 
@@ -198,7 +198,7 @@ const RelatedGenreSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>ジャンル</Typography>
+          <Typography sx={{ m: 1 }}>ジャンルを選択</Typography>
           {relatedGenres.map((genre) => {
             const isSelected = selectedGenreIds.includes(genre.id);
 

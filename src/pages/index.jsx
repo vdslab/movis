@@ -1,7 +1,7 @@
 import {
   Avatar,
   Box,
-  Container,
+  CircularProgress,
   Divider,
   FormControl,
   InputLabel,
@@ -131,15 +131,13 @@ const SecondStepContent = memo(function SecondStep({
           に関わりのあるジャンルを選択
         </Typography>
 
-        {genreGraphData && (
-          <Box sx={{ height: 400, maxWidth: "sm" }}>
-            <ResponsiveCirclePackingComponent
-              data={genreGraphData}
-              handleClick={handleClickCircle}
-              selectedGenreId={selectedGenreId}
-            />
-          </Box>
-        )}
+        <Box sx={{ height: 400, maxWidth: "sm" }}>
+          <ResponsiveCirclePackingComponent
+            data={genreGraphData}
+            handleClick={handleClickCircle}
+            selectedGenreId={selectedGenreId}
+          />
+        </Box>
 
         <FormControl sx={{ m: 1, width: 300 }}>
           <InputLabel id="top-genre-select-label">ジャンルを選択</InputLabel>
@@ -178,33 +176,47 @@ const ThirdStepContent = memo(function ThirdStepContent({
           {countryName}の{genreName}
           での活躍数が多い上位10人を確認
         </Typography>
-        <Box>
-          <List sx={{ width: "100%" }}>
-            {people.map((person, index) => {
-              return (
-                <Link
-                  href={`/people/${person.id}`}
-                  sx={{ textDecoration: "none", color: "currentcolor" }}
-                  key={person.id}
-                >
-                  <ListItemButton alignItems="center">
-                    <ListItemAvatar>
-                      <Avatar
-                        variant="square"
-                        alt={person.name}
-                        src={person2imgUrl[person.id]}
-                      />
-                    </ListItemAvatar>
-                    <ListItemText primary={person.name} />
-                  </ListItemButton>
-                  {index + 1 < people.length ? (
-                    <Divider variant="inset" component="li" />
-                  ) : null}
-                </Link>
-              );
-            })}
-          </List>
-        </Box>
+        {people.length > 0 ? (
+          <Box>
+            <List sx={{ width: "100%" }}>
+              {people.map((person, index) => {
+                return (
+                  <Link
+                    href={`/people/${person.id}`}
+                    sx={{ textDecoration: "none", color: "currentcolor" }}
+                    key={person.id}
+                  >
+                    <ListItemButton alignItems="center">
+                      <ListItemAvatar>
+                        <Avatar
+                          variant="square"
+                          alt={person.name}
+                          src={person2imgUrl[person.id]}
+                        />
+                      </ListItemAvatar>
+                      <ListItemText primary={person.name} />
+                    </ListItemButton>
+                    {index + 1 < people.length ? (
+                      <Divider variant="inset" component="li" />
+                    ) : null}
+                  </Link>
+                );
+              })}
+            </List>
+          </Box>
+        ) : (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <Typography>出演者を取得中</Typography>
+            <CircularProgress sx={{ m: 4 }} />
+          </Box>
+        )}
       </StepContent>
     </Box>
   );
@@ -274,6 +286,7 @@ const Top = ({ countries }) => {
 
   // people
   useEffect(() => {
+    setPeople([]);
     if (!selectedCountryId || !selectedGenreId) {
       return;
     }
@@ -284,8 +297,8 @@ const Top = ({ countries }) => {
       const data = await res.json();
 
       setPeople(data.p);
-      setActiveStep(2);
     })();
+    setActiveStep(2);
   }, [selectedCountryId, selectedGenreId]);
 
   useEffect(() => {
@@ -303,7 +316,7 @@ const Top = ({ countries }) => {
   }, [people]);
 
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box>
       <Box sx={{ my: 2 }}>
         <Typography variant="h5">movisとは</Typography>
         <Typography>
@@ -348,7 +361,7 @@ const Top = ({ countries }) => {
           />
         </Step>
 
-        <Step expanded={1 <= activeStep} last>
+        <Step expanded={1 <= activeStep}>
           <SecondStepContent
             genreGraphData={genreGraphData}
             handleChangeGenre={handleChangeGenre}
@@ -359,7 +372,7 @@ const Top = ({ countries }) => {
           />
         </Step>
 
-        <Step expanded={2 <= activeStep}>
+        <Step expanded={2 <= activeStep} last>
           <ThirdStepContent
             countryName={country ? country.name : "選択した国"}
             genreName={genre ? genre.name : "選択したジャンル"}
@@ -368,7 +381,7 @@ const Top = ({ countries }) => {
           />
         </Step>
       </Stepper>
-    </Container>
+    </Box>
   );
 };
 

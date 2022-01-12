@@ -401,26 +401,6 @@ const Person = ({
 
         {/* movie list */}
         <Grid item container spacing={2}>
-          {null &&
-            filteredMoviesSortedByFilter.map((movie) => {
-              const onGenreClick = null;
-              const filterResult = null;
-              return (
-                <Grid key={movie.id} item xs={12} sm={6} md={4} xl={3}>
-                  <MovieCard
-                    title={movie.title}
-                    id={movie.id}
-                    imgUrl={movie.imgUrl}
-                    productionYear={movie.productionYear}
-                    genres={movie.genres}
-                    onGenreClick={onGenreClick}
-                    filterResult={filterResult}
-                    occupationNames={movie.occupationNames}
-                    selectedGenreIds={selectedGenreIds}
-                  />
-                </Grid>
-              );
-            })}
           {moviesSortedByFilter.map((movie) => {
             const handleGenreClick = null;
             return (

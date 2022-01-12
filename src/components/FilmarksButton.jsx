@@ -4,6 +4,8 @@ import { memo } from "react";
 export const FilmarksButton = memo(function FilmarksButton({ href }) {
   return (
     <Button
+      target="_blank"
+      rel="noreferrer"
       sx={{
         backgroundColor: "#FFE100",
         border: "solid 1px #000",

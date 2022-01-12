@@ -1,5 +1,12 @@
 import { SearchOutlined, ClearOutlined } from "@mui/icons-material";
-import { Typography, Box, Paper, InputBase, IconButton } from "@mui/material";
+import {
+  Typography,
+  Box,
+  Paper,
+  InputBase,
+  IconButton,
+  Chip,
+} from "@mui/material";
 import * as d3 from "d3";
 import { memo, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,7 +20,7 @@ import {
   selectedNodeSelectors,
   selectKeyword,
   setKeyword,
-} from "@/modules/features/app-new/slice";
+} from "@/modules/features/app/slice";
 import { filterMovieByNode } from "@/util";
 
 const Form = memo(function Form() {
@@ -209,6 +216,7 @@ const NetworkBody = memo(function ActorNetwork({
   const keyword = useSelector(selectKeyword);
   const [network, setNetwork] = useState({ nodes: [], links: [] });
 
+  console.log(width, height);
   const nodeFilteredMovies = useMemo(
     () =>
       filterMovieByNode(
@@ -345,9 +353,11 @@ export const NetworkSection = memo(function NetworkSection({
   return (
     <>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ p: 1 }}>
+        <Typography sx={{ p: 1, display: "flex", alignItems: "center" }}>
           {name}
-          と共演したことのある出演者を選択して、映画を絞り込みましょう。
+          と共演したことのある
+          <Chip label="出演者" color="error" sx={{ m: 0.5 }} size="small" />
+          を選択して、映画を絞り込みましょう。
         </Typography>
         <HelpPopover
           text={`この可視化は${name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}

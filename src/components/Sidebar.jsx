@@ -28,7 +28,7 @@ import {
   toggleSelectedYear,
   selectedNodeSelectors,
   toggleSelectedNode,
-} from "@/modules/features/app-new/slice";
+} from "@/modules/features/app/slice";
 
 const NodeItem = memo(function NodeItem({ node, onDeleteClick, onInfoClick }) {
   return (
@@ -87,7 +87,10 @@ const SelectedNodeSection = ({ onClick }) => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>選択された出演者</Typography>
+          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+            選択された
+            <Chip label="出演者" color="error" sx={{ m: 0.5 }} size="small" />
+          </Typography>
           <List sx={{ width: "100%" }}>
             {selectedNodes.map((node, index) => {
               return (
@@ -146,7 +149,15 @@ const SelectedYearSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>製作年度を選択</Typography>
+          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+            <Chip
+              label="製作年度"
+              color="warning"
+              sx={{ m: 0.5 }}
+              size="small"
+            />
+            を選択
+          </Typography>
           {relatedYears.map((year) => {
             const isSelected = selectedYears.includes(year);
 
@@ -199,7 +210,15 @@ const RelatedGenreSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>ジャンルを選択</Typography>
+          <Typography sx={{ m: 1, display: "flex", alignItems: "center" }}>
+            <Chip
+              label="ジャンル"
+              color="success"
+              sx={{ m: 0.5 }}
+              size="small"
+            />
+            を選択
+          </Typography>
           {relatedGenres.map((genre) => {
             const isSelected = selectedGenreIds.includes(genre.id);
 

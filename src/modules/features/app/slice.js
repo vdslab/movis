@@ -119,24 +119,24 @@ export const {
   clearKeyword,
 } = appSlice.actions;
 
-export const newAppReducer = appSlice.reducer;
+export const appReducer = appSlice.reducer;
 
 export const selectedNodeSelectors = selectedNodeAdapter.getSelectors(
-  (state) => state.newApp.node.selected
+  (state) => state.app.node.selected
 );
 
-export const selectSelectedGenreIds = (state) => state.newApp.genre.selectedIds;
+export const selectSelectedGenreIds = (state) => state.app.genre.selectedIds;
 
 export const relatedGenreSelectors = relatedGenreAdapter.getSelectors(
-  (state) => state.newApp.genre.related
+  (state) => state.app.genre.related
 );
 
-export const selectSelectedYears = (state) => state.newApp.year.selected;
+export const selectSelectedYears = (state) => state.app.year.selected;
 
-export const selectRelatedYears = (state) => state.newApp.year.related;
+export const selectRelatedYears = (state) => state.app.year.related;
 
-export const selectIsSearchOpen = (state) => state.newApp.isSearchOpen;
+export const selectIsSearchOpen = (state) => state.app.isSearchOpen;
 
-export const selectIsSelectionOpen = (state) => state.newApp.isSelectionOpen;
+export const selectIsSelectionOpen = (state) => state.app.isSelectionOpen;
 
-export const selectKeyword = (state) => state.newApp.keyword;
+export const selectKeyword = (state) => state.app.keyword;

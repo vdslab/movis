@@ -48,8 +48,10 @@ export const GenreSection = memo(function GenreSection({
 }) {
   return (
     <Box>
-      <Typography sx={{ p: 1 }}>
-        {name}が制作に携わった映画のジャンルを選択して、映画を絞り込みましょう
+      <Typography sx={{ p: 1, display: "flex", alignItems: "center" }}>
+        {name}が制作に携わった映画の
+        <Chip label="ジャンル" color="success" sx={{ m: 0.5 }} size="small" />
+        を選択して、映画を絞り込みましょう
       </Typography>
 
       <GenreList

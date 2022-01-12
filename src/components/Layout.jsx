@@ -10,7 +10,7 @@ import {
   selectIsSelectionOpen,
   toggleSearchOpen,
   toggleSelectionOpen,
-} from "@/modules/features/app-new/slice";
+} from "@/modules/features/app/slice";
 
 const ContentRoot = styled(Box)(({ theme }) => ({
   display: "flex",

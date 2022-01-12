@@ -1,4 +1,4 @@
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Chip } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
 import { memo } from "react";
 
@@ -36,8 +36,13 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
               transform={`translate(${tick.x},${
                 tick.y + 20
               })rotate(45)scale(0.8)`}
+              onClick={() => {
+                onBarClick(tick.value);
+              }}
             >
-              <text fill={selectedYears.includes(tick.value) ? "red" : "black"}>
+              <text
+                fill={selectedYears.includes(tick.value) ? "#FFB020" : "black"}
+              >
                 {tick.value}
               </text>
               ;
@@ -97,8 +102,10 @@ export const BarSection = memo(function BarSection({
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ p: 1 }}>
-          気になる映画製作年度を選択して、映画を絞り込みましょう
+        <Typography sx={{ p: 1, display: "flex", alignItems: "center" }}>
+          棒グラフから気になる映画の
+          <Chip label="製作年度" color="warning" sx={{ m: 0.5 }} size="small" />
+          を選択して、映画を絞り込みましょう
         </Typography>
         <HelpPopover
           text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}

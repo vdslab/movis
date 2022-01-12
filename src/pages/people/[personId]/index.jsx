@@ -28,7 +28,7 @@ import {
   toggleSelectedGenre,
   toggleSelectedNode,
   toggleSelectedYear,
-} from "@/modules/features/app-new/slice";
+} from "@/modules/features/app/slice";
 import {
   fetchTmdbPersonImg,
   filterMovieByGenre,

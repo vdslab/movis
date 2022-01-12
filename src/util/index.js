@@ -1,4 +1,4 @@
-import { TMDB_IMG_BASE_URL } from "@/const";
+import { FILMARKS_BASE_URL, TMDB_IMG_BASE_URL } from "@/const";
 import { TMDB_API_KEY } from "@/env";
 
 export const forceSerialize = (data) => {
@@ -290,3 +290,11 @@ export const generateNetworkData = (relatedMovies) => {
 };
 
 export const getByteSize = (v) => Buffer.byteLength(JSON.stringify(v));
+
+export const generateFilmarksMovieUrl = (id) => {
+  return `${FILMARKS_BASE_URL.movie}/${id}`;
+};
+
+export const generateFilmarksPersonUrl = (id) => {
+  return `${FILMARKS_BASE_URL.person}/${id}`;
+};

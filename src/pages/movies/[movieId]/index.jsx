@@ -9,12 +9,18 @@ import {
   Avatar,
   ListItemText,
   Divider,
+  Button,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 
+import { FilmarksButton } from "@/components/FilmarksButton";
 import { Link } from "@/components/Link";
 import prisma from "@/lib/prisma";
-import { forceSerialize, fetchTmdbPersonImg } from "@/util";
+import {
+  forceSerialize,
+  fetchTmdbPersonImg,
+  generateFilmarksMovieUrl,
+} from "@/util";
 
 const Movie = ({ movie, outline }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
@@ -79,6 +85,23 @@ const Movie = ({ movie, outline }) => {
                   {movie.originalTitle}
                 </Typography>
               )}
+              <Box sx={{ m: 1 }}>
+                <FilmarksButton
+                  href={generateFilmarksMovieUrl(movie.filmarksId)}
+                />
+              </Box>
+              {movie.trailerUrl && (
+                <Box sx={{ m: 1 }}>
+                  <Button
+                    href={movie.trailerUrl}
+                    variant="contained"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    予告編を見る
+                  </Button>
+                </Box>
+              )}
               <Box sx={{ display: "flex" }}>
                 {movie.runtime && (
                   <Typography sx={{ m: 1 }}>
@@ -109,6 +132,7 @@ const Movie = ({ movie, outline }) => {
                         label={productionCountry.name}
                         sx={{ m: "2px" }}
                         key={productionCountry.id}
+                        variant="outlined"
                       />
                     );
                   })}

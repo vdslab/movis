@@ -9,6 +9,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { FilmarksButton } from "@/components/FilmarksButton";
 import { Link } from "@/components/Link";
 import { MovieCard } from "@/components/MovieCard";
 import { RoundedImage } from "@/components/RoundedImage";
@@ -36,6 +37,7 @@ import {
   filterMovieByYear,
   forceSerialize,
   generateBarData,
+  generateFilmarksPersonUrl,
   generateNetworkData,
 } from "@/util";
 
@@ -356,6 +358,16 @@ const Person = ({
               <Typography variant="h4" sx={{ m: 1 }}>
                 {person.name}
               </Typography>
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-start" },
+              }}
+            >
+              <FilmarksButton
+                href={generateFilmarksPersonUrl(person.filmarksId)}
+              />
             </Box>
             <Box sx={{ my: 2, mx: 1 }}>
               <GenreSection

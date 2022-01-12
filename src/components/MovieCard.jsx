@@ -94,7 +94,7 @@ export const MovieCard = memo(function MovieCard({
             {productionYear + "年製作"}
           </Typography>
           <Typography variant="subtitle2">
-            {occupationNames.join("/")}
+            役割 {occupationNames.join("/")}
           </Typography>
           <Box>
             {genres.map((genre) => {

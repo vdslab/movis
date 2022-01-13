@@ -49,7 +49,7 @@ export const GenreSection = memo(function GenreSection({
   return (
     <Box>
       <Box>
-        <Typography sx={{ p: 1 }}>
+        <Typography sx={{ p: 1 }} component={"div"}>
           {name}が制作に携わった映画の
           <Chip
             label="ジャンル"

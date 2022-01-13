@@ -103,7 +103,7 @@ export const BarSection = memo(function BarSection({
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box>
-          <Typography sx={{ p: 1 }}>
+          <Typography sx={{ p: 1 }} component={"div"}>
             棒グラフから気になる映画の
             <Chip
               label="製作年度"

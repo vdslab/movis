@@ -354,7 +354,7 @@ export const NetworkSection = memo(function NetworkSection({
     <>
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Box>
-          <Typography sx={{ p: 1 }}>
+          <Typography sx={{ p: 1 }} component={"div"}>
             {name}
             と共演したことのある
             <Chip

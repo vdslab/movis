@@ -87,7 +87,7 @@ const SelectedNodeSection = ({ onClick }) => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>
+          <Typography sx={{ m: 1 }} component={"div"}>
             選択された
             <Chip
               label="出演者"
@@ -154,7 +154,7 @@ const SelectedYearSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>
+          <Typography sx={{ m: 1 }} component={"div"}>
             <Chip
               label="製作年度"
               color="warning"
@@ -215,7 +215,7 @@ const RelatedGenreSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>
+          <Typography sx={{ m: 1 }} component={"div"}>
             <Chip
               label="ジャンル"
               color="success"

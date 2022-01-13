@@ -363,13 +363,14 @@ const Person = ({
               sx={{
                 display: "flex",
                 justifyContent: { xs: "center", sm: "flex-start" },
+                m: 1,
               }}
             >
               <FilmarksButton
                 href={generateFilmarksPersonUrl(person.filmarksId)}
               />
             </Box>
-            <Box sx={{ my: 2, mx: 1 }}>
+            <Box sx={{ my: 1 }}>
               <GenreSection
                 name={person.name}
                 relatedGenres={relatedGenres}

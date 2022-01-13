@@ -35,7 +35,7 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
             <g
               transform={`translate(${tick.x},${
                 tick.y + 20
-              })rotate(45)scale(0.8)`}
+              })rotate(70)scale(0.8)`}
               onClick={() => {
                 onBarClick(tick.value);
               }}

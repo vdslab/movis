@@ -75,9 +75,10 @@ const Movie = ({ movie, outline }) => {
                 flexDirection: "column",
                 // justifyContent: { xs: "center", sm: "flex-start" },
                 // alignItems: { xs: "center", sm: "flex-start" },
+                px: 1,
               }}
             >
-              <Typography variant="h4" sx={{ m: 1 }}>
+              <Typography variant="h4" sx={{ mx: 1, mb: 1 }}>
                 {movie.title}
               </Typography>
               {movie.originalTitle && (
@@ -102,7 +103,7 @@ const Movie = ({ movie, outline }) => {
                   </Button>
                 </Box>
               )}
-              <Box sx={{ display: "flex" }}>
+              <Box sx={{ display: "flex", my: 1 }}>
                 {movie.runtime && (
                   <Typography sx={{ m: 1 }}>
                     上映時間{movie.runtime}分
@@ -125,7 +126,7 @@ const Movie = ({ movie, outline }) => {
                 )}
               </Box>
               {movie.productionCountries.length > 0 && (
-                <Box>
+                <Box sx={{ mx: 1 }}>
                   {movie.productionCountries.map((productionCountry) => {
                     return (
                       <Chip
@@ -139,13 +140,14 @@ const Movie = ({ movie, outline }) => {
                 </Box>
               )}
               {movie.genres.length > 0 && (
-                <Box>
+                <Box sx={{ mx: 1 }}>
                   {movie.genres.map((genre) => {
                     return (
                       <Chip
                         label={genre.name}
                         clickable={false}
                         sx={{ m: "2px" }}
+                        variant="outlined"
                         key={genre.id}
                       />
                     );
@@ -159,7 +161,14 @@ const Movie = ({ movie, outline }) => {
                     {`${movie.outline.slice(
                       0,
                       Math.floor(movie.outline.length * 0.4)
-                    )}...`}
+                    )}`.replaceAll("\\r\\n", "\r\n")}
+                    <a
+                      href={generateFilmarksMovieUrl(movie.filmarksId)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {">>Filmarksで続きを見る"}
+                    </a>
                   </Typography>
                 </Box>
               )}

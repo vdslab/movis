@@ -14,7 +14,7 @@ import { Link } from "@/components/Link";
 export const MovieCard = memo(function MovieCard({
   movieId,
   title,
-  genres,
+  genres = [],
   productionYear,
   imgUrl,
   filterResult,
@@ -41,19 +41,20 @@ export const MovieCard = memo(function MovieCard({
             left: 0,
           }}
         >
-          {filterKeys.map((key) => {
-            return (
-              filterResult[key] && (
-                <Chip
-                  label={key}
-                  color={filterColor[key]}
-                  sx={{ m: 0.5 }}
-                  size="small"
-                  key={key}
-                />
-              )
-            );
-          })}
+          {filterResult &&
+            filterKeys.map((key) => {
+              return (
+                filterResult[key] && (
+                  <Chip
+                    label={key}
+                    color={filterColor[key]}
+                    sx={{ m: 0.5 }}
+                    size="small"
+                    key={key}
+                  />
+                )
+              );
+            })}
         </Box>
         <Link href={`/movies/${movieId}`} passHref>
           <CardMedia
@@ -66,22 +67,6 @@ export const MovieCard = memo(function MovieCard({
       </CardActionArea>
       <Box sx={{ display: "flex", flexDirection: "column" }}>
         <CardContent sx={{ flex: "1 0 auto" }}>
-          {/* <Box>
-            {filterResult &&
-              Object.keys(filterResult).map((key) => {
-                return (
-                  filterResult[key] && (
-                    <Chip
-                      label={key}
-                      color={filterColor[key]}
-                      sx={{ m: "2px" }}
-                      size="small"
-                      key={key}
-                    />
-                  )
-                );
-              })}
-          </Box> */}
           <Link
             href={`/movies/${movieId}`}
             passHref
@@ -93,9 +78,11 @@ export const MovieCard = memo(function MovieCard({
           <Typography variant="subtitle2">
             {productionYear + "年製作"}
           </Typography>
-          <Typography variant="subtitle2">
-            役割 {occupationNames.join("/")}
-          </Typography>
+          {occupationNames?.length > 0 && (
+            <Typography variant="subtitle2">
+              役割 {occupationNames.join("/")}
+            </Typography>
+          )}
           <Box>
             {genres.map((genre) => {
               return (

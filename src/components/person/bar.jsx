@@ -1,24 +1,101 @@
-import { Typography, Box, Chip } from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import { ResponsiveBar } from "@nivo/bar";
-import { memo } from "react";
+import { memo, useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { HelpPopover } from "@/components/HelpPopover";
+import {
+  selectSelectedYears,
+  toggleSelectedYear,
+} from "@/modules/features/app/slice";
+import { generateBarData } from "@/util";
+
+const CustomTick = memo(function CustomTick({ x, y, year, textColor }) {
+  const yearString = String(year);
+  const yearStringArray = yearString.split("");
+  const textSize = 12;
+  return (
+    <g>
+      <g transform={`translate(${x},${y})`}>
+        <line x1={0} y1={0} x2={0} y2={5} stroke="#777777" />
+      </g>
+
+      <g transform={`translate(${x},${y + 12})`}>
+        {yearStringArray.map((s, index) => {
+          return (
+            <g key={index} transform={`translate(0,${textSize * index * 0.9})`}>
+              <text
+                fontSize={textSize}
+                fill={textColor}
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {s}
+              </text>
+            </g>
+          );
+        })}
+      </g>
+    </g>
+  );
+});
 
 const ResponsiveBarChart = memo(function ResponsiveBarChart({
-  data,
-  keys,
-  selectedYears,
-  onBarClick,
+  occupations,
+  relatedMovies,
 }) {
+  const dispatch = useDispatch();
+
+  const selectedYears = useSelector(selectSelectedYears);
+
+  const tickTextColorMap = {
+    normal: "#424242",
+    selected: "#FFB020",
+  };
+
+  const filledYears = useMemo(() => {
+    const relatedYears = Array.from(
+      new Set(relatedMovies.map((rm) => rm.movie.productionYear))
+    );
+
+    const yearStart = Math.min(...relatedYears);
+    const yearEnd = Math.max(...relatedYears);
+
+    const ys = [];
+    for (let y = yearStart; y <= yearEnd; ++y) {
+      ys.push(y);
+    }
+
+    return ys;
+  }, [relatedMovies]);
+
+  const barData = useMemo(
+    () => generateBarData(relatedMovies, occupations, filledYears),
+    [relatedMovies, occupations, filledYears]
+  );
+
+  const handleToggleYear = useCallback(
+    (year) => {
+      dispatch(toggleSelectedYear(year));
+    },
+    [dispatch]
+  );
+
+  const handleClickBar = useCallback(
+    (item) => {
+      const year = item.indexValue;
+      dispatch(toggleSelectedYear(year));
+    },
+    [dispatch]
+  );
+
   return (
     <ResponsiveBar
-      data={data}
-      keys={keys}
-      onClick={(item) => {
-        onBarClick(item.indexValue);
-      }}
+      data={barData.data}
+      keys={barData.keys}
+      onClick={handleClickBar}
       indexBy="year"
-      margin={{ top: 20, right: 90, bottom: 80, left: 30 }}
+      margin={{ top: 20, right: 90, bottom: 60, left: 30 }}
       padding={0.3}
       valueScale={{ type: "linear" }}
       indexScale={{ type: "band", round: true }}
@@ -26,26 +103,17 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
       axisTop={null}
       axisRight={null}
       axisBottom={{
-        tickSize: 5,
-        tickPadding: 5,
-        tickRotation: 45,
-        // ゴミ処理
         renderTick: (tick) => {
+          const year = tick.value;
+          const x = tick.x;
+          const y = tick.y;
+          const isSelected = selectedYears.includes(year);
+          const status = isSelected ? "selected" : "normal";
+          const textColor = tickTextColorMap[status];
+
           return (
-            <g
-              transform={`translate(${tick.x},${
-                tick.y + 20
-              })rotate(70)scale(0.8)`}
-              onClick={() => {
-                onBarClick(tick.value);
-              }}
-            >
-              <text
-                fill={selectedYears.includes(tick.value) ? "#FFB020" : "black"}
-              >
-                {tick.value}
-              </text>
-              ;
+            <g onClick={() => handleToggleYear(year)}>
+              <CustomTick x={x} y={y} year={year} textColor={textColor} />;
             </g>
           );
         },
@@ -95,25 +163,23 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
 });
 
 export const BarSection = memo(function BarSection({
-  barData,
-  handleBarClick,
-  selectedYears,
+  occupations,
+  relatedMovies,
 }) {
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Box>
-          <Typography sx={{ p: 1 }} component={"div"}>
-            棒グラフから気になる映画の
-            <Chip
-              label="製作年度"
-              color="warning"
-              sx={{ m: 0.5, mb: 1 }}
-              size="small"
-            />
-            を選択して、映画を絞り込みましょう
-          </Typography>
-        </Box>
+        <Typography sx={{ p: 1 }} component={"div"}>
+          棒グラフから気になる映画の
+          <Chip
+            label="製作年度"
+            color="warning"
+            sx={{ m: 0.5, mb: 1 }}
+            size="small"
+          />
+          を選択して、映画を絞り込みましょう
+        </Typography>
+
         <HelpPopover
           text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}
         />
@@ -127,10 +193,8 @@ export const BarSection = memo(function BarSection({
         }}
       >
         <ResponsiveBarChart
-          data={barData.data}
-          keys={barData.keys}
-          selectedYears={selectedYears}
-          onBarClick={handleBarClick}
+          occupations={occupations}
+          relatedMovies={relatedMovies}
         />
       </Box>
     </Box>

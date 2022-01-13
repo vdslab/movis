@@ -18,11 +18,10 @@ import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { GenreList } from "@/components/Genre";
 import { SearchForm } from "@/components/SearchForm";
 import {
   relatedGenreSelectors,
-  selectSelectedGenreIds,
-  toggleSelectedGenre,
   selectRelatedYears,
   selectSelectedYears,
   toggleSelectedYear,
@@ -196,14 +195,6 @@ const GenreItem = memo(function GenreItem({ onClick, genre, isSelected }) {
 const RelatedGenreSection = () => {
   const dispatch = useDispatch();
   const relatedGenres = useSelector(relatedGenreSelectors.selectAll);
-  const selectedGenreIds = useSelector(selectSelectedGenreIds);
-
-  const handleGenreItemClick = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedGenre(genreId));
-    },
-    [dispatch]
-  );
 
   return (
     <Box sx={{ m: 2 }}>
@@ -224,18 +215,7 @@ const RelatedGenreSection = () => {
             />
             を選択
           </Typography>
-          {relatedGenres.map((genre) => {
-            const isSelected = selectedGenreIds.includes(genre.id);
-
-            return (
-              <GenreItem
-                key={genre.id}
-                genre={genre}
-                isSelected={isSelected}
-                onClick={handleGenreItemClick}
-              />
-            );
-          })}
+          <GenreList relatedGenres={relatedGenres} />
         </Paper>
       )}
     </Box>

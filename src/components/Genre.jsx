@@ -1,36 +1,54 @@
 import { Box, Chip } from "@mui/material";
-import { memo } from "react";
+import { memo, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
-export const GenreItem = memo(function GenreItem({
-  label,
-  isSelected,
-  onClick,
+import {
+  selectSelectedGenreIds,
+  toggleSelectedGenre,
+} from "@/modules/features/app/slice";
+
+const GenreListItem = memo(function GenreListItem({
   id,
+  name,
+  color,
+  onClickGenre,
 }) {
   return (
     <Chip
-      label={label}
-      color={isSelected ? "success" : void 0}
-      onClick={() => onClick(id)}
+      label={name}
+      color={color}
       sx={{ m: 0.5 }}
+      onClick={() => {
+        onClickGenre(id);
+      }}
     />
   );
 });
 
-export const RelatedGenreList = memo(function RelatedGenreList({
-  personRelatedGenres,
-  handleGenreItemClick,
-}) {
+export const GenreList = memo(function GenreList({ relatedGenres }) {
+  const dispatch = useDispatch();
+  const selectedGenreIds = useSelector(selectSelectedGenreIds);
+
+  const handleClickGenre = useCallback(
+    (genreId) => {
+      dispatch(toggleSelectedGenre(genreId));
+    },
+    [dispatch]
+  );
+
   return (
     <Box>
-      {personRelatedGenres.map((genre) => {
+      {relatedGenres.map((genre) => {
+        const isSelected = selectedGenreIds.includes(genre.id);
+        const color = isSelected ? "success" : void 0;
+
         return (
-          <GenreItem
-            id={genre.id}
-            label={genre.name}
-            isSelected={genre.isSelected}
-            onClick={handleGenreItemClick}
+          <GenreListItem
             key={genre.id}
+            id={genre.id}
+            name={genre.name}
+            color={color}
+            onClickGenre={handleClickGenre}
           />
         );
       })}

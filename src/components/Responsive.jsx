@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
-export const Responsive = ({ render }) => {
+export const Responsive = memo(function Responsive({ render }) {
   const wrapperRef = useRef();
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
@@ -25,4 +25,4 @@ export const Responsive = ({ render }) => {
       {render(width, height)}
     </Box>
   );
-};
+});

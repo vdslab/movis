@@ -6,7 +6,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { FilmarksButton } from "@/components/FilmarksButton";
@@ -26,9 +26,6 @@ import {
   selectSelectedYears,
   setRelatedGenre,
   setRelatedYear,
-  toggleSelectedGenre,
-  toggleSelectedNode,
-  toggleSelectedYear,
 } from "@/modules/features/app/slice";
 import {
   fetchTmdbPersonImg,
@@ -36,9 +33,7 @@ import {
   filterMovieByNode,
   filterMovieByYear,
   forceSerialize,
-  generateBarData,
   generateFilmarksPersonUrl,
-  generateNetworkData,
 } from "@/util";
 
 const ML = function ML({ filteredMoviesSortedByFilter }) {
@@ -259,37 +254,6 @@ const Person = ({
     return filledYears;
   }, [relatedYears]);
 
-  const initialNetwork = useMemo(
-    () => generateNetworkData(relatedMovies),
-    [relatedMovies]
-  );
-
-  const barData = useMemo(
-    () => generateBarData(relatedMovies, occupations, years),
-    [relatedMovies, occupations, years]
-  );
-
-  const handleGenreItemClick = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedGenre(genreId));
-    },
-    [dispatch]
-  );
-
-  const handleBarClick = useCallback(
-    (year) => {
-      dispatch(toggleSelectedYear(year));
-    },
-    [dispatch]
-  );
-
-  const handleNodeClick = useCallback(
-    (node) => {
-      dispatch(toggleSelectedNode(node));
-    },
-    [dispatch]
-  );
-
   // reset
   useEffect(() => {
     dispatch(setRelatedGenre(relatedGenres));
@@ -371,32 +335,18 @@ const Person = ({
               />
             </Box>
             <Box sx={{ my: 1 }}>
-              <GenreSection
-                name={person.name}
-                relatedGenres={relatedGenres}
-                handleGenreItemClick={handleGenreItemClick}
-                selectedGenreIds={selectedGenreIds}
-              />
+              <GenreSection name={person.name} relatedGenres={relatedGenres} />
             </Box>
           </Grid>
         </Grid>
 
         <Grid item xs={12}>
-          <BarSection
-            barData={barData}
-            handleBarClick={handleBarClick}
-            selectedYears={selectedYears}
-          />
+          <BarSection relatedMovies={relatedMovies} occupations={occupations} />
         </Grid>
 
         <Grid item xs={12}>
           {personId === person.id ? (
-            <NetworkSection
-              name={person.name}
-              handleNodeClick={handleNodeClick}
-              initialNetwork={initialNetwork}
-              relatedMovies={relatedMovies}
-            />
+            <NetworkSection relatedMovies={relatedMovies} name={person.name} />
           ) : (
             <Box
               sx={{

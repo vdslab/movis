@@ -8,20 +8,21 @@ import {
   Chip,
 } from "@mui/material";
 import * as d3 from "d3";
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
 import { HelpPopover } from "@/components/HelpPopover";
 import { Responsive } from "@/components/Responsive";
 import { ZoomableSVG } from "@/components/ZoomableSvg";
+import { useNetwork } from "@/hooks/network";
 import {
   clearKeyword,
   selectedNodeSelectors,
   selectKeyword,
   setKeyword,
+  toggleSelectedNode,
 } from "@/modules/features/app/slice";
-import { filterMovieByNode } from "@/util";
 
 const Form = memo(function Form() {
   const { register, handleSubmit, reset } = useForm();
@@ -64,46 +65,75 @@ const Form = memo(function Form() {
 });
 
 const NetworkLink = memo(function NetworkLink({
+  x1,
+  x2,
+  y1,
+  y2,
+  strokeWidth,
+  stroke,
+}) {
+  return (
+    <g>
+      <line
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        strokeWidth={strokeWidth}
+        stroke={stroke}
+      />
+    </g>
+  );
+});
+
+const NetworkLinks = memo(function NetworkLinks({
   links,
   selectedNodeIds,
   highlightedNodeIds,
 }) {
+  const strokeWidthMap = {
+    selected: 10,
+    highlighted: 5,
+    normal: 1,
+  };
+
+  const strokeColorMap = {
+    selected: "#FFFF00",
+    highlighted: "#F06292",
+    normal: "#dedede",
+  };
+
   return (
     <g>
-      {links.map((link, index) => {
+      {links.map((link) => {
+        const key = link.source.id + link.target.id;
+        const isSelected =
+          selectedNodeIds.includes(link.source.id) &&
+          selectedNodeIds.includes(link.target.id);
+
+        const isHighlighted =
+          highlightedNodeIds &&
+          ((selectedNodeIds.includes(link.source.id) &&
+            highlightedNodeIds.includes(link.target.id)) ||
+            (highlightedNodeIds.includes(link.source.id) &&
+              selectedNodeIds.includes(link.target.id)));
+
+        const status = isSelected
+          ? "selected"
+          : isHighlighted
+          ? "highlighted"
+          : "normal";
+
         return (
-          <g key={index}>
-            <line
-              x1={link.source.x}
-              y1={link.source.y}
-              x2={link.target.x}
-              y2={link.target.y}
-              strokeWidth={
-                selectedNodeIds.includes(link.source.id) &&
-                selectedNodeIds.includes(link.target.id)
-                  ? 10
-                  : highlightedNodeIds &&
-                    ((selectedNodeIds.includes(link.source.id) &&
-                      highlightedNodeIds.includes(link.target.id)) ||
-                      (highlightedNodeIds.includes(link.source.id) &&
-                        selectedNodeIds.includes(link.target.id)))
-                  ? 5
-                  : 1
-              }
-              stroke={
-                selectedNodeIds.includes(link.source.id) &&
-                selectedNodeIds.includes(link.target.id)
-                  ? "#FFFF00"
-                  : highlightedNodeIds &&
-                    ((selectedNodeIds.includes(link.source.id) &&
-                      highlightedNodeIds.includes(link.target.id)) ||
-                      (highlightedNodeIds.includes(link.source.id) &&
-                        selectedNodeIds.includes(link.target.id)))
-                  ? "#F06292"
-                  : "#dedede"
-              }
-            />
-          </g>
+          <NetworkLink
+            key={key}
+            x1={link.source.x}
+            y1={link.source.y}
+            x2={link.target.x}
+            y2={link.target.y}
+            strokeWidth={strokeWidthMap[status]}
+            stroke={strokeColorMap[status]}
+          />
         );
       })}
     </g>
@@ -111,209 +141,176 @@ const NetworkLink = memo(function NetworkLink({
 });
 
 const NetworkNode = memo(function NetworkNode({
+  id,
+  name,
+  r,
+  cx,
+  cy,
+  fill,
+  stroke,
+  strokeWidth,
+  onNodeClick,
+  isClickable,
+}) {
+  return (
+    <g>
+      <circle
+        id={id}
+        name={name}
+        r={r}
+        cx={cx}
+        cy={cy}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={strokeWidth}
+        onClick={() => onNodeClick({ id, name, isClickable })}
+      />
+    </g>
+  );
+});
+
+const NetworkNodes = memo(function NetworkNodes({
   nodes,
   selectedNodeIds,
   highlightedNodeIds,
-  onNodeClick,
 }) {
-  const color = {
-    normal: d3.interpolateBlues,
-    highlight: "#F06292",
+  const dispatch = useDispatch();
+
+  const nodeColor = d3.interpolateBlues;
+
+  const strokeWidthMap = {
+    selected: 10,
+    highlighted: 5,
+    normal: 0,
+  };
+
+  const strokeColorMap = {
     selected: "#FFFF00",
+    highlighted: "#F06292",
+    normal: void 0,
+  };
+
+  const handleNodeClick = useCallback(
+    ({ id, name, isClickable }) => {
+      const node = { id, name };
+
+      if (isClickable) {
+        dispatch(toggleSelectedNode(node));
+      }
+    },
+    [dispatch]
+  );
+
+  return (
+    <g>
+      {nodes.map((node) => {
+        const isSelected = selectedNodeIds.includes(node.id);
+        const isHighlighted =
+          selectedNodeIds.length !== 0 && highlightedNodeIds.includes(node.id);
+        const isClickable =
+          selectedNodeIds.length === 0 ||
+          selectedNodeIds.includes(node.id) ||
+          highlightedNodeIds.includes(node.id);
+
+        const status = isSelected
+          ? "selected"
+          : isHighlighted
+          ? "highlighted"
+          : "normal";
+
+        return (
+          <NetworkNode
+            key={node.id}
+            id={node.id}
+            name={node.name}
+            r={node.r}
+            cx={node.x}
+            cy={node.y}
+            fill={nodeColor(node.normalizedRelatedMoviesCount)}
+            stroke={strokeColorMap[status]}
+            strokeWidth={strokeWidthMap[status]}
+            onNodeClick={handleNodeClick}
+            isClickable={isClickable}
+          />
+        );
+      })}
+    </g>
+  );
+});
+
+const NetworkLabel = memo(function NetworkLabel({ name, x, y, textColor }) {
+  return (
+    <g>
+      <text fontSize="80px" x={x} y={y} fill={textColor}>
+        {name}
+      </text>
+    </g>
+  );
+});
+
+const NetworkLabels = memo(function NetworkLabels({ nodes }) {
+  const keyword = useSelector(selectKeyword);
+
+  const labelColorMap = {
+    normal: "#00C853",
+    keywordIncluded: "#FFA000",
   };
 
   return (
     <g>
       {nodes.map((node) => {
+        const isKeywordIncluded =
+          keyword.length !== 0 && node.name.includes(keyword);
+        const status = isKeywordIncluded ? "keywordIncluded" : "normal";
+
+        const textColor = labelColorMap[status];
+
         return (
-          <g key={node.id}>
-            <circle
-              r={node.r}
-              cx={node.x}
-              cy={node.y}
-              onClick={() => {
-                if (
-                  selectedNodeIds.length === 0 ||
-                  selectedNodeIds.includes(node.id) ||
-                  highlightedNodeIds.includes(node.id)
-                ) {
-                  onNodeClick(node);
-                }
-              }}
-              fill={color.normal(node.normalizedRelatedMoviesCount)}
-              stroke={
-                selectedNodeIds.includes(node.id)
-                  ? color.selected
-                  : selectedNodeIds.length !== 0 &&
-                    highlightedNodeIds.includes(node.id)
-                  ? color.highlight
-                  : ""
-              }
-              strokeWidth={
-                selectedNodeIds.includes(node.id)
-                  ? 10
-                  : selectedNodeIds.length !== 0 &&
-                    highlightedNodeIds.includes(node.id)
-                  ? 5
-                  : 0
-              }
-            />
-          </g>
+          <NetworkLabel
+            key={node.id}
+            name={node.name}
+            x={node.x + node.r}
+            y={node.y + node.r}
+            textColor={textColor}
+          />
         );
       })}
     </g>
   );
 });
 
-const NetworkLabel = memo(function NetworkLabel({
-  nodes,
-  keyword,
-  selectedNodeIds,
-  highlightedNodeIds,
-}) {
-  return (
-    <g>
-      {nodes.map((node) => {
-        if (
-          !(
-            node.name.includes(keyword) ||
-            selectedNodeIds.length === 0 ||
-            selectedNodeIds.includes(node.id) ||
-            highlightedNodeIds.includes(node.id)
-          )
-        ) {
-          return null;
-        }
-        return (
-          <g key={node.id}>
-            <text
-              fontSize={"80px"}
-              x={node.x + node.r}
-              y={node.y + node.r}
-              fill={
-                keyword.length !== 0 && node.name.includes(keyword)
-                  ? "#FFA000"
-                  : "#00C853"
-              }
-            >
-              {node.name}
-            </text>
-          </g>
-        );
-      })}
-    </g>
-  );
-});
-
-const NetworkBody = memo(function ActorNetwork({
-  initialNetwork,
-  handleNodeClick,
+const NetworkBody = memo(function NetworkBody({
   relatedMovies,
   width,
   height,
 }) {
-  const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
-  const keyword = useSelector(selectKeyword);
-  const [network, setNetwork] = useState({ nodes: [], links: [] });
-
-  console.log(width, height);
-  const nodeFilteredMovies = useMemo(
-    () =>
-      filterMovieByNode(
-        relatedMovies.map((rm) => rm.movie),
-        selectedNodeIds
-      ),
-    [relatedMovies, selectedNodeIds]
+  const { network, highlightedNodeIds } = useNetwork(
+    relatedMovies,
+    width,
+    height
   );
-
-  const highlightedNodeIds = useMemo(() => {
-    const h = [];
-    nodeFilteredMovies.forEach((movie) => {
-      movie.productionMembers.forEach((pm) => {
-        h.push(pm.person.id);
-      });
-    });
-
-    return h;
-  }, [nodeFilteredMovies]);
-
-  useEffect(() => {
-    const d3simulation = d3
-      .forceSimulation()
-      .force(
-        "collide",
-        d3
-          .forceCollide()
-          .radius((d) => d.r)
-          .iterations(10)
-      )
-      .force(
-        "link",
-        d3
-          .forceLink()
-          .distance(10)
-          .id((d) => d.id)
-      )
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force(
-        "charge",
-        // d3.forceManyBody().strength((d) => (d.r / 2) * -50)
-        d3.forceManyBody().strength((d) => (d.r / 2) * -500)
-      )
-      .force(
-        "x",
-        d3
-          .forceX()
-          .x(width / 2)
-          .strength(0.05)
-      )
-      .force(
-        "y",
-        d3
-          .forceY()
-          .y(height / 2)
-          .strength(0.07)
-      );
-
-    const copiedNetwork = JSON.parse(JSON.stringify(initialNetwork));
-    d3simulation.nodes(copiedNetwork.nodes);
-    d3simulation.force("link").links(copiedNetwork.links);
-    d3simulation.tick(500).stop();
-
-    setNetwork(copiedNetwork);
-  }, [initialNetwork, width, height]);
+  const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
 
   return (
-    <g transform={`scale(0.1)`}>
-      {/* link */}
-      <NetworkLink
+    <g>
+      <NetworkLinks
         links={network.links}
         selectedNodeIds={selectedNodeIds}
         highlightedNodeIds={highlightedNodeIds}
       />
-      {/* label */}
-      <NetworkLabel
-        nodes={network.nodes}
-        keyword={keyword}
-        selectedNodeIds={selectedNodeIds}
-        highlightedNodeIds={highlightedNodeIds}
-      />
-      {/* node */}
-      <NetworkNode
+
+      <NetworkLabels nodes={network.nodes} />
+
+      <NetworkNodes
         nodes={network.nodes}
         selectedNodeIds={selectedNodeIds}
         highlightedNodeIds={highlightedNodeIds}
-        onNodeClick={handleNodeClick}
       />
     </g>
   );
 });
 
-const ResponsiveNetwork = memo(function ResponsiveNetwork({
-  initialNetwork,
-  handleNodeClick,
-  relatedMovies,
-}) {
+const ResponsiveNetwork = memo(function ResponsiveNetwork({ relatedMovies }) {
   return (
     <Responsive
       render={(width, height) => {
@@ -332,8 +329,6 @@ const ResponsiveNetwork = memo(function ResponsiveNetwork({
               <NetworkBody
                 width={width}
                 height={height}
-                initialNetwork={initialNetwork}
-                handleNodeClick={handleNodeClick}
                 relatedMovies={relatedMovies}
               />
             </ZoomableSVG>
@@ -346,45 +341,31 @@ const ResponsiveNetwork = memo(function ResponsiveNetwork({
 
 export const NetworkSection = memo(function NetworkSection({
   name,
-  handleNodeClick,
-  initialNetwork,
   relatedMovies,
 }) {
   return (
-    <>
+    <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Box>
-          <Typography sx={{ p: 1 }} component={"div"}>
-            {name}
-            と共演したことのある
-            <Chip
-              label="出演者"
-              color="error"
-              sx={{ m: 0.5, mb: 1 }}
-              size="small"
-            />
-            を選択して、映画を絞り込みましょう。
-          </Typography>
-        </Box>
+        <Typography sx={{ p: 1 }} component={"div"}>
+          {name}
+          と共演したことのある
+          <Chip
+            label="出演者"
+            color="error"
+            sx={{ m: 0.5, mb: 1 }}
+            size="small"
+          />
+          を選択して、映画を絞り込みましょう。
+        </Typography>
         <HelpPopover
           text={`この可視化は${name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}
         />
       </Box>
-
       <Form />
 
-      <Box
-        sx={{
-          height: "50vh",
-          border: "1px solid black",
-        }}
-      >
-        <ResponsiveNetwork
-          handleNodeClick={handleNodeClick}
-          initialNetwork={initialNetwork}
-          relatedMovies={relatedMovies}
-        />
+      <Box sx={{ height: "50vh", border: "1px solid black" }}>
+        <ResponsiveNetwork relatedMovies={relatedMovies} />
       </Box>
-    </>
+    </Box>
   );
 });

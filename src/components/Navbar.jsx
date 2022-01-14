@@ -1,12 +1,5 @@
 import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
-import {
-  AppBar,
-  Box,
-  Button,
-  IconButton,
-  Toolbar,
-  Tooltip,
-} from "@mui/material";
+import { AppBar, Box, IconButton, Toolbar, Tooltip } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
@@ -61,21 +54,30 @@ export const Navbar = memo(function Navbar({}) {
         }}
       >
         <Logo />
-        <Button
-          variant="contained"
-          onClick={() => dispatch(toggleSearchOpen())}
-        >
-          hello
-        </Button>
         <Box>
           <SelectionTooltip
             handleToggleSelectionOpen={handleToggleSelectionOpen}
           />
           <Tooltip title="検索" sx={{ display: { lg: "none" } }}>
-            <IconButton onClick={handleToggleSearchOpen}>
+            <IconButton onClick={handleToggleSearchOpen} disableRipple>
               <SearchOutlined />
             </IconButton>
           </Tooltip>
+          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
+          <IconButton onClick={handleToggleSearchOpen}>
+            <SearchOutlined />
+          </IconButton>
+          {/* </Tooltip> */}
+          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
+          <IconButton onClick={handleToggleSearchOpen} disableRipple>
+            <SearchOutlined />
+          </IconButton>
+          {/* </Tooltip> */}
+          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
+          <IconButton onClick={handleToggleSearchOpen} disableFocusRipple>
+            <SearchOutlined />
+          </IconButton>
+          {/* </Tooltip> */}
         </Box>
       </Toolbar>
     </NavbarRoot>

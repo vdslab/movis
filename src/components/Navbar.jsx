@@ -1,6 +1,7 @@
 import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
-import { AppBar, Box, IconButton, Toolbar } from "@mui/material";
+import { AppBar, Box, IconButton, Toolbar, useMediaQuery } from "@mui/material";
 import { styled } from "@mui/material/styles";
+import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
 import { useDispatch } from "react-redux";
@@ -28,7 +29,26 @@ const SelectionIconButton = memo(function SelectionIconButton({
   ) : null;
 });
 
+const ToolbarButtons = memo(function ToolbarButtons({
+  handleToggleSelectionOpen,
+  handleToggleSearchOpen,
+}) {
+  return (
+    <Box>
+      <SelectionIconButton
+        handleToggleSelectionOpen={handleToggleSelectionOpen}
+      />
+      <IconButton onClick={handleToggleSearchOpen} disableRipple>
+        <SearchOutlined />
+      </IconButton>
+    </Box>
+  );
+});
+
 export const Navbar = memo(function Navbar({}) {
+  const theme = useTheme();
+  const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
+
   const dispatch = useDispatch();
 
   const handleToggleSearchOpen = useCallback(() => {
@@ -52,14 +72,12 @@ export const Navbar = memo(function Navbar({}) {
         }}
       >
         <Logo />
-        <Box>
-          <SelectionIconButton
+        {!matchUpLg && (
+          <ToolbarButtons
             handleToggleSelectionOpen={handleToggleSelectionOpen}
+            handleToggleSearchOpen={handleToggleSearchOpen}
           />
-          <IconButton onClick={handleToggleSearchOpen} disableRipple>
-            <SearchOutlined />
-          </IconButton>
-        </Box>
+        )}
       </Toolbar>
     </NavbarRoot>
   );

@@ -1,0 +1,4 @@
+#nprogress .bar {
+  /* to exceed mui AppBar 1100 */
+  z-index: 1200;
+}

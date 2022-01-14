@@ -1,90 +1,42 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useRouter } from "next/router";
-import { useCallback, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { memo } from "react";
 
-import { SearchAndSelectionMenu } from "@/components/Menu";
 import { Navbar } from "@/components/Navbar";
-import {
-  selectIsSearchModalOpen,
-  selectIsSelectedStatusModalOpen,
-  toggleDrawerOpen,
-  toggleSearchModalOpen,
-  toggleSelectedStatusModalOpen,
-} from "@/modules/features/app/appSlice";
-import { resetGenres } from "@/modules/features/genres/genresSlice";
-import { removeNetwork } from "@/modules/features/network/networkSlice";
-import { removePerson } from "@/modules/features/person/personSlice";
-import { removeYears } from "@/modules/features/years/yearsSlice";
+import { Sidebar } from "@/components/Sidebar";
 
-const ContentRoot = styled(Box)(() => ({
+const ContentRoot = styled(Box)(({ theme }) => ({
   display: "flex",
   flex: "1 1 auto",
   maxWidth: "100%",
   paddingTop: 64,
+  [theme.breakpoints.up("lg")]: {
+    paddingLeft: 300,
+  },
 }));
 
-export const Layout = ({ children }) => {
-  const dispatch = useDispatch();
-  const router = useRouter();
-
-  const isSearchModalOpen = useSelector(selectIsSearchModalOpen);
-  const isSelectedStatusModalOpen = useSelector(
-    selectIsSelectedStatusModalOpen
-  );
-
-  const drawerToggle = useCallback(() => {
-    dispatch(toggleDrawerOpen());
-  }, [dispatch]);
-
-  const handleSearchMenuModalToggle = useCallback(() => {
-    dispatch(toggleSearchModalOpen());
-  }, [dispatch]);
-
-  const handleSelectedStatusModalToggle = useCallback(() => {
-    dispatch(toggleSelectedStatusModalOpen());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (router.pathname === "/people/[personId]") {
-      return;
-    }
-    dispatch(resetGenres());
-    dispatch(removeNetwork());
-    dispatch(removePerson());
-    dispatch(removeYears());
-  }, [dispatch, router.pathname]);
-
-  console.log({ isSearchModalOpen, isSelectedStatusModalOpen });
-
+export const Layout = memo(function Layout({ children }) {
   return (
     <>
-      <Navbar
-        drawerToggle={drawerToggle}
-        handleSearchMenuModalToggle={handleSearchMenuModalToggle}
-        handleSelectedStatusModalToggle={handleSelectedStatusModalToggle}
-      />
-
-      <Box sx={{ display: "flex", flex: "1 0 auto" }}>
-        <SearchAndSelectionMenu
-          handleSearchMenuModalToggle={handleSearchMenuModalToggle}
-          handleSelectedStatusModalToggle={handleSelectedStatusModalToggle}
-        />
-        <ContentRoot>
-          <Box
-            sx={{
-              display: "flex",
-              flex: "1 1 auto",
-              flexDirection: "column",
-              width: "100%",
-            }}
-            maxWidth="xl"
-          >
-            {children}
-          </Box>
-        </ContentRoot>
-      </Box>
+      <Navbar />
+      <Sidebar />
+      <ContentRoot>
+        <Box
+          sx={{
+            display: "flex",
+            flex: "1 1 auto",
+            flexDirection: "column",
+            width: "100%",
+            my: 5,
+            mx: {
+              xs: 2,
+              md: 4,
+            },
+          }}
+        >
+          {children}
+        </Box>
+      </ContentRoot>
     </>
   );
-};
+});

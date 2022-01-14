@@ -1,5 +1,4 @@
 import {
-  Container,
   List,
   ListItemAvatar,
   Avatar,
@@ -12,21 +11,34 @@ import {
   Button,
 } from "@mui/material";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 import { Link } from "@/components/Link";
 import { SEARCH_LIMIT } from "@/const";
 import prisma from "@/lib/prisma";
 import { fetchTmdbPersonImg, forceSerialize, string2int } from "@/util";
 
-const People = (props) => {
+const People = ({ keyword, people, movieHitCount, personHitCount, page }) => {
+  const [person2imgUrl, setPerson2imgUrl] = useState({});
   const router = useRouter();
-  const encodedKeyword = encodeURIComponent(props.keyword);
-  const paginationCount = Number.isInteger(props.personHitCount / SEARCH_LIMIT)
-    ? Math.floor(props.personHitCount / SEARCH_LIMIT)
-    : Math.floor(props.personHitCount / SEARCH_LIMIT) + 1;
+  const encodedKeyword = encodeURIComponent(keyword);
+  const paginationCount = Number.isInteger(personHitCount / SEARCH_LIMIT)
+    ? Math.floor(personHitCount / SEARCH_LIMIT)
+    : Math.floor(personHitCount / SEARCH_LIMIT) + 1;
+
+  useEffect(() => {
+    (async () => {
+      const p2i = {};
+      for (const person of people) {
+        p2i[person.id] = await fetchTmdbPersonImg(person.name);
+      }
+
+      setPerson2imgUrl(p2i);
+    })();
+  }, [people]);
 
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box>
       <Box
         sx={{
           display: "flex",
@@ -36,66 +48,82 @@ const People = (props) => {
         }}
       >
         <Typography sx={{ mb: 2 }}>
-          名前に「{props.keyword}」が含まれる人物
+          名前に「{keyword}」が含まれる人物
           <Box component="span" sx={{ mx: 1 }}>
-            （{props.personHitCount}件）
+            （{personHitCount}件）
           </Box>
         </Typography>
         <Button
           onClick={() => {
             router.push(
-              `/movies?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}`
+              `/movies?keyword=${encodedKeyword}&movieHitCount=${movieHitCount}&personHitCount=${personHitCount}`
             );
           }}
           variant="contained"
           color="primary"
           sx={{ alignSelf: "flex-end" }}
-          disabled={props.movieHitCount === 0}
+          disabled={movieHitCount === 0}
         >
           映画の検索結果へ
         </Button>
       </Box>
       {/* person list */}
-      <List sx={{ width: "100%" }}>
-        {props.people.map((person, index) => {
-          return (
-            <Link
-              href={`/people/${person.id}`}
-              sx={{ textDecoration: "none", color: "currentcolor" }}
-              key={person.id}
-            >
-              <ListItemButton alignItems="center">
-                <ListItemAvatar>
-                  <Avatar
-                    variant="square"
-                    alt={person.name}
-                    src={person.imgUrl}
-                  />
-                </ListItemAvatar>
-                <ListItemText primary={person.name} />
-              </ListItemButton>
-              {index + 1 < props.people.length ? (
-                <Divider variant="inset" component="li" />
-              ) : null}
-            </Link>
-          );
-        })}
-      </List>
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Pagination
-          count={paginationCount}
-          onChange={(e, targetPage) => {
-            if (props.page === targetPage) {
-              return;
-            }
-            router.push(
-              `/people?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
+      {people.length > 0 ? (
+        <List sx={{ width: "100%" }}>
+          {people.map((person, index) => {
+            return (
+              <Link
+                href={`/people/${person.id}`}
+                to={`/people/${person.id}`}
+                sx={{ textDecoration: "none", color: "currentcolor" }}
+                key={person.id}
+              >
+                <ListItemButton alignItems="center">
+                  <ListItemAvatar>
+                    <Avatar
+                      variant="square"
+                      alt={person.name}
+                      src={person2imgUrl[person.id]}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText primary={person.name} />
+                </ListItemButton>
+                {index + 1 < people.length ? (
+                  <Divider variant="inset" component="li" />
+                ) : null}
+              </Link>
             );
+          })}
+        </List>
+      ) : (
+        <Box
+          sx={{
+            height: "30vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          page={props.page}
-        />
-      </Box>
-    </Container>
+        >
+          <Typography>十分に一致する人物が見つかりません</Typography>
+        </Box>
+      )}
+      {people.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={paginationCount}
+            onChange={(e, targetPage) => {
+              if (page === targetPage) {
+                return;
+              }
+              router.push(
+                `/people?keyword=${encodedKeyword}&movieHitCount=${movieHitCount}&personHitCount=${personHitCount}&page=${targetPage}`
+              );
+            }}
+            page={page}
+          />
+        </Box>
+      )}
+    </Box>
   );
 };
 
@@ -145,10 +173,6 @@ export const getServerSideProps = async (ctx) => {
     skip,
     take: SEARCH_LIMIT,
   });
-
-  for (const person of people) {
-    person["imgUrl"] = await fetchTmdbPersonImg(person.name);
-  }
 
   return {
     props: forceSerialize({

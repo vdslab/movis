@@ -1,55 +1,83 @@
-import { CloseOutlined, SearchOutlined } from "@mui/icons-material";
+import { CloseOutlined } from "@mui/icons-material";
+import { DeleteOutline, InfoOutlined } from "@mui/icons-material";
 import {
   Box,
   Drawer,
   IconButton,
-  InputBase,
   Paper,
   Typography,
   useMediaQuery,
   Chip,
+  List,
+  ListItemText,
+  Divider,
+  ListItem,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
-import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 
-import { RelatedGenreList } from "@/components/Genre";
-import { selectIsDrawerOpen } from "@/modules/features/app/appSlice";
+import { GenreList } from "@/components/Genre";
+import { SearchForm } from "@/components/SearchForm";
 import {
-  selectPersonRelatedGenres,
-  toggleSelectedGenre,
-} from "@/modules/features/genres/genresSlice";
-import {
-  selectSelectedNodes,
-  toggleSelectedNode,
-} from "@/modules/features/network/networkSlice";
-import {
-  selectYears,
+  relatedGenreSelectors,
+  selectRelatedYears,
+  selectSelectedYears,
   toggleSelectedYear,
-} from "@/modules/features/years/yearsSlice";
+  selectedNodeSelectors,
+  toggleSelectedNode,
+  toggleSearchOpen,
+  toggleSelectionOpen,
+  selectIsSearchOpen,
+  selectIsSelectionOpen,
+} from "@/modules/features/app/slice";
 
-const NodeItem = memo(function NodeItem({ name, id, handleClick }) {
+const NodeItem = memo(function NodeItem({ node, onDeleteClick, onInfoClick }) {
   return (
-    <Chip
-      label={name}
-      color={"error"}
-      onClick={() => handleClick(id)}
-      sx={{ m: "2px" }}
-    />
+    <ListItem
+      secondaryAction={
+        <Box>
+          <IconButton
+            edge="end"
+            aria-label="details"
+            onClick={() => onInfoClick(node.id)}
+          >
+            <InfoOutlined />
+          </IconButton>
+          <IconButton
+            edge="end"
+            aria-label="delete"
+            onClick={() => onDeleteClick(node)}
+          >
+            <DeleteOutline />
+          </IconButton>
+        </Box>
+      }
+    >
+      <ListItemText primary={node.name} />
+    </ListItem>
   );
 });
 
-const SelectedNodeSection = () => {
+const SelectedNodeSection = ({ onClick }) => {
   const dispatch = useDispatch();
-  const selectedNodes = useSelector(selectSelectedNodes.selectAll);
+  const selectedNodes = useSelector(selectedNodeSelectors.selectAll);
+  const router = useRouter();
 
-  const handleItemClick = useCallback(
-    (nodeId) => {
-      dispatch(toggleSelectedNode(nodeId));
+  const handleToggleNode = useCallback(
+    (node) => {
+      dispatch(toggleSelectedNode(node));
     },
     [dispatch]
+  );
+
+  const handleMoveDetails = useCallback(
+    (personId) => {
+      router.push(`/people/${personId}`);
+      onClick();
+    },
+    [router, onClick]
   );
 
   return (
@@ -62,30 +90,45 @@ const SelectedNodeSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>選択された出演者</Typography>
-          {selectedNodes.map((sn) => {
-            return (
-              <NodeItem
-                name={sn.name}
-                id={sn.id}
-                handleClick={handleItemClick}
-                key={sn.id}
-              />
-            );
-          })}
+          <Typography sx={{ m: 1 }} component={"div"}>
+            選択された
+            <Chip
+              label="出演者"
+              color="error"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
+          </Typography>
+          <List sx={{ width: "100%" }}>
+            {selectedNodes.map((node, index) => {
+              return (
+                <Box key={node.id}>
+                  <NodeItem
+                    node={node}
+                    onDeleteClick={handleToggleNode}
+                    onInfoClick={handleMoveDetails}
+                  />
+                  {index + 1 < selectedNodes.length ? (
+                    <Divider variant="fullWidth" component="li" />
+                  ) : null}
+                </Box>
+              );
+            })}
+          </List>
         </Paper>
       )}
     </Box>
   );
 };
 
-const YearItem = memo(function YearItem({ year, isSelected, handleClick }) {
+const YearItem = memo(function YearItem({ onClick, year, isSelected }) {
   return (
     <Chip
+      key={year}
       label={year}
       color={isSelected ? "warning" : void 0}
       onClick={() => {
-        handleClick(year);
+        onClick(year);
       }}
       sx={{ m: "2px" }}
     />
@@ -94,9 +137,10 @@ const YearItem = memo(function YearItem({ year, isSelected, handleClick }) {
 
 const SelectedYearSection = () => {
   const dispatch = useDispatch();
-  const years = useSelector(selectYears.selectAll);
+  const relatedYears = useSelector(selectRelatedYears);
+  const selectedYears = useSelector(selectSelectedYears);
 
-  const handleItemClick = useCallback(
+  const handleYearItemClick = useCallback(
     (year) => {
       dispatch(toggleSelectedYear(year));
     },
@@ -105,7 +149,7 @@ const SelectedYearSection = () => {
 
   return (
     <Box sx={{ m: 2 }}>
-      {years.length > 0 && (
+      {relatedYears.length > 0 && (
         <Paper
           component="div"
           sx={{
@@ -113,14 +157,24 @@ const SelectedYearSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>製作年度</Typography>
-          {years.map((year) => {
+          <Typography sx={{ m: 1 }} component={"div"}>
+            <Chip
+              label="製作年度"
+              color="warning"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
+            を選択
+          </Typography>
+          {relatedYears.map((year) => {
+            const isSelected = selectedYears.includes(year);
+
             return (
               <YearItem
-                year={year.year}
-                isSelected={year.isSelected}
-                handleClick={handleItemClick}
-                key={year.year}
+                key={year}
+                onClick={handleYearItemClick}
+                year={year}
+                isSelected={isSelected}
               />
             );
           })}
@@ -131,19 +185,11 @@ const SelectedYearSection = () => {
 };
 
 const RelatedGenreSection = () => {
-  const dispatch = useDispatch();
-  const personRelatedGenres = useSelector(selectPersonRelatedGenres);
-
-  const handleGenreItemClick = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedGenre(genreId));
-    },
-    [dispatch]
-  );
+  const relatedGenres = useSelector(relatedGenreSelectors.selectAll);
 
   return (
     <Box sx={{ m: 2 }}>
-      {personRelatedGenres.length > 0 && (
+      {relatedGenres.length > 0 && (
         <Paper
           component="div"
           sx={{
@@ -151,83 +197,137 @@ const RelatedGenreSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>ジャンル</Typography>
-          <RelatedGenreList
-            personRelatedGenres={personRelatedGenres}
-            handleGenreItemClick={handleGenreItemClick}
-          />
+          <Typography sx={{ m: 1 }} component={"div"}>
+            <Chip
+              label="ジャンル"
+              color="success"
+              sx={{ m: 0.5, mb: 1 }}
+              size="small"
+            />
+            を選択
+          </Typography>
+          <GenreList relatedGenres={relatedGenres} />
         </Paper>
       )}
     </Box>
   );
 };
 
-const DrawerBody = memo(function DrawerBody({
-  drawerToggle,
-  handleSubmit,
-  register,
-  reset,
-  router,
+const XsSelectionDrawerBody = memo(function XsSelectionDrawerBody({
+  handleToggleSelectionOpen,
 }) {
   return (
     <Box>
-      <Box sx={{ display: { xs: "block", lg: "none" } }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            p: 2,
-            mx: "auto",
-          }}
-        >
-          <Typography variant="h6" sx={{ p: 1 }}>
-            映画・人物を検索
-          </Typography>
-          <IconButton onClick={drawerToggle}>
-            <CloseOutlined />
-          </IconButton>
-        </Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          px: 2,
+          mx: "auto",
+          alignItems: "center",
+          minHeight: 64,
+        }}
+      >
+        <Typography variant="h6" sx={{ p: 1 }}>
+          フィルター情報を選択
+        </Typography>
+        <IconButton onClick={handleToggleSelectionOpen}>
+          <CloseOutlined />
+        </IconButton>
       </Box>
-      <Box sx={{ m: 2 }}>
-        <Paper
-          component="form"
-          sx={{
-            p: "2px 4px",
-            display: "flex",
-            alignItems: "center",
-            width: "100%",
-          }}
-          onSubmit={handleSubmit((data) => {
-            const encodedKeyword = encodeURIComponent(data.keyword);
-            router.push(`/people?keyword=${encodedKeyword}`);
-            reset({ keyword: "" });
-            drawerToggle();
-          })}
-        >
-          <InputBase
-            sx={{ ml: 1, flex: 1 }}
-            placeholder="人物・映画名で検索"
-            {...register("keyword")}
-          />
-          <IconButton type="submit" sx={{ p: "10px" }}>
-            <SearchOutlined />
-          </IconButton>
-        </Paper>
+
+      <Box sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
+        <SelectedNodeSection onClick={handleToggleSelectionOpen} />
+        <SelectedYearSection />
+        <RelatedGenreSection />
+        <Box sx={{ mb: "240px" }} />
       </Box>
-      <SelectedNodeSection />
-      <SelectedYearSection />
-      <RelatedGenreSection />
     </Box>
   );
 });
 
-export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
+const XsSearchDrawerBody = memo(function XsSearchDrawerBody({
+  handleToggleSearchOpen,
+}) {
+  return (
+    <Box>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          px: 2,
+          mx: "auto",
+          alignItems: "center",
+          minHeight: 64,
+        }}
+      >
+        <Typography variant="h6" sx={{ p: 1 }}>
+          映画・人物を検索
+        </Typography>
+        <IconButton onClick={handleToggleSearchOpen}>
+          <CloseOutlined />
+        </IconButton>
+      </Box>
+
+      <Box sx={{ m: 2 }}>
+        <SearchForm toggleOpen={handleToggleSearchOpen} />
+      </Box>
+    </Box>
+  );
+});
+
+const LgDrawerBody = memo(function LgDrawerBody() {
+  return (
+    <Box>
+      <Box sx={{ m: 2 }}>
+        <SearchForm />
+      </Box>
+      <Box>
+        <SelectedNodeSection />
+        <SelectedYearSection />
+        <RelatedGenreSection />
+      </Box>
+    </Box>
+  );
+});
+
+const XsDrawerBody = memo(function XsDrawerBody({}) {
+  const dispatch = useDispatch();
+  const isSearchOpen = useSelector(selectIsSearchOpen);
+  const isSelectionOpen = useSelector(selectIsSelectionOpen);
+
+  const handleToggleSearchOpen = useCallback(() => {
+    dispatch(toggleSearchOpen());
+  }, [dispatch]);
+
+  const handleToggleSelectionOpen = useCallback(() => {
+    dispatch(toggleSelectionOpen());
+  }, [dispatch]);
+
+  return (
+    <Box>
+      <Box sx={{ display: isSearchOpen ? "block" : "none" }}>
+        <XsSearchDrawerBody handleToggleSearchOpen={handleToggleSearchOpen} />
+      </Box>
+
+      <Box sx={{ display: isSelectionOpen ? "block" : "none" }}>
+        <XsSelectionDrawerBody
+          handleToggleSelectionOpen={handleToggleSelectionOpen}
+        />
+      </Box>
+    </Box>
+  );
+});
+
+const DrawerBody = memo(function DrawerBody({ matchUpLg }) {
+  return matchUpLg ? <LgDrawerBody /> : <XsDrawerBody />;
+});
+
+export const Sidebar = memo(function Sidebar({ window }) {
+  const isSearchOpen = useSelector(selectIsSearchOpen);
+  const isSelectionOpen = useSelector(selectIsSelectionOpen);
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
-  const { register, handleSubmit, reset } = useForm();
-  const router = useRouter();
-
-  const isDrawerOpen = useSelector(selectIsDrawerOpen);
 
   const drawerWidth = matchUpLg ? 280 : "100%";
 
@@ -244,7 +344,7 @@ export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
         container={container}
         variant={matchUpLg ? "persistent" : "temporary"}
         anchor="left"
-        open={isDrawerOpen || matchUpLg}
+        open={isSearchOpen || isSelectionOpen || matchUpLg}
         sx={{
           "& .MuiDrawer-paper": {
             width: drawerWidth,
@@ -259,13 +359,7 @@ export const Sidebar = memo(function Sidebar({ drawerToggle, window }) {
         ModalProps={{ keepMounted: true }}
         color="inherit"
       >
-        <DrawerBody
-          drawerToggle={drawerToggle}
-          handleSubmit={handleSubmit}
-          register={register}
-          reset={reset}
-          router={router}
-        />
+        <DrawerBody matchUpLg={matchUpLg} />
       </Drawer>
     </Box>
   );

@@ -1,350 +1,288 @@
-import { SearchOutlined, ClearOutlined } from "@mui/icons-material";
 import {
-  Container,
-  Grid,
-  Typography,
   Box,
+  Chip,
+  CircularProgress,
+  Grid,
   Paper,
-  InputBase,
-  IconButton,
+  Typography,
 } from "@mui/material";
-import { ResponsiveBar } from "@nivo/bar";
-import { memo, useCallback, useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { ActorNetwork } from "@/components/ActorNetwork";
-import { RelatedGenreList } from "@/components/Genre";
-import { HelpPopover } from "@/components/HelpPopover";
+import { FilmarksButton } from "@/components/FilmarksButton";
+import { Link } from "@/components/Link";
 import { MovieCard } from "@/components/MovieCard";
-import { Responsive } from "@/components/Responsive";
 import { RoundedImage } from "@/components/RoundedImage";
+import { BarSection } from "@/components/person/bar";
+import { GenreSection } from "@/components/person/genre";
+import { NetworkSection } from "@/components/person/network";
 import prisma from "@/lib/prisma";
 import {
-  loadGenres,
-  selectPersonRelatedGenres,
-  selectSelectedGenres,
-  toggleSelectedGenre,
-} from "@/modules/features/genres/genresSlice";
-import {
-  clearSearch,
-  loadNetwork,
-  selectSelectedNodes,
-  setSearch,
-} from "@/modules/features/network/networkSlice";
-import {
-  loadPerson,
-  setPersonMovies,
-} from "@/modules/features/person/personSlice";
-import {
-  loadYears,
+  resetGenre,
+  resetNode,
+  resetYear,
+  selectedNodeSelectors,
+  selectSelectedGenreIds,
   selectSelectedYears,
-  toggleSelectedYear,
-} from "@/modules/features/years/yearsSlice";
+  setRelatedGenre,
+  setRelatedYear,
+} from "@/modules/features/app/slice";
 import {
   fetchTmdbPersonImg,
   filterMovieByGenre,
   filterMovieByNode,
   filterMovieByYear,
   forceSerialize,
+  generateFilmarksPersonUrl,
 } from "@/util";
 
-const ResponsiveNetwork = memo(function ResponsiveNetwork() {
+const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
+  const filterColor = {
+    出演者: "error",
+    製作年度: "warning",
+    ジャンル: "success",
+  };
+
+  const filterKeys = ["出演者", "製作年度", "ジャンル"];
+
   return (
-    <Responsive
-      render={(width, height) => {
-        return (
-          <Box
-            sx={{
-              width: width,
-              height: height,
-            }}
-          >
-            <ActorNetwork width={width} height={height} />
-          </Box>
-        );
+    <Paper
+      sx={{
+        position: "fixed",
+        top: "auto",
+        bottom: 0,
+        right: 0,
+        left: { xs: 0, lg: 300 },
+        backgroundColor: "#fafafa",
+        zIndex: 99999,
+        mx: { lg: 4 },
       }}
-    />
-  );
-});
-
-const GenreSection = memo(function GenreSection({
-  name,
-  personRelatedGenres,
-  handleGenreItemClick,
-}) {
-  return (
-    <Box>
-      <Typography sx={{ p: 1 }}>
-        {name}が制作に携わった映画のジャンル
-      </Typography>
-
-      <RelatedGenreList
-        personRelatedGenres={personRelatedGenres}
-        handleGenreItemClick={handleGenreItemClick}
-      />
-    </Box>
-  );
-});
-
-const MovieHistorySection = memo(function MovieHistorySection({
-  barData,
-  barKeys,
-  handleBarClick,
-  selectedYears,
-}) {
-  const years = selectedYears.map((year) => year.year);
-  return (
-    <Box>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <Typography sx={{ p: 1 }}>
-          気になる映画製作年度を選択して、映画を絞り込みましょう
+    >
+      <Box sx={{ m: 0.5 }}>
+        <Typography sx={{ mb: 0.5, ml: 0.5 }} variant="subtitle2">
+          絞り込まれた映画一覧（左右にスクロールできます）
         </Typography>
-        <HelpPopover
-          text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}
-        />
-      </Box>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          height: 280,
-          width: "100%",
-        }}
-      >
-        <ResponsiveBar
-          data={barData}
-          keys={barKeys}
-          onClick={(item) => {
-            handleBarClick(item.indexValue);
+        <Box
+          sx={{
+            height: 188,
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            WebkitOverflowScrolling: "touch",
           }}
-          indexBy="year"
-          margin={{ top: 20, right: 90, bottom: 80, left: 20 }}
-          padding={0.3}
-          valueScale={{ type: "linear" }}
-          indexScale={{ type: "band", round: true }}
-          colors={{ scheme: "set3" }}
-          axisTop={null}
-          axisRight={null}
-          axisBottom={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 45,
-            // ゴミ処理
-            renderTick: (tick) => {
-              return (
-                <g
-                  transform={`translate(${tick.x},${
-                    tick.y + 20
-                  })rotate(45)scale(0.9)`}
+        >
+          {filteredMoviesSortedByFilter.map((movie) => {
+            const filterResult = movie.filterResult;
+            return (
+              <Box
+                key={movie.id}
+                sx={{
+                  position: "relative",
+                  mx: 0.5,
+                  display: "inline-block",
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
-                  <text fill={years.includes(tick.value) ? "red" : "black"}>
-                    {tick.value}
-                  </text>
-                  ;
-                </g>
-              );
-            },
-          }}
-          axisLeft={{
-            tickSize: 5,
-            tickPadding: 5,
-            tickRotation: 0,
-            format: (e) => Math.floor(e) === e && e,
-          }}
-          labelSkipWidth={12}
-          labelSkipHeight={12}
-          labelTextColor={{
-            from: "color",
-            modifiers: [["darker", 1.6]],
-          }}
-          legendLabel={(item) => {
-            return item.id.substr(0, 3);
-          }}
-          legends={[
-            {
-              dataFrom: "keys",
-              anchor: "bottom-right",
-              direction: "column",
-              justify: false,
-              translateX: 120,
-              translateY: 20,
-              itemsSpacing: 2,
-              itemWidth: 100,
-              itemHeight: 20,
-              itemDirection: "left-to-right",
-              itemOpacity: 0.85,
-              symbolSize: 20,
-              effects: [
-                {
-                  on: "hover",
-                  style: {
-                    itemOpacity: 1,
-                  },
-                },
-              ],
-            },
-          ]}
-          role="application"
-        />
+                  {filterKeys.map((key) => {
+                    return (
+                      filterResult[key] && (
+                        <Chip
+                          label={key}
+                          color={filterColor[key]}
+                          sx={{ m: 0.5 }}
+                          size="small"
+                          key={key}
+                        />
+                      )
+                    );
+                  })}
+                </Box>
+                <Link href={`/movies/${movie.id}`}>
+                  <Box
+                    component="img"
+                    src={movie.imgUrl}
+                    sx={{ width: 130, height: 182 }}
+                  />
+                </Link>
+              </Box>
+            );
+          })}
+        </Box>
       </Box>
-    </Box>
-  );
-});
-
-const MovieCardList = memo(function MovieCardList({
-  movies,
-  nodeFilteredMovieIds,
-  yearFilteredMovieIds,
-  genreFilteredMovieIds,
-  selectedGenreIds,
-  handleMovieCardGenreClick,
-}) {
-  const movieIds = [];
-  return (
-    <>
-      {movies
-        .map((movie) => {
-          const movieId = movie.id;
-          const filterResult = {
-            network: nodeFilteredMovieIds.includes(movieId),
-            year: yearFilteredMovieIds.includes(movieId),
-            genre: genreFilteredMovieIds.includes(movieId),
-          };
-
-          return { ...movie, filterResult };
-        })
-        .sort(
-          (a, b) =>
-            Object.values(b.filterResult).filter((item) => item).length -
-            Object.values(a.filterResult).filter((item) => item).length
-        )
-        .map((movie) => {
-          // ゴミ処理　映画の表示で重複する場合があるので応急処置
-          if (movieIds.includes(movie.id)) {
-            return null;
-          }
-
-          movieIds.push(movie.id);
-          return (
-            <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
-              <MovieCard
-                movieId={movie.id}
-                title={movie.title}
-                genres={movie.genres}
-                productionYear={movie.productionYear}
-                imgUrl={movie.imgUrl}
-                filterResult={movie.filterResult}
-                selectedGenreIds={selectedGenreIds}
-                handleGenreClick={handleMovieCardGenreClick}
-              />
-            </Grid>
-          );
-        })}
-    </>
+    </Paper>
   );
 });
 
 const Person = ({
   person,
-  barData,
-  barKeys,
+  relatedMovies,
+  relatedGenres,
+  occupations,
   personImgUrl,
-  network,
-  genres,
-  years,
 }) => {
-  const movies = useMemo(
-    () =>
-      person.relatedMovies.map((rm) => {
-        const movie = rm.movie;
-        return movie;
-      }),
-    [person.relatedMovies]
-  );
-
-  const { register, handleSubmit, reset } = useForm();
-
   const dispatch = useDispatch();
-  const selectedGenres = useSelector(selectSelectedGenres);
-  const personRelatedGenres = useSelector(selectPersonRelatedGenres);
-  const selectedNodes = useSelector(selectSelectedNodes.selectAll);
+  const [personId, setPersonId] = useState(null);
+
+  const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
+  const selectedGenreIds = useSelector(selectSelectedGenreIds);
   const selectedYears = useSelector(selectSelectedYears);
 
-  const nodeFilteredMovieIds = useMemo(() => {
-    const selectedNodeIds = selectedNodes.map(
-      (selectedNode) => selectedNode.id
+  const nodeFilteredMovies = useMemo(
+    () =>
+      filterMovieByNode(
+        relatedMovies.map((rm) => rm.movie),
+        selectedNodeIds
+      ),
+    [relatedMovies, selectedNodeIds]
+  );
+
+  const genreFilteredMovies = useMemo(
+    () =>
+      filterMovieByGenre(
+        relatedMovies.map((rm) => rm.movie),
+        selectedGenreIds
+      ),
+    [relatedMovies, selectedGenreIds]
+  );
+
+  const yearFilteredMovies = useMemo(
+    () =>
+      filterMovieByYear(
+        relatedMovies.map((rm) => rm.movie),
+        selectedYears
+      ),
+    [relatedMovies, selectedYears]
+  );
+
+  const nodeFilteredMovieIds = useMemo(
+    () => nodeFilteredMovies.map((movie) => movie.id),
+    [nodeFilteredMovies]
+  );
+
+  const genreFilteredMovieIds = useMemo(
+    () => genreFilteredMovies.map((movie) => movie.id),
+    [genreFilteredMovies]
+  );
+
+  const yearFilteredMovieIds = useMemo(
+    () => yearFilteredMovies.map((movie) => movie.id),
+    [yearFilteredMovies]
+  );
+
+  const movie2filterResultMovie = useMemo(() => {
+    const m2f = {};
+    relatedMovies.forEach((rm) => {
+      const movie = rm.movie;
+      const movieId = movie.id;
+      const occupation = rm.occupation;
+      const occupationName = occupation.name;
+
+      if (movieId in m2f) {
+        m2f[movieId] = {
+          ...m2f[movieId],
+          occupationNames: Array.from(
+            new Set([...m2f[movieId].occupationNames, occupationName])
+          ),
+        };
+
+        return;
+      }
+
+      const filterResult = {
+        出演者: nodeFilteredMovieIds.includes(movieId),
+        ジャンル: genreFilteredMovieIds.includes(movieId),
+        製作年度: yearFilteredMovieIds.includes(movieId),
+      };
+
+      m2f[movieId] = {
+        filterResult,
+        id: movieId,
+        imgUrl: movie.imgUrl,
+        productionYear: movie.productionYear,
+        title: movie.title,
+        occupationNames: [occupationName],
+        genres: movie.genres,
+      };
+    });
+
+    return m2f;
+  }, [
+    relatedMovies,
+    nodeFilteredMovieIds,
+    genreFilteredMovieIds,
+    yearFilteredMovieIds,
+  ]);
+
+  const moviesSortedByFilter = useMemo(() => {
+    return Object.values(movie2filterResultMovie).sort(
+      (a, b) =>
+        Object.values(b.filterResult).filter((r) => r).length -
+        Object.values(a.filterResult).filter((r) => r).length
     );
+  }, [movie2filterResultMovie]);
 
-    return filterMovieByNode(movies, selectedNodeIds);
-  }, [movies, selectedNodes]);
-
-  const selectedGenreIds = useMemo(
-    () => selectedGenres.map((selectedGenre) => selectedGenre.id),
-    [selectedGenres]
-  );
-
-  const genreFilteredMovieIds = useMemo(() => {
-    const seleectedGenreIds = selectedGenres.map(
-      (selectedGenre) => selectedGenre.id
+  const filteredMoviesSortedByFilter = useMemo(() => {
+    return moviesSortedByFilter.filter(
+      (movie) => Object.values(movie.filterResult).filter((r) => r).length > 0
     );
+  }, [moviesSortedByFilter]);
 
-    return filterMovieByGenre(movies, seleectedGenreIds);
-  }, [movies, selectedGenres]);
-
-  const yearFilteredMovieIds = useMemo(() => {
-    return filterMovieByYear(
-      movies,
-      selectedYears.map((year) => year.year)
-    );
-  }, [movies, selectedYears]);
-
-  // ゴミ処理　映画の表示で複数職業担当していると、重複してしまう場合があるので応急処置
-  const movieIds = [];
-
-  const handleMovieCardGenreClick = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedGenre(genreId));
-    },
-    [dispatch]
+  const relatedYears = useMemo(
+    () =>
+      Array.from(
+        new Set(relatedMovies.map((rm) => rm.movie.productionYear))
+      ).sort((a, b) => a - b),
+    [relatedMovies]
   );
 
-  const handleGenreItemClick = useCallback(
-    (genreId) => {
-      dispatch(toggleSelectedGenre(genreId));
-    },
-    [dispatch]
-  );
+  // reset
+  useEffect(() => {
+    dispatch(setRelatedGenre(relatedGenres));
+    return () => {
+      dispatch(resetGenre());
+    };
+  }, [dispatch, relatedGenres, person.id]);
 
-  const handleBarClick = useCallback(
-    (year) => {
-      dispatch(toggleSelectedYear(year));
-    },
-    [dispatch]
-  );
+  // useEffect(() => {
+  //   dispatch(setRelatedYear(years));
+  //   return () => {
+  //     dispatch(resetYear());
+  //   };
+  // }, [dispatch, years, person.id]);
 
   useEffect(() => {
-    dispatch(loadPerson(person));
-  }, [dispatch, person]);
+    dispatch(setRelatedYear(relatedYears));
+    return () => {
+      dispatch(resetYear());
+    };
+  }, [dispatch, relatedYears, person.id]);
 
   useEffect(() => {
-    dispatch(loadGenres(genres));
-  }, [dispatch, genres]);
+    return () => {
+      dispatch(resetNode());
+    };
+  }, [dispatch, person.id]);
 
+  // ゴミ処理　ページの初期表示を早くするために
+  // id使用はnextの同一pathname間ではstateが初期化されないから、nodeからの遷移時に困るため
   useEffect(() => {
-    dispatch(setPersonMovies(movies));
-  }, [dispatch, movies]);
-
-  useEffect(() => {
-    dispatch(loadNetwork(network));
-  }, [dispatch, network]);
-
-  useEffect(() => {
-    dispatch(loadYears(years));
-  }, [dispatch, years]);
+    setTimeout(() => {
+      setPersonId(person.id);
+    }, 1000);
+  }, [person.id]);
 
   return (
-    <Container maxWidth="xl" sx={{ my: 3 }}>
+    <Box sx={{ mb: "200px" }}>
+      {filteredMoviesSortedByFilter.length > 0 && (
+        <ML filteredMoviesSortedByFilter={filteredMoviesSortedByFilter} />
+      )}
       <Grid container spacing={2}>
         <Grid item container spacing={2}>
           <Grid
@@ -373,359 +311,154 @@ const Person = ({
                 {person.name}
               </Typography>
             </Box>
-            <Box sx={{ my: 2, mx: 1 }}>
-              <GenreSection
-                name={person.name}
-                personRelatedGenres={personRelatedGenres}
-                handleGenreItemClick={handleGenreItemClick}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: { xs: "center", sm: "flex-start" },
+                m: 1,
+              }}
+            >
+              <FilmarksButton
+                href={generateFilmarksPersonUrl(person.filmarksId)}
               />
+            </Box>
+            <Box sx={{ my: 1 }}>
+              <GenreSection name={person.name} relatedGenres={relatedGenres} />
             </Box>
           </Grid>
         </Grid>
 
         <Grid item xs={12}>
-          <MovieHistorySection
-            barData={barData}
-            barKeys={barKeys}
-            handleBarClick={handleBarClick}
-            selectedYears={selectedYears}
-          />
+          <BarSection relatedMovies={relatedMovies} occupations={occupations} />
         </Grid>
 
         <Grid item xs={12}>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Typography sx={{ p: 1 }}>
-              {person.name}
-              と共演したことのある出演者を選択して、映画を絞り込みましょう。
-            </Typography>
-            <HelpPopover
-              text={`この可視化は${person.name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${person.name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}
-            />
-          </Box>
-
-          <Paper
-            component="form"
-            sx={{
-              p: "2px 4px",
-              my: 1,
-              display: "flex",
-              alignItems: "center",
-              width: { xs: "100%", sm: "50%" },
-            }}
-            onSubmit={handleSubmit((formData) => {
-              dispatch(setSearch(formData.networkSearch));
-            })}
-          >
-            <InputBase
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="ネットワーク内の人物名を検索"
-              {...register("networkSearch")}
-            />
-            <IconButton
-              type="button"
-              onClick={() => {
-                reset({ networkSearch: "" });
-                dispatch(clearSearch());
+          {personId === person.id ? (
+            <NetworkSection relatedMovies={relatedMovies} name={person.name} />
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                width: "100%",
               }}
-              sx={{ p: "10px" }}
             >
-              <ClearOutlined />
-            </IconButton>
-            <IconButton type="submit" sx={{ p: "10px" }}>
-              <SearchOutlined />
-            </IconButton>
-          </Paper>
-          <Box
-            sx={{
-              height: "50vh",
-              border: "1px solid black",
-            }}
-          >
-            <ResponsiveNetwork />
-          </Box>
+              <Typography>ネットワーク描画中</Typography>
+              <CircularProgress sx={{ m: 4 }} />
+            </Box>
+          )}
         </Grid>
 
-        <Grid item container spacing={1}>
-          {/* {movies
-            .map((movie) => {
-              const movieId = movie.id;
-              const filterResult = {
-                network: nodeFilteredMovieIds.includes(movieId),
-                year: yearFilteredMovieIds.includes(movieId),
-                genre: genreFilteredMovieIds.includes(movieId),
-              };
-
-              return { ...movie, filterResult };
-            })
-            .sort(
-              (a, b) =>
-                Object.values(b.filterResult).filter((item) => item).length -
-                Object.values(a.filterResult).filter((item) => item).length
-            )
-            .map((movie) => {
-              // ゴミ処理　映画の表示で重複する場合があるので応急処置
-              if (movieIds.includes(movie.id)) {
-                return null;
-              }
-
-              movieIds.push(movie.id);
-              return (
-                <Grid item xs={12} sm={6} md={4} xl={3} key={movie.id}>
-                  <MovieCard
-                    movieId={movie.id}
-                    title={movie.title}
-                    genres={movie.genres}
-                    productionYear={movie.productionYear}
-                    imgUrl={movie.imgUrl}
-                    filterResult={movie.filterResult}
-                    selectedGenreIds={selectedGenreIds}
-                    handleGenreClick={handleMovieCardGenreClick}
-                  />
-                </Grid>
-              );
-            })} */}
-
-          <MovieCardList
-            movies={movies}
-            nodeFilteredMovieIds={nodeFilteredMovieIds}
-            yearFilteredMovieIds={yearFilteredMovieIds}
-            genreFilteredMovieIds={genreFilteredMovieIds}
-            selectedGenreIds={selectedGenreIds}
-            handleMovieCardGenreClick={handleMovieCardGenreClick}
-          />
+        {/* movie list */}
+        <Grid item container spacing={2}>
+          {moviesSortedByFilter.map((movie) => {
+            return (
+              <Grid key={movie.id} item xs={12} sm={6} md={4} xl={3}>
+                <MovieCard
+                  movieId={movie.id}
+                  title={movie.title}
+                  genres={movie.genres}
+                  productionYear={movie.productionYear}
+                  imgUrl={movie.imgUrl}
+                  filterResult={movie.filterResult}
+                  selectedGenreIds={selectedGenreIds}
+                  occupationNames={movie.occupationNames}
+                />
+              </Grid>
+            );
+          })}
         </Grid>
       </Grid>
-    </Container>
+    </Box>
   );
 };
 
 export const getServerSideProps = async (ctx) => {
   const actorOccupationName = "出演者";
+  const pId = ctx.query.personId;
 
-  const personId = ctx.query.personId;
   const person = await prisma.person.findFirst({
     where: {
-      id: personId,
+      id: pId,
     },
     select: {
-      relatedMovies: {
+      id: true,
+      filmarksId: true,
+      name: true,
+    },
+  });
+
+  const relatedMovies = await prisma.movieOnProductionMember.findMany({
+    where: {
+      personId: pId,
+    },
+    select: {
+      occupation: {
         select: {
-          occupation: {
+          name: true,
+        },
+      },
+      movie: {
+        select: {
+          id: true,
+          title: true,
+          imgUrl: true,
+          productionYear: true,
+          genres: true,
+          productionMembers: {
             select: {
-              name: true,
-            },
-          },
-          movie: {
-            select: {
-              id: true,
-              imgUrl: true,
-              title: true,
-              genres: true,
-              productionYear: true,
-              // ここから
-              // productionMembersは出演者のみ
-              productionMembers: {
+              person: {
                 select: {
-                  person: {
-                    select: {
-                      id: true,
-                      name: true,
-                      relatedMovies: {
-                        where: {
-                          occupation: {
-                            name: {
-                              equals: actorOccupationName,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                  occupation: {
-                    select: {
-                      name: true,
-                      id: true,
-                    },
-                  },
-                },
-                where: {
-                  AND: [
-                    {
+                  id: true,
+                  name: true,
+                  relatedMovies: {
+                    where: {
                       occupation: {
-                        is: {
-                          name: actorOccupationName,
+                        name: {
+                          equals: actorOccupationName,
                         },
                       },
                     },
-                    {
-                      personId: {
-                        not: personId,
-                      },
-                    },
-                  ],
-                },
-                orderBy: {
-                  personId: "desc",
+                  },
                 },
               },
-              // ここまでは返す必要のない大きなデータなので、返すためのpersonとは別で取るか、返す前に消すかした方がいいかもしれない
+            },
+            where: {
+              AND: [
+                {
+                  occupation: {
+                    name: {
+                      equals: actorOccupationName,
+                    },
+                  },
+                },
+                {
+                  personId: {
+                    not: pId,
+                  },
+                },
+              ],
+            },
+            orderBy: {
+              personId: "desc",
             },
           },
         },
       },
-      name: true,
     },
   });
 
-  // ここからbar
-  const y = person.relatedMovies.map((item) => {
-    return item.movie.productionYear;
-  });
+  const relatedMovieIds = relatedMovies.map((rm) => rm.movie.id);
 
-  const yearMax = Math.max(...y);
-  const yearMin = Math.min(...y);
-
-  const years = [];
-  for (let year = yearMin; year <= yearMax; ++year) {
-    years.push(year);
-  }
-  const occupationSet = new Set();
-  const yo = {};
-  for (const year of years) {
-    yo[year] = [];
-  }
-  for (const relatedMovie of person.relatedMovies) {
-    occupationSet.add(relatedMovie.occupation.name);
-    yo[relatedMovie.movie.productionYear].push(relatedMovie.occupation.name);
-  }
-  const relatedOccupations = Array.from(occupationSet);
-
-  const barData = years.map((year) => {
-    const d = { year };
-    for (const occupation of relatedOccupations) {
-      d[occupation] = yo[year].filter((o) => o === occupation).length;
-    }
-    return d;
-  });
-
-  const personImgUrl = await fetchTmdbPersonImg(person.name);
-
-  const occupations = await prisma.occupation.findMany({
-    select: {
-      name: true,
-    },
-    orderBy: {
-      movies: {
-        _count: "desc",
-      },
-    },
-  });
-  const barKeys = occupations.map((item) => item.name);
-
-  // ここからnetwork
-  const sourceTarget = {};
-  person.relatedMovies.forEach((rm) => {
-    // 出演者として関わった映画のみ共演した出演者を取り出すので
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
-    rm.movie.productionMembers.forEach((spm, index) => {
-      const sourceId = spm.person.id;
-      if (sourceId in sourceTarget === false) {
-        // countWithMainは中心となる俳優との共演回数
-        sourceTarget[sourceId] = { countWithMain: 0 };
-      }
-      ++sourceTarget[sourceId].countWithMain;
-
-      rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
-        const targetId = tpm.person.id;
-        // この値は俳優同士の共演回数
-        sourceTarget[sourceId][targetId] =
-          (sourceTarget[sourceId][targetId] || 0) + 1;
-      });
-    });
-  });
-
-  const links = [];
-  // for (const sourceId in sourceTarget) {
-  //   if (sourceId === "countWithMain") {
-  //     continue;
-  //   }
-  //   for (const targetId in sourceTarget[sourceId]) {
-  //     if (targetId === "countWithMain") {
-  //       continue;
-  //     }
-  //     links.push({
-  //       source: sourceId,
-  //       target: targetId,
-  //       weight: sourceTarget[sourceId][targetId],
-  //       d: 10,
-  //     });
-  //   }
-  // }
-
-  Object.keys(sourceTarget).forEach((sourceId, index) => {
-    for (const targetId in sourceTarget[sourceId]) {
-      if (targetId !== "countWithMain") {
-        links.push({
-          source: sourceId,
-          target: targetId,
-          weight: sourceTarget[sourceId][targetId],
-          d: 10,
-        });
-      }
-    }
-  });
-
-  const nodeBase = {};
-  person.relatedMovies.forEach((rm) => {
-    // 出演者として関わった映画のみ共演した出演者を取り出すので
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
+  relatedMovies.forEach((rm) => {
     rm.movie.productionMembers.forEach((pm) => {
-      nodeBase[pm.person.id] = {
-        ...pm.person,
-        id: pm.person.id,
-        name: pm.person.name,
-        count: sourceTarget[pm.person.id].countWithMain,
-        relatedMoviesCount: pm.person.relatedMovies.length,
-      };
+      pm.person["relatedMoviesCount"] = pm.person.relatedMovies.length;
+
+      // ゴミ処理　delete
+      delete pm.person.relatedMovies;
     });
   });
-  const nodes = Object.values(nodeBase);
-
-  const counts = nodes.map((node) => node.count);
-  const countMax = Math.max(...counts);
-  // const countMin = Math.min(...counts);
-  const countMin = 0;
-
-  const relatedMoviesCounts = nodes.map((node) => node.relatedMoviesCount);
-  const relatedMoviesCountMax = Math.max(...relatedMoviesCounts);
-  const relatedMoviesCountMin = 0;
-
-  for (const node of nodes) {
-    const normalizedCount =
-      countMax !== countMin
-        ? (node.count - countMin) / (countMax - countMin)
-        : 0.5;
-    const normalizedRelatedMoviesCount =
-      relatedMoviesCountMax !== relatedMoviesCountMin
-        ? (node.relatedMoviesCount - relatedMoviesCountMin) /
-          (relatedMoviesCountMax - relatedMoviesCountMin)
-        : 0.5;
-    node["normalizedCount"] = normalizedCount;
-    node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
-    // node["r"] = (normalizedCount + 0.1) * 600;
-    node["r"] = normalizedCount * 200;
-
-    // ゴミ処理　これ初めてやったので良し悪しがわからん
-    delete node.relatedMovies;
-  }
-
-  const network = { nodes, links };
-
-  const relatedMovieIds = person.relatedMovies.map((rm) => rm.movie.id);
 
   const relatedGenres = await prisma.genre.findMany({
     where: {
@@ -738,22 +471,27 @@ export const getServerSideProps = async (ctx) => {
       },
     },
   });
-  const relatedGenreIds = relatedGenres.map((rg) => rg.id);
 
-  const allGenres = await prisma.genre.findMany({});
-  for (const genre of allGenres) {
-    genre["isPersonRelated"] = relatedGenreIds.includes(genre.id);
-  }
+  const occupations = await prisma.occupation.findMany({
+    select: {
+      name: true,
+    },
+    orderBy: {
+      movies: {
+        _count: "desc",
+      },
+    },
+  });
+
+  const personImgUrl = await fetchTmdbPersonImg(person.name);
 
   return {
     props: forceSerialize({
       person,
-      barData,
-      barKeys,
+      relatedMovies,
+      relatedGenres,
+      occupations,
       personImgUrl,
-      network,
-      genres: allGenres,
-      years,
     }),
   };
 };

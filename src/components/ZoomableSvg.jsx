@@ -1,7 +1,12 @@
 import * as d3 from "d3";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
-export const ZoomableSVG = ({ width, height, children, ...svgRest }) => {
+export const ZoomableSVG = memo(function ZoomableSVG({
+  width,
+  height,
+  children,
+  ...svgRest
+}) {
   const svgRef = useRef();
   const [k, setK] = useState(1);
   const [x, setX] = useState(0);
@@ -28,4 +33,4 @@ export const ZoomableSVG = ({ width, height, children, ...svgRest }) => {
       <g transform={`translate(${x},${y})scale(${k})`}>{children}</g>
     </svg>
   );
-};
+});

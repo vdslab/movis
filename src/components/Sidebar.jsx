@@ -278,7 +278,7 @@ const XsSearchDrawerBody = memo(function XsSearchDrawerBody({
 
 const LgDrawerBody = memo(function LgDrawerBody() {
   return (
-    <Box>
+    <Box sx={{ mb: "88px" }}>
       <Box sx={{ m: 2 }}>
         <SearchForm />
       </Box>

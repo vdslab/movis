@@ -22,7 +22,7 @@ const ContentRoot = styled(Box)(({ theme }) => ({
   },
 }));
 
-export const Layout = ({ children }) => {
+export const Layout = memo(function Layout({ children }) {
   const dispatch = useDispatch();
 
   const isSearchOpen = useSelector(selectIsSearchOpen);
@@ -67,4 +67,4 @@ export const Layout = ({ children }) => {
       </ContentRoot>
     </>
   );
-};
+});

@@ -61,7 +61,10 @@ export const Navbar = memo(function Navbar({}) {
         }}
       >
         <Logo />
-        <Button variant="contained" onClick={() => alert("hello")}>
+        <Button
+          variant="contained"
+          onClick={() => dispatch(toggleSearchOpen())}
+        >
           hello
         </Button>
         <Box>

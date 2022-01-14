@@ -12,6 +12,7 @@ const GenreListItem = memo(function GenreListItem({
   name,
   color,
   onClickGenre,
+  variant,
 }) {
   return (
     <Chip
@@ -19,13 +20,19 @@ const GenreListItem = memo(function GenreListItem({
       color={color}
       sx={{ m: 0.5 }}
       onClick={() => {
-        onClickGenre(id);
+        if (variant === "filled") {
+          onClickGenre(id);
+        }
       }}
+      variant={variant}
     />
   );
 });
 
-export const GenreList = memo(function GenreList({ relatedGenres }) {
+export const GenreList = memo(function GenreList({
+  relatedGenres,
+  chipVariant = "filled",
+}) {
   const dispatch = useDispatch();
   const selectedGenreIds = useSelector(selectSelectedGenreIds);
 
@@ -49,6 +56,7 @@ export const GenreList = memo(function GenreList({ relatedGenres }) {
             name={genre.name}
             color={color}
             onClickGenre={handleClickGenre}
+            variant={chipVariant}
           />
         );
       })}

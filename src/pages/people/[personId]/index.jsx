@@ -6,7 +6,7 @@ import {
   Paper,
   Typography,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { FilmarksButton } from "@/components/FilmarksButton";
@@ -36,7 +36,7 @@ import {
   generateFilmarksPersonUrl,
 } from "@/util";
 
-const ML = function ML({ filteredMoviesSortedByFilter }) {
+const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
   const filterColor = {
     出演者: "error",
     製作年度: "warning",
@@ -118,15 +118,15 @@ const ML = function ML({ filteredMoviesSortedByFilter }) {
       </Box>
     </Paper>
   );
-};
+});
 
-const Person = ({
+const Person = memo(function Person({
   person,
   relatedMovies,
   relatedGenres,
   occupations,
   personImgUrl,
-}) => {
+}) {
   const dispatch = useDispatch();
   const [personId, setPersonId] = useState(null);
 
@@ -242,18 +242,6 @@ const Person = ({
     [relatedMovies]
   );
 
-  const years = useMemo(() => {
-    const yearMax = Math.max(...relatedYears);
-    const yearMin = Math.min(...relatedYears);
-
-    const filledYears = [];
-    for (let y = yearMin; y <= yearMax; ++y) {
-      filledYears.push(y);
-    }
-
-    return filledYears;
-  }, [relatedYears]);
-
   // reset
   useEffect(() => {
     dispatch(setRelatedGenre(relatedGenres));
@@ -365,7 +353,6 @@ const Person = ({
         {/* movie list */}
         <Grid item container spacing={2}>
           {moviesSortedByFilter.map((movie) => {
-            const handleGenreClick = null;
             return (
               <Grid key={movie.id} item xs={12} sm={6} md={4} xl={3}>
                 <MovieCard
@@ -376,7 +363,6 @@ const Person = ({
                   imgUrl={movie.imgUrl}
                   filterResult={movie.filterResult}
                   selectedGenreIds={selectedGenreIds}
-                  handleGenreClick={handleGenreClick}
                   occupationNames={movie.occupationNames}
                 />
               </Grid>
@@ -386,7 +372,7 @@ const Person = ({
       </Grid>
     </Box>
   );
-};
+});
 
 export const getServerSideProps = async (ctx) => {
   const actorOccupationName = "出演者";

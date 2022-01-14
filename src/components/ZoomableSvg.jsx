@@ -11,7 +11,6 @@ export const ZoomableSVG = memo(function ZoomableSVG({
   const [k, setK] = useState(1);
   const [x, setX] = useState(0);
   const [y, setY] = useState(0);
-  const initializeRef = useRef(false);
 
   useEffect(() => {
     const zoom = d3.zoom().on("zoom", (event) => {
@@ -22,17 +21,6 @@ export const ZoomableSVG = memo(function ZoomableSVG({
     });
     d3.select(svgRef.current).call(zoom);
   }, []);
-
-  useEffect(() => {
-    if (width === 0 && height === 0) {
-      return;
-    }
-    if (!initializeRef.current) {
-      setX(width / 2);
-      setY(height / 2);
-      initializeRef.current = true;
-    }
-  }, [width, height]);
 
   return (
     <svg

@@ -27,6 +27,10 @@ import {
   toggleSelectedYear,
   selectedNodeSelectors,
   toggleSelectedNode,
+  toggleSearchOpen,
+  toggleSelectionOpen,
+  selectIsSearchOpen,
+  selectIsSelectionOpen,
 } from "@/modules/features/app/slice";
 
 const NodeItem = memo(function NodeItem({ node, onDeleteClick, onInfoClick }) {
@@ -180,20 +184,7 @@ const SelectedYearSection = () => {
   );
 };
 
-const GenreItem = memo(function GenreItem({ onClick, genre, isSelected }) {
-  return (
-    <Chip
-      key={genre.id}
-      label={genre.name}
-      color={isSelected ? "success" : void 0}
-      onClick={() => onClick(genre.id)}
-      sx={{ m: 0.5 }}
-    />
-  );
-});
-
 const RelatedGenreSection = () => {
-  const dispatch = useDispatch();
   const relatedGenres = useSelector(relatedGenreSelectors.selectAll);
 
   return (
@@ -222,7 +213,7 @@ const RelatedGenreSection = () => {
   );
 };
 
-const MobileSelectionDrawerBody = memo(function MobileSelectionDrawerBody({
+const XsSelectionDrawerBody = memo(function XsSelectionDrawerBody({
   handleToggleSelectionOpen,
 }) {
   return (
@@ -255,7 +246,7 @@ const MobileSelectionDrawerBody = memo(function MobileSelectionDrawerBody({
   );
 });
 
-const MobileSearchDrawerBody = memo(function MobileSearchDrawerBody({
+const XsSearchDrawerBody = memo(function XsSearchDrawerBody({
   handleToggleSearchOpen,
 }) {
   return (
@@ -285,11 +276,11 @@ const MobileSearchDrawerBody = memo(function MobileSearchDrawerBody({
   );
 });
 
-const LgDrawerBody = memo(function LgDrawerBody({ handleToggleSearchOpen }) {
+const LgDrawerBody = memo(function LgDrawerBody() {
   return (
     <Box>
       <Box sx={{ m: 2 }}>
-        <SearchForm toggleOpen={handleToggleSearchOpen} />
+        <SearchForm />
       </Box>
       <Box>
         <SelectedNodeSection />
@@ -300,40 +291,41 @@ const LgDrawerBody = memo(function LgDrawerBody({ handleToggleSearchOpen }) {
   );
 });
 
-const DrawerBody = memo(function DrawerBody({
-  matchUpLg,
-  isSearchOpen,
-  isSelectionOpen,
-  handleToggleSearchOpen,
-  handleToggleSelectionOpen,
-}) {
-  if (matchUpLg) {
-    return <LgDrawerBody handleToggleSearchOpen={handleToggleSearchOpen} />;
-  } else {
-    if (isSearchOpen) {
-      return (
-        <MobileSearchDrawerBody
-          handleToggleSearchOpen={handleToggleSearchOpen}
-        />
-      );
-    } else if (isSelectionOpen) {
-      return (
-        <MobileSelectionDrawerBody
+const XsDrawerBody = memo(function XsDrawerBody({}) {
+  const dispatch = useDispatch();
+  const isSearchOpen = useSelector(selectIsSearchOpen);
+  const isSelectionOpen = useSelector(selectIsSelectionOpen);
+
+  const handleToggleSearchOpen = useCallback(() => {
+    dispatch(toggleSearchOpen());
+  }, [dispatch]);
+
+  const handleToggleSelectionOpen = useCallback(() => {
+    dispatch(toggleSelectionOpen());
+  }, [dispatch]);
+
+  return (
+    <Box>
+      <Box sx={{ display: isSearchOpen ? "block" : "none" }}>
+        <XsSearchDrawerBody handleToggleSearchOpen={handleToggleSearchOpen} />
+      </Box>
+
+      <Box sx={{ display: isSelectionOpen ? "block" : "none" }}>
+        <XsSelectionDrawerBody
           handleToggleSelectionOpen={handleToggleSelectionOpen}
         />
-      );
-    }
-  }
-  return null;
+      </Box>
+    </Box>
+  );
 });
 
-export const Sidebar = memo(function Sidebar({
-  handleToggleSearchOpen,
-  handleToggleSelectionOpen,
-  isSearchOpen,
-  isSelectionOpen,
-  window,
-}) {
+const DrawerBody = memo(function DrawerBody({ matchUpLg }) {
+  return matchUpLg ? <LgDrawerBody /> : <XsDrawerBody />;
+});
+
+export const Sidebar = memo(function Sidebar({ window }) {
+  const isSearchOpen = useSelector(selectIsSearchOpen);
+  const isSelectionOpen = useSelector(selectIsSelectionOpen);
   const theme = useTheme();
   const matchUpLg = useMediaQuery(theme.breakpoints.up("lg"));
 
@@ -367,13 +359,7 @@ export const Sidebar = memo(function Sidebar({
         ModalProps={{ keepMounted: true }}
         color="inherit"
       >
-        <DrawerBody
-          handleToggleSearchOpen={handleToggleSearchOpen}
-          handleToggleSelectionOpen={handleToggleSelectionOpen}
-          isSearchOpen={isSearchOpen}
-          isSelectionOpen={isSelectionOpen}
-          matchUpLg={matchUpLg}
-        />
+        <DrawerBody matchUpLg={matchUpLg} />
       </Drawer>
     </Box>
   );

@@ -68,46 +68,61 @@ const People = ({ keyword, people, movieHitCount, personHitCount, page }) => {
         </Button>
       </Box>
       {/* person list */}
-      <List sx={{ width: "100%" }}>
-        {people.map((person, index) => {
-          return (
-            <Link
-              href={`/people/${person.id}`}
-              to={`/people/${person.id}`}
-              sx={{ textDecoration: "none", color: "currentcolor" }}
-              key={person.id}
-            >
-              <ListItemButton alignItems="center">
-                <ListItemAvatar>
-                  <Avatar
-                    variant="square"
-                    alt={person.name}
-                    src={person2imgUrl[person.id]}
-                  />
-                </ListItemAvatar>
-                <ListItemText primary={person.name} />
-              </ListItemButton>
-              {index + 1 < people.length ? (
-                <Divider variant="inset" component="li" />
-              ) : null}
-            </Link>
-          );
-        })}
-      </List>
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Pagination
-          count={paginationCount}
-          onChange={(e, targetPage) => {
-            if (page === targetPage) {
-              return;
-            }
-            router.push(
-              `/people?keyword=${encodedKeyword}&movieHitCount=${movieHitCount}&personHitCount=${personHitCount}&page=${targetPage}`
+      {people.length > 0 ? (
+        <List sx={{ width: "100%" }}>
+          {people.map((person, index) => {
+            return (
+              <Link
+                href={`/people/${person.id}`}
+                to={`/people/${person.id}`}
+                sx={{ textDecoration: "none", color: "currentcolor" }}
+                key={person.id}
+              >
+                <ListItemButton alignItems="center">
+                  <ListItemAvatar>
+                    <Avatar
+                      variant="square"
+                      alt={person.name}
+                      src={person2imgUrl[person.id]}
+                    />
+                  </ListItemAvatar>
+                  <ListItemText primary={person.name} />
+                </ListItemButton>
+                {index + 1 < people.length ? (
+                  <Divider variant="inset" component="li" />
+                ) : null}
+              </Link>
             );
+          })}
+        </List>
+      ) : (
+        <Box
+          sx={{
+            height: "30vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          page={page}
-        />
-      </Box>
+        >
+          <Typography>十分に一致する人物が見つかりません</Typography>
+        </Box>
+      )}
+      {people.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={paginationCount}
+            onChange={(e, targetPage) => {
+              if (page === targetPage) {
+                return;
+              }
+              router.push(
+                `/people?keyword=${encodedKeyword}&movieHitCount=${movieHitCount}&personHitCount=${personHitCount}&page=${targetPage}`
+              );
+            }}
+            page={page}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

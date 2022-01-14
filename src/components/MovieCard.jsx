@@ -80,7 +80,7 @@ export const MovieCard = memo(function MovieCard({
           </Typography>
           {occupationNames?.length > 0 && (
             <Typography variant="subtitle2">
-              役割 {occupationNames.join("/")}
+              役割：{occupationNames.join("/")}
             </Typography>
           )}
           <Box>

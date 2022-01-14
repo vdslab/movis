@@ -71,13 +71,16 @@ export const useNetwork = (relatedMovies, width, height) => {
           .strength(0.07)
       );
 
+    const start = new Date();
     const copiedNetwork = JSON.parse(JSON.stringify(initialNetwork));
     d3simulation.nodes(copiedNetwork.nodes);
     d3simulation.force("link").links(copiedNetwork.links);
-    d3simulation.tick(500).stop();
+    d3simulation.tick(100).stop();
+    const end = new Date();
 
+    console.log("network calculation", end - start);
     setNetwork(copiedNetwork);
-  }, [network.nodes, network.links, initialNetwork]);
+  }, [network.nodes, network.links, initialNetwork, width, height]);
 
   return { network, highlightedNodeIds };
 };

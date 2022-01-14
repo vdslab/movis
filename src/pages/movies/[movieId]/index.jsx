@@ -254,9 +254,9 @@ export const getServerSideProps = async (ctx) => {
     },
   });
 
-  for (const pm of movie.productionMembers) {
-    pm.person["imgUrl"] = await fetchTmdbPersonImg(pm.person.name);
-  }
+  // for (const pm of movie.productionMembers) {
+  //   pm.person["imgUrl"] = await fetchTmdbPersonImg(pm.person.name);
+  // }
 
   const outline = movie.outline
     ? `${movie.outline.slice(0, Math.floor(movie.outline.length * 0.4))}...`

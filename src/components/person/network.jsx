@@ -36,7 +36,7 @@ const Form = memo(function Form() {
         my: 1,
         display: "flex",
         alignItems: "center",
-        width: { xs: "100%", sm: "50%" },
+        width: { xs: "100%", sm: "60%" },
       }}
       onSubmit={handleSubmit((formData) => {
         dispatch(setKeyword(formData.keyword));
@@ -252,7 +252,7 @@ const NetworkLabels = memo(function NetworkLabels({ nodes }) {
   const keyword = useSelector(selectKeyword);
 
   const labelColorMap = {
-    normal: "#00C853",
+    normal: "#a7ff83",
     keywordIncluded: "#FFA000",
   };
 
@@ -291,8 +291,9 @@ const NetworkBody = memo(function NetworkBody({
   );
   const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
 
+  console.log(network);
   return (
-    <g>
+    <g transform="scale(0.1)">
       <NetworkLinks
         links={network.links}
         selectedNodeIds={selectedNodeIds}

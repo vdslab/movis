@@ -1,5 +1,5 @@
 import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
-import { AppBar, Box, IconButton, Toolbar, Tooltip } from "@mui/material";
+import { AppBar, Box, IconButton, Toolbar } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
@@ -16,17 +16,15 @@ const NavbarRoot = styled(AppBar)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-const SelectionTooltip = memo(function SelectionTooltip({
+const SelectionIconButton = memo(function SelectionIconButton({
   handleToggleSelectionOpen,
 }) {
   const router = useRouter();
 
   return router.pathname === "/people/[personId]" ? (
-    <Tooltip title="フィルター" sx={{ display: { lg: "none" } }}>
-      <IconButton onClick={handleToggleSelectionOpen}>
-        <FilterAltOutlined />
-      </IconButton>
-    </Tooltip>
+    <IconButton onClick={handleToggleSelectionOpen} disableRipple>
+      <FilterAltOutlined />
+    </IconButton>
   ) : null;
 });
 
@@ -55,29 +53,12 @@ export const Navbar = memo(function Navbar({}) {
       >
         <Logo />
         <Box>
-          <SelectionTooltip
+          <SelectionIconButton
             handleToggleSelectionOpen={handleToggleSelectionOpen}
           />
-          <Tooltip title="検索" sx={{ display: { lg: "none" } }}>
-            <IconButton onClick={handleToggleSearchOpen} disableRipple>
-              <SearchOutlined />
-            </IconButton>
-          </Tooltip>
-          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
-          <IconButton onClick={handleToggleSearchOpen}>
-            <SearchOutlined />
-          </IconButton>
-          {/* </Tooltip> */}
-          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
           <IconButton onClick={handleToggleSearchOpen} disableRipple>
             <SearchOutlined />
           </IconButton>
-          {/* </Tooltip> */}
-          {/* <Tooltip title="検索" sx={{ display: { lg: "none" } }}> */}
-          <IconButton onClick={handleToggleSearchOpen} disableFocusRipple>
-            <SearchOutlined />
-          </IconButton>
-          {/* </Tooltip> */}
         </Box>
       </Toolbar>
     </NavbarRoot>

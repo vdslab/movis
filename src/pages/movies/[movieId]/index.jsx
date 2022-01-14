@@ -22,7 +22,7 @@ import {
   generateFilmarksMovieUrl,
 } from "@/util";
 
-const Movie = ({ movie, outline }) => {
+const Movie = ({ movie }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
 
   // ゴミ処理　複数職業の人をまとめるため
@@ -258,12 +258,8 @@ export const getServerSideProps = async (ctx) => {
   //   pm.person["imgUrl"] = await fetchTmdbPersonImg(pm.person.name);
   // }
 
-  const outline = movie.outline
-    ? `${movie.outline.slice(0, Math.floor(movie.outline.length * 0.4))}...`
-    : void 0;
-
   return {
-    props: forceSerialize({ movie, outline }),
+    props: forceSerialize({ movie }),
   };
 };
 

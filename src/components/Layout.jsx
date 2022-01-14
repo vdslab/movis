@@ -1,14 +1,9 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { memo, useCallback } from "react";
-import { useDispatch } from "react-redux";
+import { memo } from "react";
 
 import { Navbar } from "@/components/Navbar";
 import { Sidebar } from "@/components/Sidebar";
-import {
-  toggleSearchOpen,
-  toggleSelectionOpen,
-} from "@/modules/features/app/slice";
 
 const ContentRoot = styled(Box)(({ theme }) => ({
   display: "flex",
@@ -21,22 +16,9 @@ const ContentRoot = styled(Box)(({ theme }) => ({
 }));
 
 export const Layout = memo(function Layout({ children }) {
-  const dispatch = useDispatch();
-
-  const handleToggleSearchOpen = useCallback(() => {
-    dispatch(toggleSearchOpen());
-  }, [dispatch]);
-
-  const handleToggleSelectionOpen = useCallback(() => {
-    dispatch(toggleSelectionOpen());
-  }, [dispatch]);
-
   return (
     <>
-      <Navbar
-        handleToggleSearchOpen={handleToggleSearchOpen}
-        handleToggleSelectionOpen={handleToggleSelectionOpen}
-      />
+      <Navbar />
       <Sidebar />
       <ContentRoot>
         <Box

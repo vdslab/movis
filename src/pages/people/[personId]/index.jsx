@@ -120,13 +120,13 @@ const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
   );
 });
 
-const Person = memo(function Person({
+const Person = ({
   person,
   relatedMovies,
   relatedGenres,
   occupations,
   personImgUrl,
-}) {
+}) => {
   const dispatch = useDispatch();
   const [personId, setPersonId] = useState(null);
 
@@ -372,7 +372,7 @@ const Person = memo(function Person({
       </Grid>
     </Box>
   );
-});
+};
 
 export const getServerSideProps = async (ctx) => {
   const actorOccupationName = "出演者";

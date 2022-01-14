@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Navbar } from "@/components/Navbar";

@@ -16,14 +16,23 @@ const GenreListItem = memo(function GenreListItem({
 }) {
   return (
     <Chip
-      label={name}
+      label={
+        name.includes("・") &&
+        name !== "アート・コンテンポラリー" &&
+        variant !== "filled"
+          ? name.split("・")[1]
+          : name
+      }
+      size={variant === "filled" ? "medium" : "small"}
       color={color}
       sx={{ m: 0.5 }}
-      onClick={() => {
-        if (variant === "filled") {
-          onClickGenre(id);
-        }
-      }}
+      onClick={
+        variant === "filled"
+          ? () => {
+              onClickGenre(id);
+            }
+          : void 0
+      }
       variant={variant}
     />
   );

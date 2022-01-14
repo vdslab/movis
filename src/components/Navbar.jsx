@@ -1,5 +1,12 @@
 import { FilterAltOutlined, SearchOutlined } from "@mui/icons-material";
-import { AppBar, Box, IconButton, Toolbar, Tooltip } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Tooltip,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useRouter } from "next/router";
 import { memo, useCallback } from "react";
@@ -54,6 +61,9 @@ export const Navbar = memo(function Navbar({}) {
         }}
       >
         <Logo />
+        <Button variant="contained" onClick={() => alert("hello")}>
+          hello
+        </Button>
         <Box>
           <SelectionTooltip
             handleToggleSelectionOpen={handleToggleSelectionOpen}

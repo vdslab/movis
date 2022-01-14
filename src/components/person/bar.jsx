@@ -49,7 +49,7 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
   const selectedYears = useSelector(selectSelectedYears);
 
   const tickTextColorMap = {
-    normal: "#424242",
+    neutral: "#424242",
     selected: "#FFB020",
   };
 
@@ -108,7 +108,7 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
           const x = tick.x;
           const y = tick.y;
           const isSelected = selectedYears.includes(year);
-          const status = isSelected ? "selected" : "normal";
+          const status = isSelected ? "selected" : "neutral";
           const textColor = tickTextColorMap[status];
 
           return (

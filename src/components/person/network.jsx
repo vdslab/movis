@@ -94,13 +94,13 @@ const NetworkLinks = memo(function NetworkLinks({
   const strokeWidthMap = {
     selected: 10,
     highlighted: 5,
-    normal: 1,
+    neutral: 1,
   };
 
   const strokeColorMap = {
-    selected: "#FFFF00",
-    highlighted: "#F06292",
-    normal: "#dedede",
+    selected: "#ffff00",
+    highlighted: "#f06292",
+    neutral: "#dedede",
   };
 
   return (
@@ -122,7 +122,7 @@ const NetworkLinks = memo(function NetworkLinks({
           ? "selected"
           : isHighlighted
           ? "highlighted"
-          : "normal";
+          : "neutral";
 
         return (
           <NetworkLink
@@ -181,13 +181,13 @@ const NetworkNodes = memo(function NetworkNodes({
   const strokeWidthMap = {
     selected: 10,
     highlighted: 5,
-    normal: 0,
+    neutral: 0,
   };
 
   const strokeColorMap = {
-    selected: "#FFFF00",
-    highlighted: "#F06292",
-    normal: void 0,
+    selected: "#ffff00",
+    highlighted: "#f06292",
+    neutral: void 0,
   };
 
   const handleNodeClick = useCallback(
@@ -216,7 +216,7 @@ const NetworkNodes = memo(function NetworkNodes({
           ? "selected"
           : isHighlighted
           ? "highlighted"
-          : "normal";
+          : "neutral";
 
         return (
           <NetworkNode
@@ -248,20 +248,39 @@ const NetworkLabel = memo(function NetworkLabel({ name, x, y, textColor }) {
   );
 });
 
-const NetworkLabels = memo(function NetworkLabels({ nodes }) {
+const NetworkLabels = memo(function NetworkLabels({
+  nodes,
+  selectedNodeIds,
+  highlightedNodeIds,
+}) {
   const keyword = useSelector(selectKeyword);
 
   const labelColorMap = {
-    normal: "#a7ff83",
-    keywordIncluded: "#FFA000",
+    neutral: "#a7ff83",
+    keywordIncluded: "#ffa000",
+    selected: "#ffff00",
+    highlighted: "#f06292",
+    inconspicuous: "#bdbdbd",
   };
 
   return (
     <g>
       {nodes.map((node) => {
+        const isSelectedOneNode = selectedNodeIds.length > 0;
+        const isSelected = selectedNodeIds.includes(node.id);
+        const isHighlighted =
+          selectedNodeIds.length !== 0 && highlightedNodeIds.includes(node.id);
         const isKeywordIncluded =
           keyword.length !== 0 && node.name.includes(keyword);
-        const status = isKeywordIncluded ? "keywordIncluded" : "normal";
+        const status = isKeywordIncluded
+          ? "keywordIncluded"
+          : isSelected
+          ? "selected"
+          : isHighlighted
+          ? "highlighted"
+          : isSelectedOneNode
+          ? "inconspicuous"
+          : "neutral";
 
         const textColor = labelColorMap[status];
 
@@ -300,7 +319,11 @@ const NetworkBody = memo(function NetworkBody({
         highlightedNodeIds={highlightedNodeIds}
       />
 
-      <NetworkLabels nodes={network.nodes} />
+      <NetworkLabels
+        nodes={network.nodes}
+        selectedNodeIds={selectedNodeIds}
+        highlightedNodeIds={highlightedNodeIds}
+      />
 
       <NetworkNodes
         nodes={network.nodes}

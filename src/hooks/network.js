@@ -54,7 +54,7 @@ export const useNetwork = (relatedMovies, width, height) => {
       .force(
         "charge",
         // d3.forceManyBody().strength((d) => (d.r / 2) * -50)
-        d3.forceManyBody().strength((d) => (d.r / 2) * -500)
+        d3.forceManyBody().strength((d) => (d.r / 2) * -1000)
       )
       .force(
         "x",

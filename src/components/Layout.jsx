@@ -29,10 +29,12 @@ export const Layout = memo(function Layout({ children }) {
   const isSelectionOpen = useSelector(selectIsSelectionOpen);
 
   const handleToggleSearchOpen = useCallback(() => {
+    alert("hello");
     dispatch(toggleSearchOpen());
   }, [dispatch]);
 
   const handleToggleSelectionOpen = useCallback(() => {
+    alert("hello");
     dispatch(toggleSelectionOpen());
   }, [dispatch]);
 

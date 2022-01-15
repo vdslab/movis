@@ -235,33 +235,9 @@ const Movie = ({ movie }) => {
   );
 };
 
-export const getServerSideProps = async (ctx) => {
-  const { query } = ctx;
-  const { movieId } = query;
-  const movie = await prisma.movie.findFirst({
-    where: {
-      id: movieId,
-    },
-    include: {
-      genres: true,
-      productionCountries: true,
-      productionMembers: {
-        include: {
-          person: true,
-          occupation: true,
-        },
-      },
-    },
-  });
-
-  return {
-    props: forceSerialize({ movie }),
-  };
-};
-
-// export const getStaticProps = async (ctx) => {
-//   const { params } = ctx;
-//   const { movieId } = params;
+// export const getServerSideProps = async (ctx) => {
+//   const { query } = ctx;
+//   const { movieId } = query;
 //   const movie = await prisma.movie.findFirst({
 //     where: {
 //       id: movieId,
@@ -280,15 +256,39 @@ export const getServerSideProps = async (ctx) => {
 
 //   return {
 //     props: forceSerialize({ movie }),
-//     revalidate: 10,
 //   };
 // };
 
-// export const getStaticPaths = async () => {
-//   return {
-//     paths: [],
-//     fallback: "blocking",
-//   };
-// };
+export const getStaticProps = async (ctx) => {
+  const { params } = ctx;
+  const { movieId } = params;
+  const movie = await prisma.movie.findFirst({
+    where: {
+      id: movieId,
+    },
+    include: {
+      genres: true,
+      productionCountries: true,
+      productionMembers: {
+        include: {
+          person: true,
+          occupation: true,
+        },
+      },
+    },
+  });
+
+  return {
+    props: forceSerialize({ movie }),
+    revalidate: 86400,
+  };
+};
+
+export const getStaticPaths = async () => {
+  return {
+    paths: [],
+    fallback: "blocking",
+  };
+};
 
 export default Movie;

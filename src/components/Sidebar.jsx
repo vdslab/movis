@@ -82,41 +82,39 @@ const SelectedNodeSection = ({ onClick }) => {
 
   return (
     <Box sx={{ m: 2 }}>
-      {selectedNodes.length > 0 && (
-        <Paper
-          component="div"
-          sx={{
-            p: 1,
-            width: "100%",
-          }}
-        >
-          <Typography sx={{ m: 1 }} component={"div"}>
-            選択された
-            <Chip
-              label="出演者"
-              color="error"
-              sx={{ m: 0.5, mb: 1 }}
-              size="small"
-            />
-          </Typography>
-          <List sx={{ width: "100%" }}>
-            {selectedNodes.map((node, index) => {
-              return (
-                <Box key={node.id}>
-                  <NodeItem
-                    node={node}
-                    onDeleteClick={handleToggleNode}
-                    onInfoClick={handleMoveDetails}
-                  />
-                  {index + 1 < selectedNodes.length ? (
-                    <Divider variant="fullWidth" component="li" />
-                  ) : null}
-                </Box>
-              );
-            })}
-          </List>
-        </Paper>
-      )}
+      <Paper
+        component="div"
+        sx={{
+          p: 1,
+          width: "100%",
+        }}
+      >
+        <Typography sx={{ m: 1 }} component={"div"}>
+          選択された
+          <Chip
+            label="出演者"
+            color="error"
+            sx={{ m: 0.5, mb: 1 }}
+            size="small"
+          />
+        </Typography>
+        <List sx={{ width: "100%" }}>
+          {selectedNodes.map((node, index) => {
+            return (
+              <Box key={node.id}>
+                <NodeItem
+                  node={node}
+                  onDeleteClick={handleToggleNode}
+                  onInfoClick={handleMoveDetails}
+                />
+                {index + 1 < selectedNodes.length ? (
+                  <Divider variant="fullWidth" component="li" />
+                ) : null}
+              </Box>
+            );
+          })}
+        </List>
+      </Paper>
     </Box>
   );
 };

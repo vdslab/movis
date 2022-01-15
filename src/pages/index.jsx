@@ -192,7 +192,7 @@ const ThirdStepContent = memo(function ThirdStepContent({
       <StepContent>
         <Typography>
           {countryName}の{genreName}
-          での活躍数が多い上位10人を確認
+          の映画に携わった回数上位10人を確認
         </Typography>
         {people.length > 0 ? (
           <Box>

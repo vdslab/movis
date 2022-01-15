@@ -366,6 +366,19 @@ export const NetworkSection = memo(function NetworkSection({
   name,
   relatedMovies,
 }) {
+  const hint = `この可視化は${name}が出演者として共演したことのある人物を円として表示しています。
+
+円の大きさは${name}との共演回数、円の内部の色はその出演者が今までに映画に出演した回数を表しています。
+
+また、${name}を含む共演者同士での共演関係がある場合に線が引かれています。
+
+円を選択して${name}が出演者として製作に携わった映画から、選択した出演者全員が共演している映画を絞り込みましょう。
+
+円を選択すると、選択された円は黄色に、選択された円と${name}を含んだ共演関係が存在する円はピンク色になります。
+同様に線にも色がつきます。
+
+円を1つ以上選択した後はピンク色の円のみを選択できます。`;
+
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -380,9 +393,7 @@ export const NetworkSection = memo(function NetworkSection({
           />
           を選択して、映画を絞り込みましょう。
         </Typography>
-        <HelpPopover
-          text={`この可視化は${name}が出演者として共演したことのある人物とその回数を円として表示しています。円の大きさは${name}との共演回数、円の色はその出演者が映画に出演したことのある回数を表しています。`}
-        />
+        <HelpPopover text={hint} />
       </Box>
       <Form />
 

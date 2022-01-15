@@ -336,7 +336,11 @@ const Person = ({
         </Grid>
 
         <Grid item xs={12}>
-          <BarSection relatedMovies={relatedMovies} occupations={occupations} />
+          <BarSection
+            relatedMovies={relatedMovies}
+            occupations={occupations}
+            name={person.name}
+          />
         </Grid>
 
         <Grid item xs={12}>

@@ -165,7 +165,13 @@ const ResponsiveBarChart = memo(function ResponsiveBarChart({
 export const BarSection = memo(function BarSection({
   occupations,
   relatedMovies,
+  name,
 }) {
+  const hint = `この棒グラフは製作年度ごとに、どんな役割で何回映画の製作に携わってきたのかを示したものです。
+
+棒の部分か下側の製作年度をクリックすることで、製作年度を選択できます。
+製作年度を選択することで、${name}が制作に携わった映画から選択された製作年度の映画を絞り込むことができます。`;
+
   return (
     <Box>
       <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -180,9 +186,7 @@ export const BarSection = memo(function BarSection({
           を選択して、映画を絞り込みましょう
         </Typography>
 
-        <HelpPopover
-          text={`この棒グラフは製作に携わってきた映画を製作年度と役職ごとに表示したものです。`}
-        />
+        <HelpPopover text={hint} />
       </Box>
       <Box
         sx={{

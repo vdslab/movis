@@ -22,7 +22,7 @@ const DescriptionPopover = memo(function DescriptionPopover({
       }}
     >
       <Paper>
-        <Typography sx={{ p: 2 }}>{text}</Typography>
+        <Typography sx={{ p: 2, whiteSpace: "pre-wrap" }}>{text}</Typography>
       </Paper>
     </Popover>
   );

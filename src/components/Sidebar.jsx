@@ -64,6 +64,7 @@ const SelectedNodeSection = ({ onClick }) => {
   const dispatch = useDispatch();
   const selectedNodes = useSelector(selectedNodeSelectors.selectAll);
   const router = useRouter();
+  const isPersonPage = router.pathname === "/people/[personId]";
 
   const handleToggleNode = useCallback(
     (node) => {
@@ -80,7 +81,7 @@ const SelectedNodeSection = ({ onClick }) => {
     [router, onClick]
   );
 
-  return (
+  return isPersonPage ? (
     <Box sx={{ m: 2 }}>
       <Paper
         component="div"
@@ -116,7 +117,7 @@ const SelectedNodeSection = ({ onClick }) => {
         </List>
       </Paper>
     </Box>
-  );
+  ) : null;
 };
 
 const YearItem = memo(function YearItem({ onClick, year, isSelected }) {

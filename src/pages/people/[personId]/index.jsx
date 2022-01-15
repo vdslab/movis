@@ -125,10 +125,11 @@ const Person = ({
   relatedMovies,
   relatedGenres,
   occupations,
-  personImgUrl,
+  // personImgUrl,
 }) => {
   const dispatch = useDispatch();
   const [personId, setPersonId] = useState(null);
+  const [personImgUrl, setPersonImgUrl] = useState(void 0);
 
   const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
   const selectedGenreIds = useSelector(selectSelectedGenreIds);
@@ -241,6 +242,12 @@ const Person = ({
       ).sort((a, b) => a - b),
     [relatedMovies]
   );
+
+  useEffect(() => {
+    (async () => {
+      setPersonImgUrl(await fetchTmdbPersonImg(person.name));
+    })();
+  }, [person.name]);
 
   // reset
   useEffect(() => {
@@ -483,7 +490,7 @@ export const getServerSideProps = async (ctx) => {
     },
   });
 
-  const personImgUrl = await fetchTmdbPersonImg(person.name);
+  // const personImgUrl = await fetchTmdbPersonImg(person.name);
 
   return {
     props: forceSerialize({
@@ -491,9 +498,139 @@ export const getServerSideProps = async (ctx) => {
       relatedMovies,
       relatedGenres,
       occupations,
-      personImgUrl,
+      // personImgUrl,
     }),
   };
 };
+
+// export const getStaticProps = async (ctx) => {
+//   const actorOccupationName = "出演者";
+//   const pId = ctx.params.personId;
+
+//   const person = await prisma.person.findFirst({
+//     where: {
+//       id: pId,
+//     },
+//     select: {
+//       id: true,
+//       filmarksId: true,
+//       name: true,
+//     },
+//   });
+
+//   const relatedMovies = await prisma.movieOnProductionMember.findMany({
+//     where: {
+//       personId: pId,
+//     },
+//     select: {
+//       occupation: {
+//         select: {
+//           name: true,
+//         },
+//       },
+//       movie: {
+//         select: {
+//           id: true,
+//           title: true,
+//           imgUrl: true,
+//           productionYear: true,
+//           genres: true,
+//           productionMembers: {
+//             select: {
+//               person: {
+//                 select: {
+//                   id: true,
+//                   name: true,
+//                   relatedMovies: {
+//                     where: {
+//                       occupation: {
+//                         name: {
+//                           equals: actorOccupationName,
+//                         },
+//                       },
+//                     },
+//                   },
+//                 },
+//               },
+//             },
+//             where: {
+//               AND: [
+//                 {
+//                   occupation: {
+//                     name: {
+//                       equals: actorOccupationName,
+//                     },
+//                   },
+//                 },
+//                 {
+//                   personId: {
+//                     not: pId,
+//                   },
+//                 },
+//               ],
+//             },
+//             orderBy: {
+//               personId: "desc",
+//             },
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   const relatedMovieIds = relatedMovies.map((rm) => rm.movie.id);
+
+//   relatedMovies.forEach((rm) => {
+//     rm.movie.productionMembers.forEach((pm) => {
+//       pm.person["relatedMoviesCount"] = pm.person.relatedMovies.length;
+
+//       // ゴミ処理　delete
+//       delete pm.person.relatedMovies;
+//     });
+//   });
+
+//   const relatedGenres = await prisma.genre.findMany({
+//     where: {
+//       movie: {
+//         some: {
+//           id: {
+//             in: relatedMovieIds,
+//           },
+//         },
+//       },
+//     },
+//   });
+
+//   const occupations = await prisma.occupation.findMany({
+//     select: {
+//       name: true,
+//     },
+//     orderBy: {
+//       movies: {
+//         _count: "desc",
+//       },
+//     },
+//   });
+
+//   const personImgUrl = await fetchTmdbPersonImg(person.name);
+
+//   return {
+//     props: forceSerialize({
+//       person,
+//       relatedMovies,
+//       relatedGenres,
+//       occupations,
+//       personImgUrl,
+//     }),
+//     revalidate: 10,
+//   };
+// };
+
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
 
 export default Person;

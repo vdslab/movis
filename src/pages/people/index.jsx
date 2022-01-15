@@ -185,4 +185,70 @@ export const getServerSideProps = async (ctx) => {
   };
 };
 
+// export const getStaticProps = async (ctx) => {
+//   const { params } = ctx;
+
+//   const movieHitCount = string2int(params.movieHitCount)
+//     ? string2int(params.movieHitCount)
+//     : await prisma.movie.count({
+//         where: {
+//           title: {
+//             contains: query.keyword,
+//           },
+//         },
+//       });
+
+//   const personHitCount = string2int(params.personHitCount)
+//     ? string2int(params.personHitCount)
+//     : await prisma.person.count({
+//         where: {
+//           name: {
+//             contains: params.keyword,
+//           },
+//         },
+//       });
+
+//   const page = string2int(params.page) ? string2int(params.page) : 1;
+
+//   const skip = (page - 1) * SEARCH_LIMIT;
+
+//   // とりあえず関連映画が多い順に
+//   const people = await prisma.person.findMany({
+//     where: {
+//       name: {
+//         contains: params.keyword,
+//       },
+//     },
+//     select: {
+//       name: true,
+//       id: true,
+//     },
+//     orderBy: {
+//       relatedMovies: {
+//         _count: "desc",
+//       },
+//     },
+//     skip,
+//     take: SEARCH_LIMIT,
+//   });
+
+//   return {
+//     props: forceSerialize({
+//       keyword: params.keyword,
+//       people,
+//       movieHitCount,
+//       personHitCount,
+//       page,
+//     }),
+//     revalidate: 10,
+//   };
+// };
+
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
+
 export default People;

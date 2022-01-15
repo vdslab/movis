@@ -429,4 +429,35 @@ export const getServerSideProps = async () => {
   };
 };
 
+// export const getStaticProps = async () => {
+//   const countries = await prisma.country.findMany({
+//     select: {
+//       id: true,
+//       name: true,
+//       _count: {
+//         select: {
+//           movie: true,
+//         },
+//       },
+//     },
+//     orderBy: {
+//       movie: {
+//         _count: "desc",
+//       },
+//     },
+//   });
+
+//   return {
+//     props: forceSerialize({ countries }),
+//     revalidate: 100
+//   };
+// };
+
+//  export const getStaticPaths = async () => {
+//    return {
+//      paths: [],
+//      fallback: 'blocking',
+//    };
+//  };
+
 export default Top;

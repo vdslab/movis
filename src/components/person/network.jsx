@@ -310,7 +310,6 @@ const NetworkBody = memo(function NetworkBody({
   );
   const selectedNodeIds = useSelector(selectedNodeSelectors.selectIds);
 
-  console.log(network);
   return (
     <g transform="scale(0.1)">
       <NetworkLinks

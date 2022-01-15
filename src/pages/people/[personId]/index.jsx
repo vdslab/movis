@@ -616,15 +616,12 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
-  const personImgUrl = await fetchTmdbPersonImg(person.name);
-
   return {
     props: forceSerialize({
       person,
       relatedMovies,
       relatedGenres,
       occupations,
-      personImgUrl,
     }),
     revalidate: 86400,
   };

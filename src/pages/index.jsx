@@ -406,30 +406,7 @@ const Top = ({ countries }) => {
   );
 };
 
-export const getServerSideProps = async () => {
-  const countries = await prisma.country.findMany({
-    select: {
-      id: true,
-      name: true,
-      _count: {
-        select: {
-          movie: true,
-        },
-      },
-    },
-    orderBy: {
-      movie: {
-        _count: "desc",
-      },
-    },
-  });
-
-  return {
-    props: forceSerialize({ countries }),
-  };
-};
-
-// export const getStaticProps = async () => {
+// export const getServerSideProps = async () => {
 //   const countries = await prisma.country.findMany({
 //     select: {
 //       id: true,
@@ -449,15 +426,38 @@ export const getServerSideProps = async () => {
 
 //   return {
 //     props: forceSerialize({ countries }),
-//     revalidate: 100
 //   };
 // };
 
-//  export const getStaticPaths = async () => {
-//    return {
-//      paths: [],
-//      fallback: 'blocking',
-//    };
-//  };
+export const getStaticProps = async () => {
+  const countries = await prisma.country.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          movie: true,
+        },
+      },
+    },
+    orderBy: {
+      movie: {
+        _count: "desc",
+      },
+    },
+  });
+
+  return {
+    props: forceSerialize({ countries }),
+    revalidate: 86400,
+  };
+};
+
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
 
 export default Top;

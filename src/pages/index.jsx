@@ -341,7 +341,7 @@ const Top = ({ countries }) => {
       <Box sx={{ my: 2 }}>
         <Typography variant="h5">movisとは</Typography>
         <Typography>
-          おすすめなどの自分以外の評価に頼らず、「人」を起点に映画を探せるサービスです。
+          おすすめなどの自分以外の評価に頼らず、「人」に注目して映画を探すことができるサービスです。
         </Typography>
         <Typography>
           作品情報や出演者・スタッフ情報の閲覧が可能であり、閲覧の補助をする可視化や機能が加えられています。
@@ -357,7 +357,7 @@ const Top = ({ countries }) => {
           名前で検索しましょう
         </Typography>
         {!matchUpLg && (
-          <Box sx={{ pr: 2, mt: 2, mb: 4, width: { xs: "100%", sm: "50%" } }}>
+          <Box sx={{ mt: 2, mb: 4, width: { xs: "100%", sm: "50%" } }}>
             <SearchForm />
           </Box>
         )}

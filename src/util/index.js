@@ -203,9 +203,9 @@ export const generateNetworkData = (relatedMovies) => {
   const linkDistance = 10;
   const s2t = {};
   relatedMovies.forEach((rm) => {
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
+    // if (rm.occupation.name !== actorOccupationName) {
+    //   return;
+    // }
 
     rm.movie.productionMembers.forEach((spm, index) => {
       const sId = spm.person.id;
@@ -242,9 +242,9 @@ export const generateNetworkData = (relatedMovies) => {
   // node
   const p2n = {};
   relatedMovies.forEach((rm) => {
-    if (rm.occupation.name !== actorOccupationName) {
-      return;
-    }
+    // if (rm.occupation.name !== actorOccupationName) {
+    //   return;
+    // }
 
     rm.movie.productionMembers.forEach((pm) => {
       const p = pm.person;

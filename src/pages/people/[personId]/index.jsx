@@ -546,26 +546,26 @@ export const getStaticProps = async (ctx) => {
                   id: true,
                   name: true,
                   relatedMovies: {
-                    where: {
-                      occupation: {
-                        name: {
-                          equals: actorOccupationName,
-                        },
-                      },
-                    },
+                    // where: {
+                    //   occupation: {
+                    //     name: {
+                    //       equals: actorOccupationName,
+                    //     },
+                    //   },
+                    // },
                   },
                 },
               },
             },
             where: {
               AND: [
-                {
-                  occupation: {
-                    name: {
-                      equals: actorOccupationName,
-                    },
-                  },
-                },
+                // {
+                //   occupation: {
+                //     name: {
+                //       equals: actorOccupationName,
+                //     },
+                //   },
+                // },
                 {
                   personId: {
                     not: pId,
@@ -616,7 +616,7 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
-  const personImgUrl = await fetchTmdbPersonImg(person.name);
+  // const personImgUrl = await fetchTmdbPersonImg(person.name);
 
   return {
     props: forceSerialize({
@@ -624,7 +624,7 @@ export const getStaticProps = async (ctx) => {
       relatedMovies,
       relatedGenres,
       occupations,
-      personImgUrl,
+      // personImgUrl,
     }),
     revalidate: 86400,
   };

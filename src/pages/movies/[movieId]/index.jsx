@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { FilmarksButton } from "@/components/FilmarksButton";
 import { Link } from "@/components/Link";
@@ -24,6 +24,15 @@ import {
 
 const Movie = ({ movie, person2occupation }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
+
+  const outline = useMemo(() => {
+    return movie.outline
+      ? `${movie.outline?.slice(
+          0,
+          Math.floor(movie.outline.length * 0.4)
+        )}`?.replaceAll("\\r\\n", "\r\n")
+      : void 0;
+  }, [movie]);
 
   const listedIds = [];
 
@@ -146,13 +155,10 @@ const Movie = ({ movie, person2occupation }) => {
                 </Box>
               )}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
-              {movie.outline && (
+              {outline && (
                 <Box>
                   <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                    {`${movie.outline?.slice(
-                      0,
-                      Math.floor(movie.outline.length * 0.4)
-                    )}`?.replaceAll("\\r\\n", "\r\n")}
+                    {outline}
                     <a
                       href={generateFilmarksMovieUrl(movie.filmarksId)}
                       target="_blank"

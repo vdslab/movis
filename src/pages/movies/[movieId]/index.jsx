@@ -149,10 +149,10 @@ const Movie = ({ movie, person2occupation }) => {
               {movie.outline && (
                 <Box>
                   <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                    {`${movie.outline.slice(
+                    {`${movie.outline?.slice(
                       0,
                       Math.floor(movie.outline.length * 0.4)
-                    )}`.replaceAll("\\r\\n", "\r\n")}
+                    )}`?.replaceAll("\\r\\n", "\r\n")}
                     <a
                       href={generateFilmarksMovieUrl(movie.filmarksId)}
                       target="_blank"

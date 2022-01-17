@@ -40,12 +40,12 @@ const MovieCardActionArea = memo(function MovieCardActionArea({
   filterResult,
 }) {
   const filterColor = {
-    出演者: "error",
+    人物: "error",
     製作年度: "warning",
     ジャンル: "success",
   };
 
-  const filterKeys = ["出演者", "製作年度", "ジャンル"];
+  const filterKeys = ["人物", "製作年度", "ジャンル"];
   return (
     <CardActionArea sx={{ width: 130, position: "relative" }}>
       <Box

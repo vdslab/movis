@@ -22,19 +22,10 @@ import {
   generateFilmarksMovieUrl,
 } from "@/util";
 
-const Movie = ({ movie }) => {
+const Movie = ({ movie, person2occupation }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
 
-  // ゴミ処理　複数職業の人をまとめるため
   const listedIds = [];
-  const person2occupation = {};
-  for (const pm of movie.productionMembers) {
-    if (pm.personId in person2occupation) {
-      person2occupation[pm.personId].push({ occupation: pm.occupation });
-    } else {
-      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
-    }
-  }
 
   useEffect(() => {
     (async () => {
@@ -278,8 +269,17 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
+  const person2occupation = {};
+  for (const pm of movie.productionMembers) {
+    if (pm.personId in person2occupation) {
+      person2occupation[pm.personId].push({ occupation: pm.occupation });
+    } else {
+      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
+    }
+  }
+
   return {
-    props: forceSerialize({ movie }),
+    props: forceSerialize({ movie, person2occupation }),
     revalidate: 86400,
   };
 };

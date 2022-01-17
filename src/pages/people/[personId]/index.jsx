@@ -38,12 +38,12 @@ import {
 
 const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
   const filterColor = {
-    出演者: "error",
+    人物: "error",
     製作年度: "warning",
     ジャンル: "success",
   };
 
-  const filterKeys = ["出演者", "製作年度", "ジャンル"];
+  const filterKeys = ["人物", "製作年度", "ジャンル"];
 
   return (
     <Paper
@@ -197,7 +197,7 @@ const Person = ({
       }
 
       const filterResult = {
-        出演者: nodeFilteredMovieIds.includes(movieId),
+        人物: nodeFilteredMovieIds.includes(movieId),
         ジャンル: genreFilteredMovieIds.includes(movieId),
         製作年度: yearFilteredMovieIds.includes(movieId),
       };

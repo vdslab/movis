@@ -93,7 +93,7 @@ const SelectedNodeSection = ({ onClick }) => {
         <Typography sx={{ m: 1 }} component={"div"}>
           選択された
           <Chip
-            label="出演者"
+            label="人物"
             color="error"
             sx={{ m: 0.5, mb: 1 }}
             size="small"

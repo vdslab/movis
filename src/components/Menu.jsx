@@ -63,7 +63,7 @@ const SelectedNodeSection = () => {
             width: "100%",
           }}
         >
-          <Typography sx={{ m: 1 }}>選択された出演者</Typography>
+          <Typography sx={{ m: 1 }}>選択された人物</Typography>
           {selectedNodes.map((sn) => {
             return (
               <NodeItem

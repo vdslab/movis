@@ -24,8 +24,7 @@ export const NextLinkComposed = React.forwardRef<
     scroll,
     passHref,
     shallow,
-    // ゴミ処理　とりあえずコネクション数を抑えるために
-    prefetch = false,
+    prefetch,
     locale,
     ...other
   } = props;

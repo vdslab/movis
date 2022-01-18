@@ -38,12 +38,12 @@ import {
 
 const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
   const filterColor = {
-    人物: "error",
+    出演者: "error",
     製作年度: "warning",
     ジャンル: "success",
   };
 
-  const filterKeys = ["人物", "製作年度", "ジャンル"];
+  const filterKeys = ["出演者", "製作年度", "ジャンル"];
 
   return (
     <Paper
@@ -197,7 +197,7 @@ const Person = ({
       }
 
       const filterResult = {
-        人物: nodeFilteredMovieIds.includes(movieId),
+        出演者: nodeFilteredMovieIds.includes(movieId),
         ジャンル: genreFilteredMovieIds.includes(movieId),
         製作年度: yearFilteredMovieIds.includes(movieId),
       };
@@ -546,26 +546,26 @@ export const getStaticProps = async (ctx) => {
                   id: true,
                   name: true,
                   relatedMovies: {
-                    // where: {
-                    //   occupation: {
-                    //     name: {
-                    //       equals: actorOccupationName,
-                    //     },
-                    //   },
-                    // },
+                    where: {
+                      occupation: {
+                        name: {
+                          equals: actorOccupationName,
+                        },
+                      },
+                    },
                   },
                 },
               },
             },
             where: {
               AND: [
-                // {
-                //   occupation: {
-                //     name: {
-                //       equals: actorOccupationName,
-                //     },
-                //   },
-                // },
+                {
+                  occupation: {
+                    name: {
+                      equals: actorOccupationName,
+                    },
+                  },
+                },
                 {
                   personId: {
                     not: pId,
@@ -616,7 +616,7 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
-  // const personImgUrl = await fetchTmdbPersonImg(person.name);
+  const personImgUrl = await fetchTmdbPersonImg(person.name);
 
   return {
     props: forceSerialize({
@@ -624,7 +624,7 @@ export const getStaticProps = async (ctx) => {
       relatedMovies,
       relatedGenres,
       occupations,
-      // personImgUrl,
+      personImgUrl,
     }),
     revalidate: 86400,
   };

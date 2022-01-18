@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from "@mui/material";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FilmarksButton } from "@/components/FilmarksButton";
 import { Link } from "@/components/Link";
@@ -22,23 +22,19 @@ import {
   generateFilmarksMovieUrl,
 } from "@/util";
 
-const Movie = ({ movie, person2occupation }) => {
+const Movie = ({ movie }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
 
-  const outline = useMemo(() => {
-    return movie.outline
-      ? movie.outline
-          ?.replaceAll("\\r", "\r")
-          ?.replaceAll("\\n", "\n")
-          ?.replaceAll('"', "")
-          ?.slice(
-            0,
-            Math.floor(movie.outline?.length ? movie.outline.length * 0.4 : 0)
-          )
-      : void 0;
-  }, [movie.outline]);
-
+  // ゴミ処理　複数職業の人をまとめるため
   const listedIds = [];
+  const person2occupation = {};
+  for (const pm of movie.productionMembers) {
+    if (pm.personId in person2occupation) {
+      person2occupation[pm.personId].push({ occupation: pm.occupation });
+    } else {
+      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -159,10 +155,13 @@ const Movie = ({ movie, person2occupation }) => {
                 </Box>
               )}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
-              {outline && (
+              {movie.outline && (
                 <Box>
                   <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                    {outline}
+                    {`${movie.outline.slice(
+                      0,
+                      Math.floor(movie.outline.length * 0.4)
+                    )}`.replaceAll("\\r\\n", "\r\n")}
                     <a
                       href={generateFilmarksMovieUrl(movie.filmarksId)}
                       target="_blank"
@@ -279,17 +278,8 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
-  const person2occupation = {};
-  for (const pm of movie.productionMembers) {
-    if (pm.personId in person2occupation) {
-      person2occupation[pm.personId].push({ occupation: pm.occupation });
-    } else {
-      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
-    }
-  }
-
   return {
-    props: forceSerialize({ movie, person2occupation }),
+    props: forceSerialize({ movie }),
     revalidate: 86400,
   };
 };

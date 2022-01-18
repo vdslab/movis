@@ -27,12 +27,16 @@ const Movie = ({ movie, person2occupation }) => {
 
   const outline = useMemo(() => {
     return movie.outline
-      ? `${movie.outline?.slice(
-          0,
-          Math.floor(movie.outline.length * 0.4)
-        )}`?.replaceAll("\\r\\n", "\r\n")
+      ? movie.outline
+          ?.replaceAll("\\r", "\r")
+          ?.replaceAll("\\n", "\n")
+          ?.replaceAll('"', "")
+          ?.slice(
+            0,
+            Math.floor(movie.outline?.length ? movie.outline.length * 0.4 : 0)
+          )
       : void 0;
-  }, [movie]);
+  }, [movie.outline]);
 
   const listedIds = [];
 

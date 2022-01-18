@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { forceSerialize } from "@/util";
 
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "s-maxage=100");
   const countryId = Number(req.query.countryId);
   const genreId = Number(req.query.genreId);
 

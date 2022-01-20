@@ -75,8 +75,8 @@ const Movies = (props) => {
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <Pagination
           count={paginationCount}
-          onChange={(e, v) => {
-            if (props.page === v) {
+          onChange={(e, targetPage) => {
+            if (props.page === targetPage) {
               return;
             }
             router.push(

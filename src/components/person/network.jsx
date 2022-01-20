@@ -384,7 +384,7 @@ export const NetworkSection = memo(function NetworkSection({
       <Box sx={{ display: "flex", alignItems: "center" }}>
         <Typography sx={{ p: 1 }} component={"div"}>
           {name}
-          と共演したことのある
+          と関係のある
           <Chip
             label="人物"
             color="error"

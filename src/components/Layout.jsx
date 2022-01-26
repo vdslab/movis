@@ -27,8 +27,8 @@ export const Layout = memo(function Layout({ children }) {
             flex: "1 1 auto",
             flexDirection: "column",
             width: "100%",
-            my: 5,
-            mx: {
+            py: 2,
+            px: {
               xs: 2,
               md: 4,
             },

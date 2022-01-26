@@ -280,7 +280,9 @@ export const generateNetworkData = (relatedMovies) => {
         : 0;
     node["normalizedCountWithMain"] = normalizedCountWithMain;
     node["normalizedRelatedMoviesCount"] = normalizedRelatedMoviesCount;
-    node["r"] = normalizedCountWithMain * 200;
+    node["r"] = normalizedCountWithMain * 200 * 3;
+
+    // node["r"] = normalizedRelatedMoviesCount * 200 + 100;
   }
 
   // network

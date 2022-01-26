@@ -25,7 +25,7 @@ const GenreListItem = memo(function GenreListItem({
       }
       size={variant === "filled" ? "medium" : "small"}
       color={color}
-      sx={{ m: 0.5 }}
+      sx={{ m: variant === "filled" ? 0.5 : "1px" }}
       onClick={
         variant === "filled"
           ? () => {

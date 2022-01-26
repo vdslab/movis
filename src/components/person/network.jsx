@@ -92,15 +92,16 @@ const NetworkLinks = memo(function NetworkLinks({
   highlightedNodeIds,
 }) {
   const strokeWidthMap = {
-    selected: 10,
-    highlighted: 5,
-    neutral: 1,
+    selected: 40,
+    highlighted: 20,
+    neutral: 4,
   };
 
   const strokeColorMap = {
     selected: "#ffff00",
     highlighted: "#f06292",
-    neutral: "#dedede",
+    // neutral: "#fff",
+    neutral: "#959593",
   };
 
   return (
@@ -179,15 +180,15 @@ const NetworkNodes = memo(function NetworkNodes({
   const nodeColor = d3.interpolateBlues;
 
   const strokeWidthMap = {
-    selected: 10,
-    highlighted: 5,
-    neutral: 0,
+    selected: 40,
+    highlighted: 40,
+    neutral: 10,
   };
 
   const strokeColorMap = {
     selected: "#ffff00",
     highlighted: "#f06292",
-    neutral: void 0,
+    neutral: "#fff",
   };
 
   const handleNodeClick = useCallback(
@@ -238,10 +239,21 @@ const NetworkNodes = memo(function NetworkNodes({
   );
 });
 
-const NetworkLabel = memo(function NetworkLabel({ name, x, y, textColor }) {
+const NetworkLabel = memo(function NetworkLabel({
+  name,
+  x,
+  y,
+  textColor,
+  isKeywordIncluded,
+}) {
   return (
     <g>
-      <text fontSize="80px" x={x} y={y} fill={textColor}>
+      <text
+        fontSize={isKeywordIncluded ? "800px" : "100px"}
+        x={x}
+        y={y}
+        fill={textColor}
+      >
         {name}
       </text>
     </g>
@@ -291,6 +303,7 @@ const NetworkLabels = memo(function NetworkLabels({
             x={node.x + node.r}
             y={node.y + node.r}
             textColor={textColor}
+            isKeywordIncluded={isKeywordIncluded}
           />
         );
       })}
@@ -347,7 +360,7 @@ const ResponsiveNetwork = memo(function ResponsiveNetwork({ relatedMovies }) {
             <ZoomableSVG
               width={width}
               height={height}
-              style={{ backgroundColor: "#424242" }}
+              style={{ backgroundColor: "#3d5952" }}
             >
               <NetworkBody
                 width={width}

@@ -39,9 +39,9 @@ const theme = createTheme({
     },
     divider: "#E6E8F0",
     primary: {
-      main: "#5048E5",
+      main: "#022c43",
       light: "#828DF8",
-      dark: "#3832A0",
+      dark: "#053f5e",
       contrastText: "#FFFFFF",
     },
     secondary: {
@@ -75,8 +75,8 @@ const theme = createTheme({
       contrastText: "#FFFFFF",
     },
     text: {
-      primary: "#121828",
-      secondary: "#65748B",
+      primary: "#212121",
+      secondary: "#757575",
       disabled: "rgba(55, 65, 81, 0.48)",
     },
   },

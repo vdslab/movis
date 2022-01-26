@@ -75,11 +75,12 @@ const ResponsiveCirclePackingComponent = memo(
         margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
         id="name"
         value="movieCount"
-        colors={{ scheme: "nivo" }}
-        childColor={{
-          from: "color",
-          modifiers: [["brighter", 0.4]],
-        }}
+        // colors={{ scheme: "nivo" }}
+        colors={["#ffd700"]}
+        // childColor={{
+        //   from: "color",
+        //   modifiers: [["brighter", 0.4]],
+        // }}
         padding={4}
         enableLabels={true}
         labelTextColor={{
@@ -109,6 +110,7 @@ const ResponsiveCirclePackingComponent = memo(
           },
         ]}
         onClick={handleClick}
+        leavesOnly
       />
     );
   }

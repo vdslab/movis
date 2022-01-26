@@ -287,7 +287,7 @@ const LgDrawerBody = memo(function LgDrawerBody() {
         <RelatedGenreSection />
       </Box>
 
-      <Box sx={{ mb: "88px" }} />
+      <Box sx={{ mb: "100px" }} />
     </Box>
   );
 });

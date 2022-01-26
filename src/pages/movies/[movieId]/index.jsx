@@ -11,7 +11,7 @@ import {
   Divider,
   Button,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { FilmarksButton } from "@/components/FilmarksButton";
 import { Link } from "@/components/Link";
@@ -22,19 +22,25 @@ import {
   generateFilmarksMovieUrl,
 } from "@/util";
 
-const Movie = ({ movie }) => {
+const Movie = ({ movie, person2occupation }) => {
   const [person2imgUrl, setPerson2imgUrl] = useState({});
 
-  // ゴミ処理　複数職業の人をまとめるため
+  const outline = useMemo(() => {
+    return movie.outline
+      ? movie.outline
+          ?.replaceAll("\\r", "\r")
+          ?.replaceAll("\\n", "\n")
+          ?.replaceAll('"', "")
+          ?.slice(
+            0,
+            Math.floor(movie.outline?.length ? movie.outline.length * 0.4 : 0)
+          )
+      : void 0;
+  }, [movie.outline]);
+
+  console.log(outline);
+
   const listedIds = [];
-  const person2occupation = {};
-  for (const pm of movie.productionMembers) {
-    if (pm.personId in person2occupation) {
-      person2occupation[pm.personId].push({ occupation: pm.occupation });
-    } else {
-      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
-    }
-  }
 
   useEffect(() => {
     (async () => {
@@ -155,13 +161,10 @@ const Movie = ({ movie }) => {
                 </Box>
               )}
               {/* ゴミ処理　何かを間違えている。文字列そのままに対しては効いていた */}
-              {movie.outline && (
+              {outline && (
                 <Box>
                   <Typography sx={{ m: 1, whiteSpace: "pre-wrap" }}>
-                    {`${movie.outline.slice(
-                      0,
-                      Math.floor(movie.outline.length * 0.4)
-                    )}`.replaceAll("\\r\\n", "\r\n")}
+                    {outline}
                     <a
                       href={generateFilmarksMovieUrl(movie.filmarksId)}
                       target="_blank"
@@ -235,33 +238,9 @@ const Movie = ({ movie }) => {
   );
 };
 
-// export const getServerSideProps = async (ctx) => {
-//   const { query } = ctx;
-//   const { movieId } = query;
-//   const movie = await prisma.movie.findFirst({
-//     where: {
-//       id: movieId,
-//     },
-//     include: {
-//       genres: true,
-//       productionCountries: true,
-//       productionMembers: {
-//         include: {
-//           person: true,
-//           occupation: true,
-//         },
-//       },
-//     },
-//   });
-
-//   return {
-//     props: forceSerialize({ movie }),
-//   };
-// };
-
-export const getStaticProps = async (ctx) => {
-  const { params } = ctx;
-  const { movieId } = params;
+export const getServerSideProps = async (ctx) => {
+  const { query } = ctx;
+  const { movieId } = query;
   const movie = await prisma.movie.findFirst({
     where: {
       id: movieId,
@@ -278,17 +257,59 @@ export const getStaticProps = async (ctx) => {
     },
   });
 
+  const person2occupation = {};
+  for (const pm of movie.productionMembers) {
+    if (pm.personId in person2occupation) {
+      person2occupation[pm.personId].push({ occupation: pm.occupation });
+    } else {
+      person2occupation[pm.personId] = [{ occupation: pm.occupation }];
+    }
+  }
+
   return {
-    props: forceSerialize({ movie }),
-    revalidate: 86400,
+    props: forceSerialize({ movie, person2occupation }),
   };
 };
 
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
-};
+// export const getStaticProps = async (ctx) => {
+//   const { params } = ctx;
+//   const { movieId } = params;
+//   const movie = await prisma.movie.findFirst({
+//     where: {
+//       id: movieId,
+//     },
+//     include: {
+//       genres: true,
+//       productionCountries: true,
+//       productionMembers: {
+//         include: {
+//           person: true,
+//           occupation: true,
+//         },
+//       },
+//     },
+//   });
+
+//   const person2occupation = {};
+//   for (const pm of movie.productionMembers) {
+//     if (pm.personId in person2occupation) {
+//       person2occupation[pm.personId].push({ occupation: pm.occupation });
+//     } else {
+//       person2occupation[pm.personId] = [{ occupation: pm.occupation }];
+//     }
+//   }
+
+//   return {
+//     props: forceSerialize({ movie, person2occupation }),
+//     revalidate: 86400,
+//   };
+// };
+
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
 
 export default Movie;

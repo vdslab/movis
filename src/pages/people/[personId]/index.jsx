@@ -38,12 +38,12 @@ import {
 
 const ML = memo(function ML({ filteredMoviesSortedByFilter }) {
   const filterColor = {
-    出演者: "error",
+    人物: "error",
     製作年度: "warning",
     ジャンル: "success",
   };
 
-  const filterKeys = ["出演者", "製作年度", "ジャンル"];
+  const filterKeys = ["人物", "製作年度", "ジャンル"];
 
   return (
     <Paper
@@ -197,7 +197,7 @@ const Person = ({
       }
 
       const filterResult = {
-        出演者: nodeFilteredMovieIds.includes(movieId),
+        人物: nodeFilteredMovieIds.includes(movieId),
         ジャンル: genreFilteredMovieIds.includes(movieId),
         製作年度: yearFilteredMovieIds.includes(movieId),
       };
@@ -385,9 +385,131 @@ const Person = ({
   );
 };
 
-// export const getServerSideProps = async (ctx) => {
+export const getServerSideProps = async (ctx) => {
+  const actorOccupationName = "出演者";
+  const pId = ctx.query.personId;
+
+  const person = await prisma.person.findFirst({
+    where: {
+      id: pId,
+    },
+    select: {
+      id: true,
+      filmarksId: true,
+      name: true,
+    },
+  });
+
+  const relatedMovies = await prisma.movieOnProductionMember.findMany({
+    where: {
+      personId: pId,
+    },
+    select: {
+      occupation: {
+        select: {
+          name: true,
+        },
+      },
+      movie: {
+        select: {
+          id: true,
+          title: true,
+          imgUrl: true,
+          productionYear: true,
+          genres: true,
+          productionMembers: {
+            select: {
+              person: {
+                select: {
+                  id: true,
+                  name: true,
+                  relatedMovies: {
+                    // where: {
+                    //   occupation: {
+                    //     name: {
+                    //       equals: actorOccupationName,
+                    //     },
+                    //   },
+                    // },
+                  },
+                },
+              },
+            },
+            where: {
+              AND: [
+                // {
+                //   occupation: {
+                //     name: {
+                //       equals: actorOccupationName,
+                //     },
+                //   },
+                // },
+                {
+                  personId: {
+                    not: pId,
+                  },
+                },
+              ],
+            },
+            orderBy: {
+              personId: "desc",
+            },
+          },
+        },
+      },
+    },
+  });
+
+  const relatedMovieIds = relatedMovies.map((rm) => rm.movie.id);
+
+  relatedMovies.forEach((rm) => {
+    rm.movie.productionMembers.forEach((pm) => {
+      pm.person["relatedMoviesCount"] = pm.person.relatedMovies.length;
+
+      // ゴミ処理　delete
+      delete pm.person.relatedMovies;
+    });
+  });
+
+  const relatedGenres = await prisma.genre.findMany({
+    where: {
+      movie: {
+        some: {
+          id: {
+            in: relatedMovieIds,
+          },
+        },
+      },
+    },
+  });
+
+  const occupations = await prisma.occupation.findMany({
+    select: {
+      name: true,
+    },
+    orderBy: {
+      movies: {
+        _count: "desc",
+      },
+    },
+  });
+
+  // const personImgUrl = await fetchTmdbPersonImg(person.name);
+
+  return {
+    props: forceSerialize({
+      person,
+      relatedMovies,
+      relatedGenres,
+      occupations,
+      // personImgUrl,
+    }),
+  };
+};
+
+// export const getStaticProps = async (ctx) => {
 //   const actorOccupationName = "出演者";
-//   const pId = ctx.query.personId;
+//   const pId = ctx.params.personId;
 
 //   const person = await prisma.person.findFirst({
 //     where: {
@@ -424,26 +546,26 @@ const Person = ({
 //                   id: true,
 //                   name: true,
 //                   relatedMovies: {
-//                     where: {
-//                       occupation: {
-//                         name: {
-//                           equals: actorOccupationName,
-//                         },
-//                       },
-//                     },
+//                     // where: {
+//                     //   occupation: {
+//                     //     name: {
+//                     //       equals: actorOccupationName,
+//                     //     },
+//                     //   },
+//                     // },
 //                   },
 //                 },
 //               },
 //             },
 //             where: {
 //               AND: [
-//                 {
-//                   occupation: {
-//                     name: {
-//                       equals: actorOccupationName,
-//                     },
-//                   },
-//                 },
+//                 // {
+//                 //   occupation: {
+//                 //     name: {
+//                 //       equals: actorOccupationName,
+//                 //     },
+//                 //   },
+//                 // },
 //                 {
 //                   personId: {
 //                     not: pId,
@@ -504,134 +626,15 @@ const Person = ({
 //       occupations,
 //       // personImgUrl,
 //     }),
+//     revalidate: 86400,
 //   };
 // };
 
-export const getStaticProps = async (ctx) => {
-  const actorOccupationName = "出演者";
-  const pId = ctx.params.personId;
-
-  const person = await prisma.person.findFirst({
-    where: {
-      id: pId,
-    },
-    select: {
-      id: true,
-      filmarksId: true,
-      name: true,
-    },
-  });
-
-  const relatedMovies = await prisma.movieOnProductionMember.findMany({
-    where: {
-      personId: pId,
-    },
-    select: {
-      occupation: {
-        select: {
-          name: true,
-        },
-      },
-      movie: {
-        select: {
-          id: true,
-          title: true,
-          imgUrl: true,
-          productionYear: true,
-          genres: true,
-          productionMembers: {
-            select: {
-              person: {
-                select: {
-                  id: true,
-                  name: true,
-                  relatedMovies: {
-                    where: {
-                      occupation: {
-                        name: {
-                          equals: actorOccupationName,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            where: {
-              AND: [
-                {
-                  occupation: {
-                    name: {
-                      equals: actorOccupationName,
-                    },
-                  },
-                },
-                {
-                  personId: {
-                    not: pId,
-                  },
-                },
-              ],
-            },
-            orderBy: {
-              personId: "desc",
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const relatedMovieIds = relatedMovies.map((rm) => rm.movie.id);
-
-  relatedMovies.forEach((rm) => {
-    rm.movie.productionMembers.forEach((pm) => {
-      pm.person["relatedMoviesCount"] = pm.person.relatedMovies.length;
-
-      // ゴミ処理　delete
-      delete pm.person.relatedMovies;
-    });
-  });
-
-  const relatedGenres = await prisma.genre.findMany({
-    where: {
-      movie: {
-        some: {
-          id: {
-            in: relatedMovieIds,
-          },
-        },
-      },
-    },
-  });
-
-  const occupations = await prisma.occupation.findMany({
-    select: {
-      name: true,
-    },
-    orderBy: {
-      movies: {
-        _count: "desc",
-      },
-    },
-  });
-
-  return {
-    props: forceSerialize({
-      person,
-      relatedMovies,
-      relatedGenres,
-      occupations,
-    }),
-    revalidate: 86400,
-  };
-};
-
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
-};
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
 
 export default Person;

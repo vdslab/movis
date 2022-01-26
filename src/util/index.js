@@ -195,13 +195,14 @@ export const generateBarData = (relatedMovies, occupations, years) => {
 };
 
 export const generateNetworkData = (relatedMovies) => {
-  const actorOccupationName = "出演者";
+  // const actorOccupationName = "出演者";
   const countWithMainKey = "countWithMain";
   const relatedMoviesCountKey = "relatedMoviesCount";
 
   // link
   const linkDistance = 10;
   const s2t = {};
+  const s2a = {};
   relatedMovies.forEach((rm) => {
     // if (rm.occupation.name !== actorOccupationName) {
     //   return;
@@ -212,7 +213,13 @@ export const generateNetworkData = (relatedMovies) => {
       if (!(sId in s2t)) {
         s2t[sId] = { [countWithMainKey]: 0 };
       }
-      ++s2t[sId][countWithMainKey];
+      if (!(sId in s2a)) {
+        s2a[sId] = [];
+      }
+      if (!s2a[sId].includes(rm.movie.id)) {
+        ++s2t[sId][countWithMainKey];
+        s2a[sId].push(rm.movie.id);
+      }
 
       rm.movie.productionMembers.slice(index + 1).forEach((tpm) => {
         const tId = tpm.person.id;

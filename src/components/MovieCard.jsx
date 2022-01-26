@@ -7,6 +7,7 @@ import {
   Typography,
   Box,
 } from "@mui/material";
+import { css } from "@mui/material/styles";
 import { memo } from "react";
 
 import { GenreList } from "@/components/Genre";
@@ -53,6 +54,8 @@ const MovieCardActionArea = memo(function MovieCardActionArea({
           position: "absolute",
           top: 0,
           left: 0,
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {filterResult &&
@@ -74,21 +77,11 @@ const MovieCardActionArea = memo(function MovieCardActionArea({
 });
 
 const MovieCardContentTexts = memo(function MovieCardContent({
-  movieId,
-  title,
   productionYear,
   occupationNames,
 }) {
   return (
     <Box>
-      <Link
-        href={`/movies/${movieId}`}
-        passHref
-        // ゴミ処理かも
-        sx={{ textDecoration: "none" }}
-      >
-        <Typography variant="subtitle1">{title}</Typography>
-      </Link>
       <Typography variant="subtitle2">{productionYear + "年製作"}</Typography>
       {occupationNames?.length > 0 && (
         <Typography variant="subtitle2">
@@ -116,8 +109,33 @@ export const MovieCard = memo(function MovieCard({
         imgUrl={imgUrl}
         filterResult={filterResult}
       />
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
-        <CardContent sx={{ flex: "1 0 auto" }}>
+      <CardContent
+        sx={{ display: "flex", flexDirection: "column", maxHeight: 182, p: 1 }}
+      >
+        <Box sx={{}}>
+          <Link
+            href={`/movies/${movieId}`}
+            passHref
+            // ゴミ処理かも
+            sx={{ textDecoration: "none" }}
+          >
+            <Typography
+              variant="subtitle1"
+              css={css`
+                text-overflow: ellipsis;
+                overflow: hidden;
+                // Addition lines for 2 line or multiline ellipsis
+                display: -webkit-box !important;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                white-space: normal;
+              `}
+            >
+              {title}
+            </Typography>
+          </Link>
+        </Box>
+        <Box sx={{ flex: "1" }}>
           <MovieCardContentTexts
             movieId={movieId}
             title={title}
@@ -127,8 +145,8 @@ export const MovieCard = memo(function MovieCard({
           <Box>
             <GenreList relatedGenres={genres} chipVariant="outlined" />
           </Box>
-        </CardContent>
-      </Box>
+        </Box>
+      </CardContent>
     </Card>
   );
 });

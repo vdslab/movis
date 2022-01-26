@@ -47,7 +47,7 @@ export const useNetwork = (relatedMovies, width, height) => {
         "link",
         d3
           .forceLink()
-          .distance(10)
+          .distance(15)
           .id((d) => d.id)
       )
       .force("center", d3.forceCenter(width / 2, height / 2))
@@ -55,6 +55,7 @@ export const useNetwork = (relatedMovies, width, height) => {
         "charge",
         // d3.forceManyBody().strength((d) => (d.r / 2) * -50)
         d3.forceManyBody().strength((d) => (d.r / 2) * -1000)
+        // d3.forceManyBody().strength((d) => d.r * -1000)
       )
       .force(
         "x",

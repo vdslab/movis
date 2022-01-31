@@ -4,7 +4,6 @@ import {
   Box,
   Drawer,
   IconButton,
-  Paper,
   Typography,
   useMediaQuery,
   Chip,
@@ -12,6 +11,7 @@ import {
   ListItemText,
   Divider,
   ListItem,
+  Paper,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { useRouter } from "next/router";
@@ -75,49 +75,51 @@ const SelectedNodeSection = ({ onClick }) => {
 
   const handleMoveDetails = useCallback(
     (personId) => {
-      router.push(`/people/${personId}`);
-      onClick();
+      // router.push(`/people/${personId}`);
+
+      // 遅い
+      window.open(`/people/${personId}`);
+      if (onClick) {
+        onClick();
+      }
     },
-    [router, onClick]
+    [onClick]
   );
 
   return isPersonPage ? (
-    <Box sx={{ m: 2 }}>
-      <Paper
-        component="div"
-        sx={{
-          p: 1,
-          width: "100%",
-        }}
-      >
-        <Typography sx={{ m: 1 }} component={"div"}>
-          選択された
-          <Chip
-            label="人物"
-            color="error"
-            sx={{ m: 0.5, mb: 1 }}
-            size="small"
-          />
-        </Typography>
-        <List sx={{ width: "100%" }}>
-          {selectedNodes.map((node, index) => {
-            return (
-              <Box key={node.id}>
-                <NodeItem
-                  node={node}
-                  onDeleteClick={handleToggleNode}
-                  onInfoClick={handleMoveDetails}
-                />
-                {index + 1 < selectedNodes.length ? (
-                  <Divider variant="fullWidth" component="li" />
-                ) : null}
-              </Box>
-            );
-          })}
-        </List>
-      </Paper>
+    // <Box sx={{ m: 2 }}>
+    //   <Paper
+    //     component="div"
+    //     sx={{
+    //       p: 1,
+    //       width: "100%",
+    //     }}
+    //   >
+    <Box>
+      <Typography sx={{ m: 1 }} component={"div"}>
+        選択された
+        <Chip label="人物" color="error" sx={{ m: 0.5, mb: 1 }} size="small" />
+      </Typography>
+      <List sx={{ width: "100%" }}>
+        {selectedNodes.map((node, index) => {
+          return (
+            <Box key={node.id}>
+              <NodeItem
+                node={node}
+                onDeleteClick={handleToggleNode}
+                onInfoClick={handleMoveDetails}
+              />
+              {index + 1 < selectedNodes.length ? (
+                <Divider variant="fullWidth" component="li" />
+              ) : null}
+            </Box>
+          );
+        })}
+      </List>
     </Box>
-  ) : null;
+  ) : //   </Paper>
+  // </Box>
+  null;
 };
 
 const YearItem = memo(function YearItem({ onClick, year, isSelected }) {
@@ -147,39 +149,41 @@ const SelectedYearSection = () => {
   );
 
   return (
-    <Box sx={{ m: 2 }}>
-      {relatedYears.length > 0 && (
-        <Paper
-          component="div"
-          sx={{
-            p: 1,
-            width: "100%",
-          }}
-        >
-          <Typography sx={{ m: 1 }} component={"div"}>
-            <Chip
-              label="製作年度"
-              color="warning"
-              sx={{ m: 0.5, mb: 1 }}
-              size="small"
-            />
-            を選択
-          </Typography>
-          {relatedYears.map((year) => {
-            const isSelected = selectedYears.includes(year);
+    // <Box sx={{ m: 2 }}>
+    //   {relatedYears.length > 0 && (
+    //     <Paper
+    //       component="div"
+    //       sx={{
+    //         p: 1,
+    //         width: "100%",
+    //       }}
+    //     >
+    <Box>
+      <Typography sx={{ m: 1 }} component={"div"}>
+        <Chip
+          label="製作年度"
+          color="warning"
+          sx={{ m: 0.5, mb: 1 }}
+          size="small"
+        />
+        を選択
+      </Typography>
+      {relatedYears.map((year) => {
+        const isSelected = selectedYears.includes(year);
 
-            return (
-              <YearItem
-                key={year}
-                onClick={handleYearItemClick}
-                year={year}
-                isSelected={isSelected}
-              />
-            );
-          })}
-        </Paper>
-      )}
+        return (
+          <YearItem
+            key={year}
+            onClick={handleYearItemClick}
+            year={year}
+            isSelected={isSelected}
+          />
+        );
+      })}
     </Box>
+    //     </Paper>
+    //   )}
+    // </Box>
   );
 };
 
@@ -187,28 +191,30 @@ const RelatedGenreSection = () => {
   const relatedGenres = useSelector(relatedGenreSelectors.selectAll);
 
   return (
-    <Box sx={{ m: 2 }}>
-      {relatedGenres.length > 0 && (
-        <Paper
-          component="div"
-          sx={{
-            p: 1,
-            width: "100%",
-          }}
-        >
-          <Typography sx={{ m: 1 }} component={"div"}>
-            <Chip
-              label="ジャンル"
-              color="success"
-              sx={{ m: 0.5, mb: 1 }}
-              size="small"
-            />
-            を選択
-          </Typography>
-          <GenreList relatedGenres={relatedGenres} />
-        </Paper>
-      )}
+    // <Box sx={{ m: 2 }}>
+    //   {relatedGenres.length > 0 && (
+    // <Paper
+    //   component="div"
+    //   sx={{
+    //     p: 1,
+    //     width: "100%",
+    //   }}
+    // >
+    <Box>
+      <Typography sx={{ m: 1 }} component={"div"}>
+        <Chip
+          label="ジャンル"
+          color="success"
+          sx={{ m: 0.5, mb: 1 }}
+          size="small"
+        />
+        を選択
+      </Typography>
+      <GenreList relatedGenres={relatedGenres} />
     </Box>
+    // </Paper>
+    //   )}
+    // </Box>
   );
 };
 
@@ -236,9 +242,30 @@ const XsSelectionDrawerBody = memo(function XsSelectionDrawerBody({
       </Box>
 
       <Box sx={{ height: "calc(100vh - 64px)", overflowY: "auto" }}>
-        <SelectedNodeSection onClick={handleToggleSelectionOpen} />
+        {/* <SelectedNodeSection onClick={handleToggleSelectionOpen} />
         <SelectedYearSection />
-        <RelatedGenreSection />
+        <RelatedGenreSection /> */}
+        <Box sx={{ m: 2 }}>
+          <Paper
+            component="div"
+            sx={{
+              p: 1,
+              width: "100%",
+            }}
+          >
+            <Box sx={{ my: 2 }}>
+              <SelectedNodeSection onClick={handleToggleSelectionOpen} />
+            </Box>
+            <Divider />
+            <Box sx={{ my: 2 }}>
+              <SelectedYearSection />
+            </Box>
+            <Divider />
+            <Box sx={{ my: 2 }}>
+              <RelatedGenreSection />
+            </Box>
+          </Paper>
+        </Box>
         <Box sx={{ mb: "240px" }} />
       </Box>
     </Box>
@@ -269,23 +296,50 @@ const XsSearchDrawerBody = memo(function XsSearchDrawerBody({
       </Box>
 
       <Box sx={{ m: 2 }}>
-        <SearchForm toggleOpen={handleToggleSearchOpen} />
+        <SearchForm onFormSubmit={handleToggleSearchOpen} to="people" />
+      </Box>
+      <Box sx={{ m: 2 }}>
+        <SearchForm onFormSubmit={handleToggleSearchOpen} to="movies" />
       </Box>
     </Box>
   );
 });
 
 const LgDrawerBody = memo(function LgDrawerBody() {
+  const router = useRouter();
+  const isPersonPage = router.pathname === "/people/[personId]";
+
   return (
     <Box>
       <Box sx={{ m: 2 }}>
-        <SearchForm />
+        <SearchForm to="people" />
       </Box>
-      <Box>
-        <SelectedNodeSection />
-        <SelectedYearSection />
-        <RelatedGenreSection />
+      <Box sx={{ m: 2 }}>
+        <SearchForm to="movies" />
       </Box>
+      {isPersonPage && (
+        <Box sx={{ m: 2 }}>
+          <Paper
+            component="div"
+            sx={{
+              p: 1,
+              width: "100%",
+            }}
+          >
+            <Box sx={{ my: 2 }}>
+              <SelectedNodeSection />
+            </Box>
+            <Divider />
+            <Box sx={{ my: 2 }}>
+              <SelectedYearSection />
+            </Box>
+            <Divider />
+            <Box sx={{ my: 2 }}>
+              <RelatedGenreSection />
+            </Box>
+          </Paper>
+        </Box>
+      )}
 
       <Box sx={{ mb: "100px" }} />
     </Box>

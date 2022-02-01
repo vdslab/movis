@@ -238,40 +238,7 @@ const Movie = ({ movie, person2occupation }) => {
   );
 };
 
-// export const getServerSideProps = async (ctx) => {
-//   const { query } = ctx;
-//   const { movieId } = query;
-//   const movie = await prisma.movie.findFirst({
-//     where: {
-//       id: movieId,
-//     },
-//     include: {
-//       genres: true,
-//       productionCountries: true,
-//       productionMembers: {
-//         include: {
-//           person: true,
-//           occupation: true,
-//         },
-//       },
-//     },
-//   });
-
-//   const person2occupation = {};
-//   for (const pm of movie.productionMembers) {
-//     if (pm.personId in person2occupation) {
-//       person2occupation[pm.personId].push({ occupation: pm.occupation });
-//     } else {
-//       person2occupation[pm.personId] = [{ occupation: pm.occupation }];
-//     }
-//   }
-
-//   return {
-//     props: forceSerialize({ movie, person2occupation }),
-//   };
-// };
-
-export const getStaticProps = async (ctx) => {
+export const getServerSideProps = async (ctx) => {
   const { query } = ctx;
   const { movieId } = query;
   const movie = await prisma.movie.findFirst({
@@ -301,15 +268,48 @@ export const getStaticProps = async (ctx) => {
 
   return {
     props: forceSerialize({ movie, person2occupation }),
-    revalidate: 20,
   };
 };
 
-export const getStaticPaths = async () => {
-  return {
-    paths: [],
-    fallback: "blocking",
-  };
-};
+// export const getStaticProps = async (ctx) => {
+//   const { query } = ctx;
+//   const { movieId } = query;
+//   const movie = await prisma.movie.findFirst({
+//     where: {
+//       id: movieId,
+//     },
+//     include: {
+//       genres: true,
+//       productionCountries: true,
+//       productionMembers: {
+//         include: {
+//           person: true,
+//           occupation: true,
+//         },
+//       },
+//     },
+//   });
+
+//   const person2occupation = {};
+//   for (const pm of movie.productionMembers) {
+//     if (pm.personId in person2occupation) {
+//       person2occupation[pm.personId].push({ occupation: pm.occupation });
+//     } else {
+//       person2occupation[pm.personId] = [{ occupation: pm.occupation }];
+//     }
+//   }
+
+//   return {
+//     props: forceSerialize({ movie, person2occupation }),
+//     revalidate: 20
+//   };
+// };
+
+// export const getStaticPaths = async () => {
+//   return {
+//     paths: [],
+//     fallback: "blocking",
+//   };
+// };
 
 export default Movie;

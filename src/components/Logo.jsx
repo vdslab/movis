@@ -9,7 +9,12 @@ export const Logo = memo(function Logo() {
   return (
     <Box sx={{ px: 3 }}>
       <Link href="/" passHref>
-        <Image src="/movis.svg" alt="movisロゴ" width="100" height="50" />
+        <Image
+          src="/images/movis.svg"
+          alt="movisロゴ"
+          width="100"
+          height="50"
+        />
       </Link>
     </Box>
   );

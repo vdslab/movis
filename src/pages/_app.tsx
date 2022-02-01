@@ -2,6 +2,7 @@ import { CacheProvider, EmotionCache } from "@emotion/react";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import { AppProps } from "next/app";
+import Head from "next/head";
 import Router from "next/router";
 import nprogress from "nprogress"; //nprogress module
 import { Provider } from "react-redux";
@@ -34,6 +35,9 @@ export default function MyApp(props: MyAppProps): JSX.Element {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
         <Provider store={store}>
+          <Head>
+            <title>movis</title>
+          </Head>
           <Layout>
             <Component {...pageProps} />
           </Layout>

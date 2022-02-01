@@ -21,6 +21,9 @@ export default class MyDocument extends Document {
       <Html lang="ja">
         <Head>
           {/* PWA primary color */}
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
@@ -64,17 +67,6 @@ export default class MyDocument extends Document {
           <meta name="msapplication-TileColor" content="#ffffff" />
           <meta name="msapplication-config" content="icons/browserconfig.xml" />
           <meta name="theme-color" content="#022c43" />
-
-          <meta charSet="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta name="description" content={description} />
-          <meta property="og:title" content={title} />
-          <meta property="og:site_name" content={title} />
-          <meta property="og:description" content={description} />
-          <meta property="og:url" content="%PUBLIC_URL%" />
-          <meta property="og:type" content="website" />
-          <meta property="og:image" content="%PUBLIC_URL%/ogp.png" />
-          <meta name="twitter:card" content="summary_large_image" />
         </Head>
         <body>
           <Main />

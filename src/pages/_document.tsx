@@ -10,7 +10,10 @@ import Document, {
 import React from "react";
 
 import createEmotionCache from "@/styles/createEmotionCache";
-import theme from "@/styles/theme";
+
+const title = "movis";
+const description =
+  "movis は「人」から映画を探すことができる映画検索サービスです。おすすめに見たい映画がない場合には movis で好きな俳優や監督から映画を探しましょう。";
 
 export default class MyDocument extends Document {
   render(): JSX.Element {
@@ -18,7 +21,9 @@ export default class MyDocument extends Document {
       <Html lang="ja">
         <Head>
           {/* PWA primary color */}
-          <meta name="theme-color" content={theme.palette.primary.main} />
+          <meta charSet="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
@@ -36,23 +41,31 @@ export default class MyDocument extends Document {
           <link
             rel="apple-touch-icon"
             sizes="180x180"
-            href="/apple-touch-icon.png"
+            href="icons/apple-touch-icon.png"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="32x32"
-            href="/favicon-32x32.png"
+            href="icons/favicon-32x32.png"
           />
           <link
             rel="icon"
             type="image/png"
             sizes="16x16"
-            href="/favicon-16x16.png"
+            href="icons/favicon-16x16.png"
           />
-          <link rel="manifest" href="/site.webmanifest" />
-          <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#022c43" />
-          <meta name="msapplication-TileColor" content="#ffd700" />
+          <link rel="manifest" href="icons/site.webmanifest" />
+          <link
+            rel="mask-icon"
+            href="icons/safari-pinned-tab.svg"
+            color="#022c43"
+          />
+          <link rel="shortcut icon" href="icons/favicon.ico" />
+          <meta name="apple-mobile-web-app-title" content="movis" />
+          <meta name="application-name" content="movis" />
+          <meta name="msapplication-TileColor" content="#ffffff" />
+          <meta name="msapplication-config" content="icons/browserconfig.xml" />
           <meta name="theme-color" content="#022c43" />
         </Head>
         <body>

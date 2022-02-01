@@ -340,7 +340,7 @@ const Top = ({ countries }) => {
 
   return (
     <Box>
-      <Box sx={{ my: 2 }}>
+      <Box sx={{ mb: 2 }}>
         <Typography variant="h5">movisとは</Typography>
         <Typography>
           おすすめなどの自分以外の評価に頼らず、「人」に注目して映画を探すことができるサービスです。
@@ -353,7 +353,7 @@ const Top = ({ countries }) => {
       <Typography variant="h6" sx={{ my: 6 }}>
         まずは起点となる人を見つけましょう
       </Typography>
-      <Box>
+      {/* <Box>
         <Typography>
           探したい人が決まっている場合は{matchUpLg && "左から"}
           名前で検索しましょう
@@ -363,9 +363,32 @@ const Top = ({ countries }) => {
             <SearchForm />
           </Box>
         )}
+      </Box> */}
+      <Box sx={{ mt: 4 }}>
+        <Typography>
+          探したい人が決まっている場合は{matchUpLg && "左から"}
+          名前で検索しましょう
+        </Typography>
+        {!matchUpLg && (
+          <Box sx={{ my: 1 }}>
+            <SearchForm to="people" />
+          </Box>
+        )}
+      </Box>
+      <Box sx={{ mt: 4 }}>
+        <Typography>
+          出演していた映画だけがわかっている時は
+          {matchUpLg && "左から"}
+          映画の名前で検索し製作メンバーから目的の人物を探しましょう。
+        </Typography>
+        {!matchUpLg && (
+          <Box sx={{ my: 1 }}>
+            <SearchForm to="movies" />
+          </Box>
+        )}
       </Box>
 
-      <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ display: "flex", alignItems: "center", mt: 4 }}>
         <Typography>
           探したい人が決まっていない場合には関心のある製作国とジャンルから活躍している人物を探してみましょう
         </Typography>

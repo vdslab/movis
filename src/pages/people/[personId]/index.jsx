@@ -509,7 +509,7 @@ export const getServerSideProps = async (ctx) => {
 
 // export const getStaticProps = async (ctx) => {
 //   const actorOccupationName = "出演者";
-//   const pId = ctx.params.personId;
+//   const pId = ctx.query.personId;
 
 //   const person = await prisma.person.findFirst({
 //     where: {
@@ -626,7 +626,7 @@ export const getServerSideProps = async (ctx) => {
 //       occupations,
 //       // personImgUrl,
 //     }),
-//     revalidate: 86400,
+//     revalidate: 3600,
 //   };
 // };
 

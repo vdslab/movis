@@ -45,47 +45,62 @@ const Movies = (props) => {
         </Button>
       </Box>
 
-      <List sx={{ width: "100%" }}>
-        {props.movies.map((movie) => {
-          return (
-            <Grid
-              item
-              xs={12}
-              sm={12}
-              md={12}
-              xl={12}
-              sx={{ mx: 1, my: 2 }}
-              key={movie.id}
-            >
-              <MovieCard
-                movieId={movie.id}
-                title={movie.title}
-                genres={movie.genres}
-                productionYear={movie.productionYear}
-                imgUrl={movie.imgUrl}
-                onMovieClick={() => {
-                  router.push(`movies/${movie.id}}`);
-                }}
-              />
-            </Grid>
-          );
-        })}
-      </List>
-
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Pagination
-          count={paginationCount}
-          onChange={(e, targetPage) => {
-            if (props.page === targetPage) {
-              return;
-            }
-            router.push(
-              `/movies?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
+      {props.movies.length > 0 ? (
+        <List sx={{ width: "100%" }}>
+          {props.movies.map((movie) => {
+            return (
+              <Grid
+                item
+                xs={12}
+                sm={12}
+                md={12}
+                xl={12}
+                sx={{ mx: 1, my: 2 }}
+                key={movie.id}
+              >
+                <MovieCard
+                  movieId={movie.id}
+                  title={movie.title}
+                  genres={movie.genres}
+                  productionYear={movie.productionYear}
+                  imgUrl={movie.imgUrl}
+                  onMovieClick={() => {
+                    router.push(`movies/${movie.id}}`);
+                  }}
+                />
+              </Grid>
             );
+          })}
+        </List>
+      ) : (
+        <Box
+          sx={{
+            height: "30vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-          page={props.page}
-        />
-      </Box>
+        >
+          <Typography>十分に一致する映画が見つかりません</Typography>
+        </Box>
+      )}
+
+      {props.movies.length > 0 && (
+        <Box sx={{ display: "flex", justifyContent: "center" }}>
+          <Pagination
+            count={paginationCount}
+            onChange={(e, targetPage) => {
+              if (props.page === targetPage) {
+                return;
+              }
+              router.push(
+                `/movies?keyword=${encodedKeyword}&movieHitCount=${props.movieHitCount}&personHitCount=${props.personHitCount}&page=${targetPage}`
+              );
+            }}
+            page={props.page}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

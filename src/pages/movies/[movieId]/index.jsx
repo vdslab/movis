@@ -272,8 +272,8 @@ export const getServerSideProps = async (ctx) => {
 };
 
 // export const getStaticProps = async (ctx) => {
-//   const { params } = ctx;
-//   const { movieId } = params;
+//   const { query } = ctx;
+//   const { movieId } = query;
 //   const movie = await prisma.movie.findFirst({
 //     where: {
 //       id: movieId,
@@ -301,7 +301,7 @@ export const getServerSideProps = async (ctx) => {
 
 //   return {
 //     props: forceSerialize({ movie, person2occupation }),
-//     revalidate: 86400,
+//     revalidate: 3600,
 //   };
 // };
 
